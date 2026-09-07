@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book an Appointment</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <img id="brandLogo" src="assets/safe-insight-logo.png" alt="Safe Insight">
+      <div>
+        <div id="brandName" class="brand-name">Safe Insight</div>
+        <div id="brandSubtitle" class="brand-subtitle">Booking</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="booking-shell">
+    <section class="card">
+      <div class="progress" aria-label="Booking progress">
+        <span class="step active" data-step="1">1. Location</span>
+        <span class="step" data-step="2">2. Date & Time</span>
+        <span class="step" data-step="3">3. Information</span>
+        <span class="step" data-step="4">4. Confirm</span>
+      </div>
+
+      <div id="loading" class="state">Loading booking options…</div>
+      <div id="error" class="state error hidden"></div>
+
+      <div id="bookingApp" class="hidden">
+        <div class="step-panel" data-panel="1">
+          <h1>Book an appointment</h1>
+          <p class="muted">Choose your location and instructor.</p>
+          <label for="locationSelect">Location</label>
+          <select id="locationSelect"></select>
+          <div id="locationSummary" class="summary"></div>
+          <button id="toDateBtn" class="primary">Continue</button>
+        </div>
+
+        <div class="step-panel hidden" data-panel="2">
+          <button class="back" data-back="1">← Back</button>
+          <h2>Select your time</h2>
+          <p id="availabilityNote" class="muted"></p>
+
+          <label for="dateSelect">Date</label>
+          <select id="dateSelect"></select>
+
+          <div class="calendar-note">
+            <strong>Choose a starting time, then add consecutive slots.</strong>
+            <span>You cannot skip a time slot.</span>
+          </div>
+
+          <div id="slots" class="slots"></div>
+          <div id="selectionSummary" class="selection-summary"></div>
+
+          <button id="toInfoBtn" class="primary" disabled>Continue</button>
+        </div>
+
+        <div class="step-panel hidden" data-panel="3">
+          <button class="back" data-back="2">← Back</button>
+          <h2>Your information</h2>
+          <p class="muted">One booking is for one student.</p>
+
+          <form id="studentForm">
+            <label for="fullName">Full name</label>
+            <input id="fullName" name="fullName" required maxlength="120" autocomplete="name">
+
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" required maxlength="40" autocomplete="tel" inputmode="tel">
+
+            <label for="email">Email</label>
+            <input id="email" name="email" required type="email" maxlength="254" autocomplete="email">
+
+            <button class="primary" type="submit">Review booking</button>
+          </form>
+        </div>
+
+        <div class="step-panel hidden" data-panel="4">
+          <button class="back" data-back="3">← Back</button>
+          <h2>Confirm your booking</h2>
+          <div id="review" class="review"></div>
+          <div id="paymentNotice" class="payment-notice hidden"></div>
+          <button id="confirmBtn" class="primary">Confirm Booking</button>
+          <div id="submitStatus" class="muted"></div>
+        </div>
+
+        <div id="success" class="success hidden">
+          <div class="success-icon">✓</div>
+          <h2>Booking confirmed</h2>
+          <p id="successText"></p>
+          <a id="manageLink" class="button secondary" href="#">Reschedule / Cancel</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span id="footerText">Booking powered by Safe Insight</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
