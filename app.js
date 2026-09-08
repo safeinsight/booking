@@ -27,13 +27,24 @@ function showError(message) {
   $("error").classList.remove("hidden");
 }
 
-function formatTime(iso) {
-  return new Intl.DateTimeFormat(undefined, {hour:"numeric", minute:"2-digit"}).format(new Date(iso));
+function formatTime(iso, timeZone) {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: timeZone || "America/Phoenix",
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(new Date(iso));
 }
-function formatDate(iso) {
-  return new Intl.DateTimeFormat(undefined, {weekday:"long", month:"long", day:"numeric", year:"numeric"})
-    .format(new Date(iso));
+
+function formatDate(iso, timeZone) {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: timeZone || "America/Phoenix",
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  }).format(new Date(iso));
 }
+
 function getSlug() {
   return new URLSearchParams(location.search).get("location") || cfg.defaultLocationSlug;
 }
@@ -122,7 +133,7 @@ function renderSlots() {
   container.innerHTML = day.slots.map((s, i) => {
     const status = s.blocked ? "blocked" : (s.remaining <= 0 ? "unavailable full" : "");
     return `<button type="button" class="slot ${status}" data-index="${i}" ${status ? "disabled" : ""}>
-      ${formatTime(s.start)}<br><small>${s.remaining} space${s.remaining === 1 ? "" : "s"}</small>
+      ${formatTime(s.start, state.location.timezone)}<br><small>${s.remaining} space${s.remaining === 1 ? "" : "s"}</small>
     </button>`;
   }).join("");
 
@@ -165,7 +176,7 @@ function selectSlot(index) {
     }
   }
 
-  const buttons = [...document.querySelectorAll(".slot")];
+  const buttons = [...container.querySelectorAll(".slot")];
   buttons.forEach((b, i) => {
     b.classList.toggle("start", i === state.selectedStart);
     b.classList.toggle("selected", state.selectedStart !== null && i >= state.selectedStart && i <= state.selectedEnd);
@@ -174,7 +185,7 @@ function selectSlot(index) {
   if (state.selectedStart !== null) {
     const first = slots[state.selectedStart], last = slots[state.selectedEnd];
     $("selectionSummary").textContent =
-      `Selected: ${formatTime(first.start)} – ${formatTime(last.end)}`;
+      `Selected: ${formatTime(first.start, state.location.timezone)} – ${formatTime(last.end, state.location.timezone)}`;
     $("toInfoBtn").disabled = false;
   } else {
     $("selectionSummary").textContent = "";
@@ -191,8 +202,8 @@ function buildReview() {
   $("review").innerHTML = `
     <strong>${escapeHtml(l.name)}</strong><br>
     ${l.instructor_name ? `Instructor: ${escapeHtml(l.instructor_name)}<br>` : ""}
-    ${formatDate(first.start)}<br>
-    ${formatTime(first.start)} – ${formatTime(last.end)}<br>
+${formatDate(first.start, state.location.timezone)}<br>
+${formatTime(first.start, state.location.timezone)} – ${formatTime(last.end, state.location.timezone)}<br>
     ${l.address ? escapeHtml(l.address) + "<br>" : ""}
     <hr>
     <strong>Student</strong><br>
@@ -271,7 +282,7 @@ $("confirmBtn").addEventListener("click", async () => {
     $("bookingApp").querySelectorAll(".step-panel").forEach(p => p.classList.add("hidden"));
     $("success").classList.remove("hidden");
     $("successText").textContent =
-      `Your appointment at ${state.location.name} is confirmed for ${formatDate(first.start)}, ${formatTime(first.start)} – ${formatTime(last.end)}.`;
+      `Your appointment at ${state.location.name} is confirmed for ${formatDate(first.start, state.location.timezone)}, ${formatTime(first.start, state.location.timezone)} – ${formatTime(last.end, state.location.timezone)}.`;
     $("manageLink").href = json.manage_url || "#";
   } catch (err) {
     $("submitStatus").textContent = err.message;
