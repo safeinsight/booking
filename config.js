@@ -5,7 +5,7 @@
 
 window.BOOKING_CONFIG = {
   supabaseUrl: "https://mgcjalilweficfafnqas.supabase.co",
-  supabaseAnonKey: "YOUR_SUPABASE_ANON_KEY",
+  supabaseAnonKey: "sb_publishable_KCLFMHgmLsO3q7497w1HgQ_wgVO4Y95",
 
   // Optional: default location when the URL has no ?location=...
   defaultLocationSlug: "safe-insight",
