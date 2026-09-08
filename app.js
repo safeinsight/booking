@@ -1,5 +1,5 @@
 const cfg = window.BOOKING_CONFIG;
-const supabase = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+const db = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
 
 const state = {
   locations: [],
@@ -62,7 +62,7 @@ function renderLocationSummary() {
 }
 
 async function loadLocations() {
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("locations")
     .select("id,slug,name,instructor_name,address,timezone,appointment_length_minutes,max_students_per_slot,cancellation_hours,reschedule_hours,primary_color,secondary_color,accent_color,logo_url,footer_text,payment_required")
     .eq("active", true)
