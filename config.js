@@ -11,5 +11,5 @@ window.BOOKING_CONFIG = {
   defaultLocationSlug: "safe-insight",
 
   // URL of your deployed Supabase Edge Function.
-  functionsBaseUrl: "https://mgcjalilweficfafnqas.supabase.co/functions/v1"
+  functionsBaseUrl: "https://mgcjalilweficfafnqas.supabase.co/functions/v1",
 };
