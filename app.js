@@ -165,7 +165,7 @@ function selectSlot(index) {
     }
   }
 
-  const buttons = [...container.querySelectorAll(".slot")];
+  const buttons = [...document.querySelectorAll(".slot")];
   buttons.forEach((b, i) => {
     b.classList.toggle("start", i === state.selectedStart);
     b.classList.toggle("selected", state.selectedStart !== null && i >= state.selectedStart && i <= state.selectedEnd);
