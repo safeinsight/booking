@@ -4,7 +4,7 @@
 // Supabase service-role key in this file.
 
 window.BOOKING_CONFIG = {
-  supabaseUrl: "https://YOUR-PROJECT.supabase.co",
+  supabaseUrl: "https://mgcjalilweficfafnqas.supabase.co",
   supabaseAnonKey: "YOUR_SUPABASE_ANON_KEY",
 
   // Optional: default location when the URL has no ?location=...
