@@ -72,17 +72,16 @@ async function loadLocationIntoForm(loc) {
   $("minimumNotice").textContent =
     `${loc.minimum_booking_notice_hours || 24} hours`;
 
-    const { data: availabilityRules, error: availabilityError } =
-    await db
-      .from("availability_rules")
-      .select(`
-        id,
-        day_of_week,
-        start_time,
-        end_time,
-        enabled,
-        timezone
-      `)
+const { data: availabilityRules, error: availabilityError } =
+  await db
+    .from("availability_rules")
+    .select(`
+      id,
+      day_of_week,
+      start_time,
+      end_time,
+      enabled
+    `)
       .eq("location_id", loc.id)
       .order("day_of_week")
       .order("start_time");
