@@ -222,10 +222,62 @@ connectColorInputs(
 );
 
 
-$("saveBtn").addEventListener("click", () => {
+$("saveBtn").addEventListener("click", async () => {
 
-  $("saveStatus").textContent =
-    "Save connection will be added next.";
+  const button = $("saveBtn");
+
+  button.disabled = true;
+  $("saveStatus").textContent = "Saving...";
+
+  try {
+
+    const payload = {
+      location_id: state.location.id,
+      name: $("locationName").value.trim(),
+      instructor_name: $("instructorName").value.trim(),
+      address: $("address").value.trim(),
+      logo_url: $("logoUrl").value.trim(),
+      primary_color: $("primaryColorText").value.trim(),
+      secondary_color: $("secondaryColorText").value.trim(),
+      accent_color: $("accentColorText").value.trim()
+    };
+
+    const response = await fetch(
+      `${cfg.functionsBaseUrl}/save-location-settings`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || result.error) {
+      throw new Error(
+        result.error || "Unable to save location settings."
+      );
+    }
+
+    state.location = result.location;
+
+    $("saveStatus").textContent =
+      "Settings saved successfully.";
+
+  } catch (error) {
+
+    console.error("SAVE SETTINGS ERROR:", error);
+
+    $("saveStatus").textContent =
+      "Error: " + (error.message || error);
+
+  } finally {
+
+    button.disabled = false;
+
+  }
 
 });
 
