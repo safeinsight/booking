@@ -72,11 +72,38 @@ function loadLocationIntoForm(loc) {
   $("minimumNotice").textContent =
     `${loc.minimum_booking_notice_hours || 24} hours`;
 
+const { data: calendarConnection, error: calendarError } =
+  await db
+    .from("google_calendar_connections")
+    .select("google_calendar_id")
+    .eq("location_id", loc.id)
+    .maybeSingle();
+
+if (calendarError) {
+  console.error("CALENDAR LOOKUP ERROR:", calendarError);
+
   $("calendarStatus").textContent =
-    "Calendar connection will be displayed here.";
+    "Unable to check calendar connection.";
+
+  $("calendarInfo").textContent = "";
+
+} else if (calendarConnection?.google_calendar_id) {
+
+  $("calendarStatus").textContent =
+    "Google Calendar connected.";
 
   $("calendarInfo").textContent =
-    "Calendar management will be added in the next step.";
+    `Calendar ID: ${calendarConnection.google_calendar_id}`;
+
+} else {
+
+  $("calendarStatus").textContent =
+    "Google Calendar not connected.";
+
+  $("calendarInfo").textContent =
+    "No Google Calendar is currently connected to this location.";
+
+}
 
   $("emailSubject").value = "";
 
