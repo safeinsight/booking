@@ -79,3 +79,152 @@ button, .button {
   .card { padding:20px; }
   .booking-shell { margin:20px auto; }
 }
+
+
+/* =========================================
+   LOCATION SETTINGS
+   ========================================= */
+
+.settings-shell {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 18px;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.settings-header .button {
+  white-space: nowrap;
+}
+
+.settings-section {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+}
+
+.settings-section:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.settings-section h2 {
+  margin-bottom: 8px;
+}
+
+.settings-section textarea {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  font-size: 16px;
+  background: #fff;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.color-grid input[type="color"] {
+  width: 100%;
+  height: 50px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.logo-preview {
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fafafa;
+  text-align: center;
+}
+
+.logo-preview img {
+  max-width: 260px;
+  max-height: 100px;
+  object-fit: contain;
+}
+
+.settings-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fafafa;
+  gap: 15px;
+}
+
+.settings-status span {
+  font-weight: 700;
+}
+
+.availability-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.availability-summary > div {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 15px;
+  background: #fafafa;
+}
+
+.availability-summary strong,
+.availability-summary span {
+  display: block;
+}
+
+.availability-summary span {
+  margin-top: 7px;
+  color: var(--muted);
+}
+
+.settings-save {
+  border-top: 1px solid var(--border);
+  padding-top: 25px;
+  margin-top: 10px;
+}
+
+.settings-save .primary {
+  margin-top: 12px;
+}
+
+@media(max-width: 700px) {
+
+  .settings-header {
+    flex-direction: column;
+  }
+
+  .color-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .availability-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+}
+
+@media(max-width: 450px) {
+
+  .availability-summary {
+    grid-template-columns: 1fr;
+  }
+
+}
