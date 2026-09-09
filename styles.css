@@ -32,7 +32,7 @@ body {
   width: auto;
   height: auto;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--primary);
 }
 .brand-name { font-size: 20px; font-weight: 700; }
