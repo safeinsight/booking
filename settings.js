@@ -78,11 +78,9 @@ function loadLocationIntoForm(loc) {
   $("calendarInfo").textContent =
     "Calendar management will be added in the next step.";
 
-  $("emailSubject").value =
-    loc.confirmation_email_subject || "";
+  $("emailSubject").value = "";
 
-  $("emailMessage").value =
-    loc.confirmation_email_message || "";
+  $("emailMessage").value = "";
 
   $("brandName").textContent =
     loc.name || "Location Settings";
@@ -123,9 +121,7 @@ async function loadLocations() {
       accent_color,
       logo_url,
       footer_text,
-      payment_required,
-      confirmation_email_subject,
-      confirmation_email_message
+      payment_required
     `)
     .eq("active", true)
     .order("name");
