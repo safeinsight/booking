@@ -26,7 +26,15 @@ body {
   padding: 12px 24px;
 }
 .brand { display:flex; align-items:center; gap:14px; }
-.brand img { width: 52px; height:52px; object-fit:contain; border-radius:8px; background:var(--primary); }
+.brand img {
+  max-width: 180px;
+  max-height: 52px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--primary);
+}
 .brand-name { font-size: 20px; font-weight: 700; }
 .brand-subtitle { opacity:.75; margin-top:3px; }
 .booking-shell { max-width: 780px; margin: 40px auto; padding: 0 18px; }
