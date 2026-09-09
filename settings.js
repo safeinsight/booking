@@ -37,10 +37,10 @@ async function loadLocationIntoForm(loc) {
   $("address").value = loc.address || "";
 
   $("logoUrl").value =
-    loc.logo_url || "assets/safe-insight-logo.png";
+    loc.logo_url || "safe-insight-logo.png";
 
   $("logoPreview").src =
-    loc.logo_url || "assets/safe-insight-logo.png";
+    loc.logo_url || "safe-insight-logo.png";
 
   setColorPair(
     "primaryColor",
@@ -322,7 +322,7 @@ if (controls) {
       : "Administration";
 
   $("brandLogo").src =
-    loc.logo_url || "assets/safe-insight-logo.png";
+    loc.logo_url || "safe-insight-logo.png";
 
   $("footerText").textContent =
     loc.footer_text ||
@@ -409,7 +409,7 @@ $("logoUrl").addEventListener("input", () => {
 
   $("logoPreview").src =
     $("logoUrl").value.trim() ||
-    "assets/safe-insight-logo.png";
+    "safe-insight-logo.png";
 
 });
 
