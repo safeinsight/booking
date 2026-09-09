@@ -28,7 +28,7 @@ function setColorPair(colorInput, textInput, value) {
 }
 
 
-function loadLocationIntoForm(loc) {
+async function loadLocationIntoForm(loc) {
 
   state.location = loc;
 
