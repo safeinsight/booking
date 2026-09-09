@@ -921,6 +921,92 @@ $("saveBtn").addEventListener("click", async () => {
 
     state.location = result.location;
 
+
+    // Save Special Days
+
+    const specialDays =
+      Array.from(
+        document.querySelectorAll(
+          ".special-day-row"
+        )
+      ).map(row => {
+
+        const dateInput =
+          row.querySelector(
+            ".special-day-date"
+          );
+
+        const closedInput =
+          row.querySelector(
+            ".special-day-closed"
+          );
+
+        const startInput =
+          row.querySelector(
+            ".special-day-start"
+          );
+
+        const endInput =
+          row.querySelector(
+            ".special-day-end"
+          );
+
+        return {
+          service_date:
+            dateInput?.value || "",
+
+          is_closed:
+            closedInput?.checked || false,
+
+          start_time:
+            startInput?.value || null,
+
+          end_time:
+            endInput?.value || null
+        };
+
+      });
+
+
+    const specialDaysResponse =
+      await fetch(
+        `${cfg.functionsBaseUrl}/save-special-days`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            location_id:
+              state.location.id,
+
+            days:
+              specialDays
+          })
+        }
+      );
+
+
+    const specialDaysResult =
+      await specialDaysResponse.json();
+
+
+    if (
+      !specialDaysResponse.ok ||
+      specialDaysResult.error
+    ) {
+
+      throw new Error(
+        specialDaysResult.error ||
+        "Unable to save special days."
+      );
+
+    }
+
+
     $("saveStatus").textContent =
       "Settings saved successfully.";
 
