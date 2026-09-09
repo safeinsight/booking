@@ -309,15 +309,7 @@ if (controls) {
 
 }
 
-  } else {
-
-    calendarInfo +=
-      "No blocking calendars configured.";
-
-  }
-
-  $("calendarInfo").innerHTML =
-    calendarInfo;
+}
 
 }
 
