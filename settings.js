@@ -772,11 +772,12 @@ $("locationSelect").addEventListener("change", event => {
 
 
 $("logoUrl").addEventListener("input", () => {
-
-  $("logoPreview").src =
+  const logoUrl =
     $("logoUrl").value.trim() ||
-    "safe-insight-logo.png";
+    "assets/safe-insight-logo.png";
 
+  $("logoPreview").src = logoUrl;
+  $("brandLogo").src = logoUrl;
 });
 
 
