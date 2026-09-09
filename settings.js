@@ -72,6 +72,113 @@ async function loadLocationIntoForm(loc) {
   $("minimumNotice").textContent =
     `${loc.minimum_booking_notice_hours || 24} hours`;
 
+    const { data: availabilityRules, error: availabilityError } =
+    await db
+      .from("availability_rules")
+      .select(`
+        id,
+        day_of_week,
+        start_time,
+        end_time,
+        enabled,
+        timezone
+      `)
+      .eq("location_id", loc.id)
+      .order("day_of_week")
+      .order("start_time");
+
+  if (availabilityError) {
+    console.error(
+      "AVAILABILITY RULES ERROR:",
+      availabilityError
+    );
+
+    $("availabilityRules").innerHTML =
+      `<div class="state error">
+        Unable to load availability rules.
+      </div>`;
+  } else {
+
+    const dayNames = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ];
+
+    const rules =
+      availabilityRules || [];
+
+    $("availabilityRules").innerHTML =
+      dayNames.map((dayName, dayIndex) => {
+
+        const dayRules =
+          rules.filter(
+            rule =>
+              Number(rule.day_of_week) === dayIndex
+          );
+
+        const rule =
+          dayRules[0] || null;
+
+        return `
+          <div
+            class="availability-row"
+            style="
+              display:grid;
+              grid-template-columns:
+                120px
+                90px
+                130px
+                130px;
+              gap:10px;
+              align-items:center;
+              margin-top:10px;
+            "
+          >
+
+            <strong>
+              ${dayName}
+            </strong>
+
+            <label style="margin:0;">
+              <input
+                type="checkbox"
+                class="availability-enabled"
+                data-day="${dayIndex}"
+                ${rule?.enabled ? "checked" : ""}
+              >
+              Enabled
+            </label>
+
+            <input
+              type="time"
+              class="availability-start"
+              data-day="${dayIndex}"
+              value="${rule?.start_time
+                ? rule.start_time.substring(0, 5)
+                : ""}"
+            >
+
+            <input
+              type="time"
+              class="availability-end"
+              data-day="${dayIndex}"
+              value="${rule?.end_time
+                ? rule.end_time.substring(0, 5)
+                : ""}"
+            >
+
+          </div>
+        `;
+
+      }).join("");
+
+  }
+
 const calendarResponse = await fetch(
   `${cfg.functionsBaseUrl}/get-calendar-settings`,
   {
