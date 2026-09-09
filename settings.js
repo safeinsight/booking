@@ -311,8 +311,6 @@ if (controls) {
 
 }
 
-}
-
   $("emailMessage").value = "";
 
   $("brandName").textContent =
