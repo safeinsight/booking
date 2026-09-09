@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Location Settings</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="brand">
+      <img id="brandLogo" src="assets/safe-insight-logo.png" alt="Safe Insight">
+      <div>
+        <div id="brandName" class="brand-name">Location Settings</div>
+        <div id="brandSubtitle" class="brand-subtitle">Administration</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="settings-shell">
+
+    <section class="card">
+
+      <div class="settings-header">
+        <div>
+          <h1>Location Settings</h1>
+          <p class="muted">
+            Configure the booking experience for each location and instructor.
+          </p>
+        </div>
+
+        <a href="index.html" class="button secondary">
+          Back to Booking
+        </a>
+      </div>
+
+      <div id="loading" class="state">
+        Loading location settings…
+      </div>
+
+      <div id="error" class="state error hidden"></div>
+
+      <div id="settingsApp" class="hidden">
+
+        <!-- LOCATION SELECTOR -->
+
+        <div class="settings-section">
+
+          <h2>Location</h2>
+
+          <label for="locationSelect">
+            Location / Instructor
+          </label>
+
+          <select id="locationSelect"></select>
+
+        </div>
+
+
+        <!-- LOGOS -->
+
+        <div class="settings-section">
+
+          <h2>Logos</h2>
+
+          <p class="muted">
+            Configure the logo displayed on the booking page.
+          </p>
+
+          <label for="logoUrl">
+            Logo URL
+          </label>
+
+          <input
+            id="logoUrl"
+            type="text"
+            placeholder="assets/safe-insight-logo.png"
+          >
+
+          <div class="logo-preview">
+            <img id="logoPreview" src="" alt="Logo preview">
+          </div>
+
+        </div>
+
+
+        <!-- COLORS -->
+
+        <div class="settings-section">
+
+          <h2>Colors</h2>
+
+          <div class="color-grid">
+
+            <div>
+              <label for="primaryColor">
+                Primary
+              </label>
+
+              <input
+                id="primaryColor"
+                type="color"
+              >
+
+              <input
+                id="primaryColorText"
+                type="text"
+                maxlength="7"
+              >
+            </div>
+
+
+            <div>
+              <label for="secondaryColor">
+                Secondary
+              </label>
+
+              <input
+                id="secondaryColor"
+                type="color"
+              >
+
+              <input
+                id="secondaryColorText"
+                type="text"
+                maxlength="7"
+              >
+            </div>
+
+
+            <div>
+              <label for="accentColor">
+                Accent
+              </label>
+
+              <input
+                id="accentColor"
+                type="color"
+              >
+
+              <input
+                id="accentColorText"
+                type="text"
+                maxlength="7"
+              >
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- CALENDAR -->
+
+        <div class="settings-section">
+
+          <h2>Calendar</h2>
+
+          <div class="settings-status">
+            <strong>Google Calendar</strong>
+            <span id="calendarStatus">Checking connection…</span>
+          </div>
+
+          <p class="muted">
+            Calendar connection and blocking-calendar configuration
+            will be managed here.
+          </p>
+
+          <div id="calendarInfo" class="summary"></div>
+
+          <button
+            type="button"
+            id="connectCalendarBtn"
+            class="secondary"
+          >
+            Connect Google Calendar
+          </button>
+
+        </div>
+
+
+        <!-- LOCATION INFORMATION -->
+
+        <div class="settings-section">
+
+          <h2>Location Information</h2>
+
+          <label for="locationName">
+            Location Name
+          </label>
+
+          <input id="locationName" type="text" maxlength="120">
+
+
+          <label for="instructorName">
+            Instructor
+          </label>
+
+          <input id="instructorName" type="text" maxlength="120">
+
+
+          <label for="address">
+            Physical Address
+          </label>
+
+          <textarea
+            id="address"
+            rows="3"
+            maxlength="300"
+          ></textarea>
+
+
+          <label for="website">
+            Website
+          </label>
+
+          <input
+            id="website"
+            type="url"
+            placeholder="https://example.com"
+            maxlength="500"
+          >
+
+        </div>
+
+
+        <!-- AVAILABILITY -->
+
+        <div class="settings-section">
+
+          <h2>Availability</h2>
+
+          <p class="muted">
+            Availability scheduling will be configured here.
+          </p>
+
+          <div class="availability-summary">
+
+            <div>
+              <strong>Appointment Length</strong>
+              <span id="appointmentLength"></span>
+            </div>
+
+            <div>
+              <strong>Maximum Students</strong>
+              <span id="maxStudents"></span>
+            </div>
+
+            <div>
+              <strong>Booking Horizon</strong>
+              <span id="bookingHorizon"></span>
+            </div>
+
+            <div>
+              <strong>Minimum Notice</strong>
+              <span id="minimumNotice"></span>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- CONFIRMATION EMAIL -->
+
+        <div class="settings-section">
+
+          <h2>Confirmation Email</h2>
+
+          <p class="muted">
+            Customize the message sent to the student after a
+            successful booking.
+          </p>
+
+          <label for="emailSubject">
+            Email Subject
+          </label>
+
+          <input
+            id="emailSubject"
+            type="text"
+            maxlength="200"
+            placeholder="Your appointment confirmation"
+          >
+
+
+          <label for="emailMessage">
+            Confirmation Message
+          </label>
+
+          <textarea
+            id="emailMessage"
+            rows="8"
+            maxlength="5000"
+            placeholder="Thank you for booking with us..."
+          ></textarea>
+
+        </div>
+
+
+        <!-- SAVE -->
+
+        <div class="settings-save">
+
+          <div id="saveStatus" class="muted"></div>
+
+          <button
+            type="button"
+            id="saveBtn"
+            class="primary"
+          >
+            Save Settings
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer class="site-footer">
+    <span id="footerText">
+      Booking powered by Safe Insight
+    </span>
+  </footer>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="settings.js"></script>
+
+</body>
+</html>
