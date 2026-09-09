@@ -565,7 +565,119 @@ if (controls) {
 
     });
 
-  $("emailMessage").value = "";
+$("emailMessage").value = "";
+
+
+// Add Special Day
+
+$("addSpecialDayBtn").addEventListener("click", () => {
+
+  const container =
+    $("specialDays");
+
+  const row =
+    document.createElement("div");
+
+  row.className =
+    "special-day-row";
+
+  row.dataset.id = "";
+
+  row.style.cssText = `
+    display:grid;
+    grid-template-columns:
+      150px
+      100px
+      130px
+      130px
+      90px;
+    gap:10px;
+    align-items:center;
+    margin-top:10px;
+  `;
+
+  row.innerHTML = `
+
+    <input
+      type="date"
+      class="special-day-date"
+      value=""
+    >
+
+    <label style="margin:0;">
+      <input
+        type="checkbox"
+        class="special-day-closed"
+      >
+      Closed
+    </label>
+
+    <input
+      type="time"
+      class="special-day-start"
+      value=""
+    >
+
+    <input
+      type="time"
+      class="special-day-end"
+      value=""
+    >
+
+    <button
+      type="button"
+      class="secondary special-day-delete"
+    >
+      Delete
+    </button>
+
+  `;
+
+  container.appendChild(row);
+
+
+  // Enable / disable time fields
+
+  const checkbox =
+    row.querySelector(
+      ".special-day-closed"
+    );
+
+  const start =
+    row.querySelector(
+      ".special-day-start"
+    );
+
+  const end =
+    row.querySelector(
+      ".special-day-end"
+    );
+
+  checkbox.addEventListener(
+    "change",
+    () => {
+
+      start.disabled =
+        checkbox.checked;
+
+      end.disabled =
+        checkbox.checked;
+
+    }
+  );
+
+
+  // Delete this row
+
+  row
+    .querySelector(".special-day-delete")
+    .addEventListener("click", () => {
+
+      row.remove();
+
+    });
+
+});
 
   $("brandName").textContent =
     loc.name || "Location Settings";
