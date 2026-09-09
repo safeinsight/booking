@@ -415,7 +415,155 @@ if (controls) {
 
 }
 
-}
+  }
+
+  // Load special days
+
+  const { data: specialDays, error: specialDaysError } =
+    await db
+      .from("special_days")
+      .select(`
+        id,
+        service_date,
+        is_closed,
+        start_time,
+        end_time
+      `)
+      .eq("location_id", loc.id)
+      .order("service_date");
+
+  if (specialDaysError) {
+
+    console.error(
+      "SPECIAL DAYS ERROR:",
+      specialDaysError
+    );
+
+    $("specialDays").innerHTML =
+      `<div class="state error">
+        Unable to load special days.
+      </div>`;
+
+  } else {
+
+    const days =
+      specialDays || [];
+
+    if (!days.length) {
+
+      $("specialDays").innerHTML =
+        `<div class="muted">
+          No special days configured.
+        </div>`;
+
+    } else {
+
+      $("specialDays").innerHTML =
+        days.map(day => {
+
+          const date =
+            day.service_date || "";
+
+          const start =
+            day.start_time
+              ? day.start_time.substring(0, 5)
+              : "";
+
+          const end =
+            day.end_time
+              ? day.end_time.substring(0, 5)
+              : "";
+
+          return `
+            <div
+              class="special-day-row"
+              data-id="${escapeAttr(day.id)}"
+              style="
+                display:grid;
+                grid-template-columns:
+                  150px
+                  100px
+                  130px
+                  130px
+                  90px;
+                gap:10px;
+                align-items:center;
+                margin-top:10px;
+              "
+            >
+
+              <input
+                type="date"
+                class="special-day-date"
+                value="${escapeAttr(date)}"
+              >
+
+              <label style="margin:0;">
+                <input
+                  type="checkbox"
+                  class="special-day-closed"
+                  ${day.is_closed ? "checked" : ""}
+                >
+                Closed
+              </label>
+
+              <input
+                type="time"
+                class="special-day-start"
+                value="${escapeAttr(start)}"
+                ${day.is_closed ? "disabled" : ""}
+              >
+
+              <input
+                type="time"
+                class="special-day-end"
+                value="${escapeAttr(end)}"
+                ${day.is_closed ? "disabled" : ""}
+              >
+
+              <button
+                type="button"
+                class="secondary special-day-delete"
+                data-id="${escapeAttr(day.id)}"
+              >
+                Delete
+              </button>
+
+            </div>
+          `;
+
+        }).join("");
+
+    }
+
+  }
+
+  // Enable / disable special-day time fields
+
+  document
+    .querySelectorAll(".special-day-closed")
+    .forEach(checkbox => {
+
+      checkbox.addEventListener("change", () => {
+
+        const row =
+          checkbox.closest(".special-day-row");
+
+        const start =
+          row.querySelector(".special-day-start");
+
+        const end =
+          row.querySelector(".special-day-end");
+
+        start.disabled =
+          checkbox.checked;
+
+        end.disabled =
+          checkbox.checked;
+
+      });
+
+    });
 
   $("emailMessage").value = "";
 
