@@ -79,29 +79,84 @@ const { data: calendarConnection, error: calendarError } =
     .eq("location_id", loc.id)
     .maybeSingle();
 
-if (calendarError) {
-  console.error("CALENDAR LOOKUP ERROR:", calendarError);
+const { data: blockingCalendars, error: blockingError } =
+  await db
+    .from("google_blocking_calendars")
+    .select(`
+      google_calendar_id,
+      calendar_name,
+      is_primary,
+      enabled
+    `)
+    .eq("location_id", loc.id)
+    .order("calendar_name");
+
+if (calendarError || blockingError) {
+
+  console.error(
+    "CALENDAR CONFIG ERROR:",
+    calendarError || blockingError
+  );
 
   $("calendarStatus").textContent =
-    "Unable to check calendar connection.";
+    "Unable to load calendar configuration.";
 
   $("calendarInfo").textContent = "";
 
-} else if (calendarConnection?.google_calendar_id) {
-
-  $("calendarStatus").textContent =
-    "Google Calendar connected.";
-
-  $("calendarInfo").textContent =
-    `Calendar ID: ${calendarConnection.google_calendar_id}`;
-
 } else {
 
-  $("calendarStatus").textContent =
-    "Google Calendar not connected.";
+  if (calendarConnection?.google_calendar_id) {
 
-  $("calendarInfo").textContent =
-    "No Google Calendar is currently connected to this location.";
+    $("calendarStatus").textContent =
+      "Google Calendar connected.";
+
+  } else {
+
+    $("calendarStatus").textContent =
+      "Google Calendar not connected.";
+
+  }
+
+  let calendarInfo = "";
+
+  if (calendarConnection?.google_calendar_id) {
+
+    calendarInfo +=
+      `<strong>Booking Calendar</strong><br>` +
+      `${escapeHtml(calendarConnection.google_calendar_id)}<br><br>`;
+
+  }
+
+  if (blockingCalendars?.length) {
+
+    calendarInfo +=
+      `<strong>Blocking Calendars</strong><br>`;
+
+    calendarInfo += blockingCalendars.map(calendar => {
+
+      const primary = calendar.is_primary
+        ? " — Primary"
+        : "";
+
+      const status = calendar.enabled
+        ? " — Enabled"
+        : " — Disabled";
+
+      return (
+        `${escapeHtml(calendar.calendar_name)}` +
+        `${primary}${status}`
+      );
+
+    }).join("<br>");
+
+  } else {
+
+    calendarInfo +=
+      "No blocking calendars configured.";
+
+  }
+
+  $("calendarInfo").innerHTML = calendarInfo;
 
 }
 
