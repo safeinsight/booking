@@ -593,13 +593,70 @@ $("saveBtn").addEventListener("click", async () => {
     const result = await response.json();
 
     if (!response.ok || result.error) {
-console.log("SAVE RESPONSE:", result);
+      console.log("SAVE RESPONSE:", result);
 
-throw new Error(
-  typeof result.error === "string"
-    ? result.error
-    : JSON.stringify(result.error || result)
-);
+      throw new Error(
+        typeof result.error === "string"
+          ? result.error
+          : JSON.stringify(result.error || result)
+      );
+    }
+
+    const availabilityRules =
+      Array.from(
+        document.querySelectorAll(
+          ".availability-enabled"
+        )
+      ).map(checkbox => {
+
+        const day =
+          Number(checkbox.dataset.day);
+
+        const startInput =
+          document.querySelector(
+            `.availability-start[data-day="${day}"]`
+          );
+
+        const endInput =
+          document.querySelector(
+            `.availability-end[data-day="${day}"]`
+          );
+
+        return {
+          day_of_week: day,
+          enabled: checkbox.checked,
+          start_time: startInput?.value || null,
+          end_time: endInput?.value || null
+        };
+
+      });
+
+    const availabilityResponse =
+      await fetch(
+        `${cfg.functionsBaseUrl}/save-availability-rules`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            location_id: state.location.id,
+            rules: availabilityRules
+          })
+        }
+      );
+
+    const availabilityResult =
+      await availabilityResponse.json();
+
+    if (
+      !availabilityResponse.ok ||
+      availabilityResult.error
+    ) {
+      throw new Error(
+        availabilityResult.error ||
+        "Unable to save availability rules."
+      );
     }
 
     state.location = result.location;
@@ -609,7 +666,10 @@ throw new Error(
 
   } catch (error) {
 
-    console.error("SAVE SETTINGS ERROR:", error);
+    console.error(
+      "SAVE SETTINGS ERROR:",
+      error
+    );
 
     $("saveStatus").textContent =
       "Error: " + (error.message || error);
