@@ -121,41 +121,83 @@ if (!calendarResponse.ok || calendarResult.error) {
 
   }
 
-  let calendarInfo = "";
+let calendarInfo = "";
 
-  if (connection?.google_calendar_id) {
+if (connection?.google_calendar_id) {
 
-    calendarInfo +=
-      `<strong>Booking Calendar</strong><br>` +
-      `${escapeHtml(connection.google_calendar_id)}<br><br>`;
+  calendarInfo +=
+    `<strong>Booking Calendar</strong><br>` +
+    `${escapeHtml(connection.google_calendar_id)}<br><br>`;
 
-  }
+}
 
-  if (blockingCalendars.length) {
+if (blockingCalendars.length) {
 
-    calendarInfo +=
-      "<strong>Blocking Calendars</strong><br>";
+  calendarInfo +=
+    "<strong>Blocking Calendars</strong><br>";
 
-    calendarInfo += blockingCalendars
-      .map(calendar => {
+  calendarInfo += blockingCalendars
+    .map(calendar => {
 
-        const primary =
-          calendar.is_primary
-            ? " — Primary"
-            : "";
+      const primary =
+        calendar.is_primary
+          ? " — Primary"
+          : "";
 
-        const status =
-          calendar.enabled
-            ? " — Enabled"
-            : " — Disabled";
+      const status =
+        calendar.enabled
+          ? " — Enabled"
+          : " — Disabled";
 
-        return (
-          `${escapeHtml(calendar.calendar_name)}` +
-          `${primary}${status}`
-        );
+      return (
+        `${escapeHtml(calendar.calendar_name)}` +
+        `${primary}${status}`
+      );
 
-      })
-      .join("<br>");
+    })
+    .join("<br>");
+
+}
+
+$("calendarInfo").innerHTML =
+  calendarInfo ||
+  "No calendar configuration found.";
+
+const controls =
+  $("blockingCalendarControls");
+
+if (controls) {
+
+  controls.innerHTML =
+    blockingCalendars.length
+      ? blockingCalendars.map(calendar => {
+
+          const buttonText =
+            calendar.enabled
+              ? "Disable"
+              : "Enable";
+
+          return `
+            <div style="margin-top:10px;">
+              <strong>
+                ${escapeHtml(calendar.calendar_name)}
+              </strong>
+              <button
+                type="button"
+                class="secondary"
+                data-calendar-id="${escapeAttr(calendar.google_calendar_id)}"
+                data-calendar-enabled="${calendar.enabled}"
+                style="margin-left:10px;"
+              >
+                ${buttonText}
+              </button>
+            </div>
+          `;
+
+        }).join("")
+      : "No blocking calendars configured.";
+
+}
 
   } else {
 
