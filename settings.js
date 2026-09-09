@@ -182,9 +182,10 @@ if (controls) {
               <strong>
                 ${escapeHtml(calendar.calendar_name)}
               </strong>
+
               <button
                 type="button"
-                class="secondary"
+                class="secondary blocking-calendar-toggle"
                 data-calendar-id="${escapeAttr(calendar.google_calendar_id)}"
                 data-calendar-enabled="${calendar.enabled}"
                 style="margin-left:10px;"
@@ -196,6 +197,115 @@ if (controls) {
 
         }).join("")
       : "No blocking calendars configured.";
+
+  controls
+    .querySelectorAll(".blocking-calendar-toggle")
+    .forEach(button => {
+
+      button.addEventListener("click", async () => {
+
+        const calendarId =
+          button.dataset.calendarId;
+
+        const currentlyEnabled =
+          button.dataset.calendarEnabled === "true";
+
+        const newEnabled =
+          !currentlyEnabled;
+
+        button.disabled = true;
+        button.textContent = "Saving...";
+
+        try {
+
+          const response = await fetch(
+            `${cfg.functionsBaseUrl}/update-blocking-calendar`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                location_id: loc.id,
+                google_calendar_id: calendarId,
+                enabled: newEnabled
+              })
+            }
+          );
+
+          const result =
+            await response.json();
+
+          if (!response.ok || result.error) {
+            throw new Error(
+              result.error ||
+              "Unable to update blocking calendar."
+            );
+          }
+
+          button.dataset.calendarEnabled =
+            String(newEnabled);
+
+          button.textContent =
+            newEnabled
+              ? "Disable"
+              : "Enable";
+
+          const statusText =
+            newEnabled
+              ? " — Enabled"
+              : " — Disabled";
+
+          const calendarName =
+            result.calendar?.calendar_name ||
+            button
+              .parentElement
+              .querySelector("strong")
+              .textContent;
+
+          button
+            .parentElement
+            .querySelector("strong")
+            .textContent =
+              calendarName;
+
+          $("calendarInfo").innerHTML =
+            $("calendarInfo").innerHTML
+              .replace(
+                / — (Enabled|Disabled)/g,
+                ""
+              );
+
+          // Reload the calendar information so the
+          // displayed status matches Supabase.
+          await loadLocationIntoForm(loc);
+
+        } catch (error) {
+
+          console.error(
+            "BLOCKING CALENDAR UPDATE ERROR:",
+            error
+          );
+
+          button.textContent =
+            currentlyEnabled
+              ? "Disable"
+              : "Enable";
+
+          alert(
+            error.message ||
+            "Unable to update blocking calendar."
+          );
+
+        } finally {
+
+          button.disabled = false;
+
+        }
+
+      });
+
+    });
 
 }
 
