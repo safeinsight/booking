@@ -256,9 +256,13 @@ $("saveBtn").addEventListener("click", async () => {
     const result = await response.json();
 
     if (!response.ok || result.error) {
-      throw new Error(
-        result.error || "Unable to save location settings."
-      );
+console.log("SAVE RESPONSE:", result);
+
+throw new Error(
+  typeof result.error === "string"
+    ? result.error
+    : JSON.stringify(result.error || result)
+);
     }
 
     state.location = result.location;
