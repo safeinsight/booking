@@ -54,7 +54,7 @@ function applyBranding(loc) {
   root.style.setProperty("--primary", loc.primary_color || "#FFFFFF");
   root.style.setProperty("--secondary", loc.secondary_color || "#000000");
   root.style.setProperty("--accent", loc.accent_color || "#FF0000");
-  $("brandLogo").src = loc.logo_url || "assets/safe-insight-logo.png";
+  $("brandLogo").src = loc.logo_url || "safe-insight-logo.png";
   $("brandLogo").alt = loc.name || "Booking";
   $("brandName").textContent = loc.name || "Booking";
   $("brandSubtitle").textContent = loc.instructor_name ? `with ${loc.instructor_name}` : "Booking";
