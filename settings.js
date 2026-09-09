@@ -72,40 +72,44 @@ async function loadLocationIntoForm(loc) {
   $("minimumNotice").textContent =
     `${loc.minimum_booking_notice_hours || 24} hours`;
 
-const { data: calendarConnection, error: calendarError } =
-  await db
-    .from("google_calendar_connections")
-    .select("google_calendar_id")
-    .eq("location_id", loc.id)
-    .maybeSingle();
+const calendarResponse = await fetch(
+  `${cfg.functionsBaseUrl}/get-calendar-settings`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      location_id: loc.id
+    })
+  }
+);
 
-const { data: blockingCalendars, error: blockingError } =
-  await db
-    .from("google_blocking_calendars")
-    .select(`
-      google_calendar_id,
-      calendar_name,
-      is_primary,
-      enabled
-    `)
-    .eq("location_id", loc.id)
-    .order("calendar_name");
+const calendarResult = await calendarResponse.json();
 
-if (calendarError || blockingError) {
+if (!calendarResponse.ok || calendarResult.error) {
 
   console.error(
-    "CALENDAR CONFIG ERROR:",
-    calendarError || blockingError
+    "CALENDAR SETTINGS ERROR:",
+    calendarResult
   );
 
   $("calendarStatus").textContent =
     "Unable to load calendar configuration.";
 
-  $("calendarInfo").textContent = "";
+  $("calendarInfo").textContent =
+    calendarResult.error ||
+    "Unable to load calendar configuration.";
 
 } else {
 
-  if (calendarConnection?.google_calendar_id) {
+  const connection =
+    calendarResult.connection;
+
+  const blockingCalendars =
+    calendarResult.blocking_calendars || [];
+
+  if (connection?.google_calendar_id) {
 
     $("calendarStatus").textContent =
       "Google Calendar connected.";
@@ -119,35 +123,39 @@ if (calendarError || blockingError) {
 
   let calendarInfo = "";
 
-  if (calendarConnection?.google_calendar_id) {
+  if (connection?.google_calendar_id) {
 
     calendarInfo +=
       `<strong>Booking Calendar</strong><br>` +
-      `${escapeHtml(calendarConnection.google_calendar_id)}<br><br>`;
+      `${escapeHtml(connection.google_calendar_id)}<br><br>`;
 
   }
 
-  if (blockingCalendars?.length) {
+  if (blockingCalendars.length) {
 
     calendarInfo +=
-      `<strong>Blocking Calendars</strong><br>`;
+      "<strong>Blocking Calendars</strong><br>";
 
-    calendarInfo += blockingCalendars.map(calendar => {
+    calendarInfo += blockingCalendars
+      .map(calendar => {
 
-      const primary = calendar.is_primary
-        ? " — Primary"
-        : "";
+        const primary =
+          calendar.is_primary
+            ? " — Primary"
+            : "";
 
-      const status = calendar.enabled
-        ? " — Enabled"
-        : " — Disabled";
+        const status =
+          calendar.enabled
+            ? " — Enabled"
+            : " — Disabled";
 
-      return (
-        `${escapeHtml(calendar.calendar_name)}` +
-        `${primary}${status}`
-      );
+        return (
+          `${escapeHtml(calendar.calendar_name)}` +
+          `${primary}${status}`
+        );
 
-    }).join("<br>");
+      })
+      .join("<br>");
 
   } else {
 
@@ -156,11 +164,10 @@ if (calendarError || blockingError) {
 
   }
 
-  $("calendarInfo").innerHTML = calendarInfo;
+  $("calendarInfo").innerHTML =
+    calendarInfo;
 
 }
-
-  $("emailSubject").value = "";
 
   $("emailMessage").value = "";
 
