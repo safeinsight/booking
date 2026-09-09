@@ -395,6 +395,28 @@ function escapeAttr(value) {
   return escapeHtml(value);
 }
 
+$("connectCalendarBtn").addEventListener("click", () => {
+
+  if (!state.location?.id) {
+
+    $("calendarStatus").textContent =
+      "Please select a location first.";
+
+    return;
+
+  }
+
+  const oauthUrl =
+    `${cfg.functionsBaseUrl}/google-oauth-start` +
+    `?location_id=${encodeURIComponent(state.location.id)}`;
+
+  window.open(
+    oauthUrl,
+    "_blank",
+    "noopener,noreferrer"
+  );
+
+});
 
 (async function init() {
 
