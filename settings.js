@@ -999,9 +999,23 @@ $("saveBtn").addEventListener("click", async () => {
       specialDaysResult.error
     ) {
 
+      console.error(
+        "SAVE SPECIAL DAYS RESPONSE:",
+        {
+          status:
+            specialDaysResponse.status,
+
+          statusText:
+            specialDaysResponse.statusText,
+
+          result:
+            specialDaysResult
+        }
+      );
+
       throw new Error(
         specialDaysResult.error ||
-        "Unable to save special days."
+        `Unable to save special days. HTTP ${specialDaysResponse.status}`
       );
 
     }
