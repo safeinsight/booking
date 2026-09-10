@@ -72,6 +72,24 @@ async function loadLocationIntoForm(loc) {
   $("minimumNotice").textContent =
     `${loc.minimum_booking_notice_hours || 24} hours`;
 
+  $("appointmentLengthInput").value =
+    loc.appointment_length_minutes || 60;
+
+  $("maxStudentsInput").value =
+    loc.max_students_per_slot || 8;
+
+  $("bookingHorizonInput").value =
+    loc.booking_horizon_days || 14;
+
+  $("minimumNoticeInput").value =
+    loc.minimum_booking_notice_hours ?? 24;
+
+  $("cancellationHoursInput").value =
+    loc.cancellation_hours ?? 24;
+
+  $("rescheduleHoursInput").value =
+    loc.reschedule_hours ?? 12;
+
 const { data: availabilityRules, error: availabilityError } =
   await db
     .from("availability_rules")
@@ -833,13 +851,45 @@ $("saveBtn").addEventListener("click", async () => {
 
     const payload = {
       location_id: state.location.id,
-      name: $("locationName").value.trim(),
-      instructor_name: $("instructorName").value.trim(),
-      address: $("address").value.trim(),
-      logo_url: $("logoUrl").value.trim(),
-      primary_color: $("primaryColorText").value.trim(),
-      secondary_color: $("secondaryColorText").value.trim(),
-      accent_color: $("accentColorText").value.trim()
+
+      name:
+        $("locationName").value.trim(),
+
+      instructor_name:
+        $("instructorName").value.trim(),
+
+      address:
+        $("address").value.trim(),
+
+      logo_url:
+        $("logoUrl").value.trim(),
+
+      primary_color:
+        $("primaryColorText").value.trim(),
+
+      secondary_color:
+        $("secondaryColorText").value.trim(),
+
+      accent_color:
+        $("accentColorText").value.trim(),
+
+      appointment_length_minutes:
+        Number($("appointmentLengthInput").value),
+
+      max_students_per_slot:
+        Number($("maxStudentsInput").value),
+
+      booking_horizon_days:
+        Number($("bookingHorizonInput").value),
+
+      minimum_booking_notice_hours:
+        Number($("minimumNoticeInput").value),
+
+      cancellation_hours:
+        Number($("cancellationHoursInput").value),
+
+      reschedule_hours:
+        Number($("rescheduleHoursInput").value)
     };
 
     const response = await fetch(
