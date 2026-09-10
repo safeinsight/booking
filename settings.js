@@ -615,6 +615,32 @@ Location: {{LOCATION}}
 {{MANAGE_BUTTON}}`;
 
 
+  
+const restoreEmailDefaultBtn =
+  $("restoreEmailDefaultBtn");
+
+if (restoreEmailDefaultBtn) {
+
+  restoreEmailDefaultBtn.addEventListener(
+    "click",
+    () => {
+
+      $("emailSubject").value =
+        "Your appointment confirmation";
+
+      $("emailMessage").value =
+        `Thank you for booking with us!
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+
+{{MANAGE_BUTTON}}`;
+
+    }
+  );
+
+}
 // Add Special Day
 
 $("addSpecialDayBtn").addEventListener("click", () => {
