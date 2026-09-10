@@ -95,9 +95,15 @@ async function loadLocationIntoForm(loc) {
     loc.confirmation_email_subject ||
     "Your appointment confirmation";
 
-  $("emailMessage").value =
-    loc.confirmation_email_message ||
-    "Thank you for booking with us...";
+$("emailMessage").value =
+  loc.confirmation_email_message ||
+  `Thank you for booking with us!
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+
+{{MANAGE_BUTTON}}`;
 
 const { data: availabilityRules, error: availabilityError } =
   await db
@@ -600,7 +606,13 @@ $("emailSubject").value =
 
 $("emailMessage").value =
   loc.confirmation_email_message ||
-  "Thank you for booking with us...";
+  `Thank you for booking with us!
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+
+{{MANAGE_BUTTON}}`;
 
 
 // Add Special Day
