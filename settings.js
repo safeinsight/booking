@@ -906,7 +906,19 @@ const payload = {
     Number($("cancellationHoursInput").value),
 
   reschedule_hours:
-    Number($("rescheduleHoursInput").value)
+    Number($("rescheduleHoursInput").value),
+
+  confirmation_email_subject:
+    $("emailSubject").value.trim(),
+
+  confirmation_email_message:
+    $("emailMessage").value.trim(),
+
+  student_confirmation_enabled:
+    true,
+
+  instructor_notification_enabled:
+    true
 };
 
     const response = await fetch(
