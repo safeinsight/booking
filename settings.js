@@ -35,6 +35,7 @@ async function loadLocationIntoForm(loc) {
   $("locationName").value = loc.name || "";
   $("instructorName").value = loc.instructor_name || "";
   $("address").value = loc.address || "";
+  $("website").value = loc.website || "";
 
   $("logoUrl").value =
     loc.logo_url || "safe-insight-logo.png";
@@ -726,6 +727,7 @@ async function loadLocations() {
       name,
       instructor_name,
       address,
+      website,
       timezone,
       appointment_length_minutes,
       max_students_per_slot,
@@ -849,48 +851,51 @@ $("saveBtn").addEventListener("click", async () => {
 
   try {
 
-    const payload = {
-      location_id: state.location.id,
+const payload = {
+  location_id: state.location.id,
 
-      name:
-        $("locationName").value.trim(),
+  name:
+    $("locationName").value.trim(),
 
-      instructor_name:
-        $("instructorName").value.trim(),
+  instructor_name:
+    $("instructorName").value.trim(),
 
-      address:
-        $("address").value.trim(),
+  address:
+    $("address").value.trim(),
 
-      logo_url:
-        $("logoUrl").value.trim(),
+  website:
+    $("website").value.trim(),
 
-      primary_color:
-        $("primaryColorText").value.trim(),
+  logo_url:
+    $("logoUrl").value.trim(),
 
-      secondary_color:
-        $("secondaryColorText").value.trim(),
+  primary_color:
+    $("primaryColorText").value.trim(),
 
-      accent_color:
-        $("accentColorText").value.trim(),
+  secondary_color:
+    $("secondaryColorText").value.trim(),
 
-      appointment_length_minutes:
-        Number($("appointmentLengthInput").value),
+  accent_color:
+    $("accentColorText").value.trim(),
 
-      max_students_per_slot:
-        Number($("maxStudentsInput").value),
+  appointment_length_minutes:
+    Number($("appointmentLengthInput").value),
 
-      booking_horizon_days:
-        Number($("bookingHorizonInput").value),
+  max_students_per_slot:
+    Number($("maxStudentsInput").value),
 
-      minimum_booking_notice_hours:
-        Number($("minimumNoticeInput").value),
+  booking_horizon_days:
+    Number($("bookingHorizonInput").value),
 
-      cancellation_hours:
-        Number($("cancellationHoursInput").value),
+  minimum_booking_notice_hours:
+    Number($("minimumNoticeInput").value),
 
-      reschedule_hours:
-        Number($("rescheduleHoursInput").value)
-    };
+  cancellation_hours:
+    Number($("cancellationHoursInput").value),
+
+  reschedule_hours:
+    Number($("rescheduleHoursInput").value)
+};
 
     const response = await fetch(
       `${cfg.functionsBaseUrl}/save-location-settings`,
