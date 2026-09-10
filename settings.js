@@ -594,7 +594,13 @@ return `
 
     });
 
-$("emailMessage").value = "";
+$("emailSubject").value =
+  loc.confirmation_email_subject ||
+  "Your appointment confirmation";
+
+$("emailMessage").value =
+  loc.confirmation_email_message ||
+  "Thank you for booking with us...";
 
 
 // Add Special Day
