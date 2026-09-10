@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Manage Appointment</title>
+
+  <style>
+    :root {
+      --primary: #ffffff;
+      --secondary: #000000;
+      --accent: #ff0000;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f5f5;
+      color: var(--secondary);
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background: var(--primary);
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 30px;
+
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .logo {
+      display: block;
+      max-width: 220px;
+      max-height: 90px;
+      margin: 0 auto 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0 0 25px;
+      font-size: 28px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 30px 0;
+      color: #666;
+    }
+
+    .error {
+      display: none;
+      background: #fff0f0;
+      border: 1px solid #ffcccc;
+      color: #b00000;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .success {
+      display: none;
+      background: #f0fff4;
+      border: 1px solid #b7ebc6;
+      color: #146c2e;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .booking-details {
+      display: none;
+      margin-bottom: 25px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .detail-label {
+      font-weight: bold;
+    }
+
+    .detail-value {
+      text-align: right;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 7px;
+      padding: 14px 18px;
+
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .primary {
+      background: var(--secondary);
+      color: var(--primary);
+    }
+
+    .primary:hover:not(:disabled) {
+      opacity: 0.85;
+    }
+
+    .cancel {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .cancel:hover:not(:disabled) {
+      opacity: 0.85;
+    }
+
+    .secondary {
+      background: #eeeeee;
+      color: #000000;
+    }
+
+    .secondary:hover:not(:disabled) {
+      background: #dddddd;
+    }
+
+    .reschedule-section {
+      display: none;
+      margin-top: 25px;
+      padding-top: 25px;
+      border-top: 1px solid #ddd;
+    }
+
+    .reschedule-section h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      background: #ffffff;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .muted {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 25px;
+      color: #777;
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+
+      .container {
+        padding: 22px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .detail-row {
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .detail-value {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- LOGO -->
+
+    <img
+      src="safe-insight-logo.png"
+      alt="Safe Insight"
+      class="logo"
+      onerror="this.style.display='none';"
+    >
+
+    <h1>Manage Your Appointment</h1>
+
+    <!-- LOADING -->
+
+    <div
+      id="loading"
+      class="loading"
+    >
+      Loading your appointment...
+    </div>
+
+    <!-- ERROR -->
+
+    <div
+      id="errorMessage"
+      class="error"
+    ></div>
+
+    <!-- SUCCESS -->
+
+    <div
+      id="successMessage"
+      class="success"
+    ></div>
+
+    <!-- BOOKING DETAILS -->
+
+    <div
+      id="bookingDetails"
+      class="booking-details"
+    >
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Name
+        </div>
+
+        <div
+          id="studentName"
+          class="detail-value"
+        ></div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Date
+        </div>
+
+        <div
+          id="appointmentDate"
+          class="detail-value"
+        ></div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Time
+        </div>
+
+        <div
+          id="appointmentTime"
+          class="detail-value"
+        ></div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Location
+        </div>
+
+        <div
+          id="locationName"
+          class="detail-value"
+        ></div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Status
+        </div>
+
+        <div
+          id="bookingStatus"
+          class="detail-value"
+        ></div>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+
+      <div class="actions">
+
+        <button
+          id="rescheduleButton"
+          type="button"
+          class="primary"
+        >
+          Reschedule Appointment
+        </button>
+
+        <button
+          id="cancelButton"
+          type="button"
+          class="cancel"
+        >
+          Cancel Appointment
+        </button>
+
+      </div>
+
+      <!-- RESCHEDULE -->
+
+      <div
+        id="rescheduleSection"
+        class="reschedule-section"
+      >
+
+        <h2>
+          Reschedule Appointment
+        </h2>
+
+        <p class="muted">
+          Select a new available date and time for your appointment.
+        </p>
+
+        <div class="field">
+
+          <label for="newDate">
+            New Date
+          </label>
+
+          <input
+            id="newDate"
+            type="date"
+          >
+
+        </div>
+
+        <div class="field">
+
+          <label for="newTime">
+            New Time
+          </label>
+
+          <select id="newTime">
+
+            <option value="">
+              Select a time
+            </option>
+
+          </select>
+
+        </div>
+
+        <div class="actions">
+
+          <button
+            id="confirmRescheduleButton"
+            type="button"
+            class="primary"
+          >
+            Confirm Reschedule
+          </button>
+
+          <button
+            id="closeRescheduleButton"
+            type="button"
+            class="secondary"
+          >
+            Back
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div
+      id="footer"
+      class="footer"
+    >
+      Booking powered by Safe Insight
+    </div>
+
+  </div>
+
+
+  <script>
+
+    /*
+     * SUPABASE
+     */
+
+    const SUPABASE_URL =
+      "https://mgcjalilweficfafnqas.supabase.co";
+
+
+    /*
+     * READ TOKEN FROM URL
+     *
+     * Example:
+     *
+     * manage-booking.html?token=xxxxxxxx
+     */
+
+    const params =
+      new URLSearchParams(window.location.search);
+
+    const bookingToken =
+      params.get("token");
+
+
+    /*
+     * ELEMENTS
+     */
+
+    const loading =
+      document.getElementById("loading");
+
+    const errorMessage =
+      document.getElementById("errorMessage");
+
+    const successMessage =
+      document.getElementById("successMessage");
+
+    const bookingDetails =
+      document.getElementById("bookingDetails");
+
+    const studentName =
+      document.getElementById("studentName");
+
+    const appointmentDate =
+      document.getElementById("appointmentDate");
+
+    const appointmentTime =
+      document.getElementById("appointmentTime");
+
+    const locationName =
+      document.getElementById("locationName");
+
+    const bookingStatus =
+      document.getElementById("bookingStatus");
+
+    const rescheduleButton =
+      document.getElementById("rescheduleButton");
+
+    const cancelButton =
+      document.getElementById("cancelButton");
+
+    const rescheduleSection =
+      document.getElementById("rescheduleSection");
+
+    const newDate =
+      document.getElementById("newDate");
+
+    const newTime =
+      document.getElementById("newTime");
+
+    const confirmRescheduleButton =
+      document.getElementById(
+        "confirmRescheduleButton"
+      );
+
+    const closeRescheduleButton =
+      document.getElementById(
+        "closeRescheduleButton"
+      );
+
+
+    /*
+     * SHOW ERROR
+     */
+
+    function showError(message) {
+
+      loading.style.display = "none";
+
+      errorMessage.textContent = message;
+
+      errorMessage.style.display = "block";
+
+    }
+
+
+    /*
+     * SHOW SUCCESS
+     */
+
+    function showSuccess(message) {
+
+      successMessage.textContent = message;
+
+      successMessage.style.display = "block";
+
+    }
+
+
+    /*
+     * LOAD BOOKING
+     */
+
+    async function loadBooking() {
+
+      if (!bookingToken) {
+
+        showError(
+          "This appointment link is missing its booking token."
+        );
+
+        return;
+      }
+
+
+      try {
+
+        const response =
+          await fetch(
+            `${SUPABASE_URL}/functions/v1/get-booking?token=${encodeURIComponent(bookingToken)}`
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.error ||
+            "Unable to load your appointment."
+          );
+
+        }
+
+
+        /*
+         * POPULATE DETAILS
+         */
+
+        studentName.textContent =
+          data.booking.student_name || "";
+
+        appointmentDate.textContent =
+          data.booking.appointment_date || "";
+
+        appointmentTime.textContent =
+          data.booking.appointment_time || "";
+
+        locationName.textContent =
+          data.booking.location_name || "";
+
+        bookingStatus.textContent =
+          data.booking.status || "";
+
+
+        /*
+         * DISPLAY BOOKING
+         */
+
+        loading.style.display =
+          "none";
+
+        bookingDetails.style.display =
+          "block";
+
+
+        /*
+         * BUTTON AVAILABILITY
+         */
+
+        if (
+          data.can_cancel === false
+        ) {
+
+          cancelButton.disabled =
+            true;
+
+          cancelButton.title =
+            "This appointment can no longer be cancelled.";
+
+        }
+
+
+        if (
+          data.can_reschedule === false
+        ) {
+
+          rescheduleButton.disabled =
+            true;
+
+          rescheduleButton.title =
+            "This appointment can no longer be rescheduled.";
+
+        }
+
+
+        /*
+         * ALREADY CANCELLED
+         */
+
+        if (
+          data.booking.status ===
+          "cancelled"
+        ) {
+
+          cancelButton.disabled =
+            true;
+
+          rescheduleButton.disabled =
+            true;
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "LOAD BOOKING ERROR:",
+          error
+        );
+
+        showError(
+          error.message ||
+          "Unable to load your appointment."
+        );
+
+      }
+
+    }
+
+
+    /*
+     * RESCHEDULE BUTTON
+     */
+
+    rescheduleButton.addEventListener(
+      "click",
+      () => {
+
+        if (
+          rescheduleButton.disabled
+        ) {
+
+          return;
+
+        }
+
+        rescheduleSection.style.display =
+          "block";
+
+        rescheduleButton.style.display =
+          "none";
+
+        cancelButton.style.display =
+          "none";
+
+      }
+    );
+
+
+    /*
+     * CLOSE RESCHEDULE
+     */
+
+    closeRescheduleButton.addEventListener(
+      "click",
+      () => {
+
+        rescheduleSection.style.display =
+          "none";
+
+        rescheduleButton.style.display =
+          "block";
+
+        cancelButton.style.display =
+          "block";
+
+      }
+    );
+
+
+    /*
+     * DATE CHANGE
+     *
+     * The backend will eventually return
+     * the available times for this date.
+     */
+
+    newDate.addEventListener(
+      "change",
+      async () => {
+
+        newTime.innerHTML = `
+          <option value="">
+            Loading available times...
+          </option>
+        `;
+
+
+        try {
+
+          const response =
+            await fetch(
+              `${SUPABASE_URL}/functions/v1/get-availability?token=${encodeURIComponent(bookingToken)}&date=${encodeURIComponent(newDate.value)}`
+            );
+
+
+          const data =
+            await response.json();
+
+
+          if (!response.ok) {
+
+            throw new Error(
+              data.error ||
+              "Unable to load available times."
+            );
+
+          }
+
+
+          newTime.innerHTML = `
+            <option value="">
+              Select a time
+            </option>
+          `;
+
+
+          /*
+           * EXPECTED BACKEND FORMAT:
+           *
+           * data.slots = [
+           *   {
+           *     start: "...",
+           *     end: "...",
+           *     available: true
+           *   }
+           * ]
+           */
+
+          const slots =
+            data.slots || [];
+
+
+          slots.forEach(
+            slot => {
+
+              if (
+                slot.available === false
+              ) {
+
+                return;
+
+              }
+
+
+              const option =
+                document.createElement(
+                  "option"
+                );
+
+
+              option.value =
+                slot.start;
+
+              option.textContent =
+                slot.start;
+
+
+              newTime.appendChild(
+                option
+              );
+
+            }
+          );
+
+
+          if (
+            newTime.options.length === 1
+          ) {
+
+            newTime.innerHTML = `
+              <option value="">
+                No available times
+              </option>
+            `;
+
+          }
+
+        } catch (error) {
+
+          console.error(
+            "LOAD TIMES ERROR:",
+            error
+          );
+
+
+          newTime.innerHTML = `
+            <option value="">
+              Unable to load times
+            </option>
+          `;
+
+        }
+
+      }
+    );
+
+
+    /*
+     * CONFIRM RESCHEDULE
+     */
+
+    confirmRescheduleButton.addEventListener(
+      "click",
+      async () => {
+
+        if (
+          !newDate.value ||
+          !newTime.value
+        ) {
+
+          alert(
+            "Please select a new date and time."
+          );
+
+          return;
+
+        }
+
+
+        confirmRescheduleButton.disabled =
+          true;
+
+        confirmRescheduleButton.textContent =
+          "Processing...";
+
+
+        try {
+
+          const response =
+            await fetch(
+              `${SUPABASE_URL}/functions/v1/reschedule-booking`,
+              {
+
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body: JSON.stringify({
+
+                  token:
+                    bookingToken,
+
+                  new_date:
+                    newDate.value,
+
+                  new_time:
+                    newTime.value
+
+                })
+
+              }
+            );
+
+
+          const data =
+            await response.json();
+
+
+          if (!response.ok) {
+
+            throw new Error(
+              data.error ||
+              "Unable to reschedule your appointment."
+            );
+
+          }
+
+
+          showSuccess(
+            "Your appointment has been successfully rescheduled."
+          );
+
+
+          rescheduleSection.style.display =
+            "none";
+
+
+          await loadBooking();
+
+        } catch (error) {
+
+          console.error(
+            "RESCHEDULE ERROR:",
+            error
+          );
+
+
+          showError(
+            error.message ||
+            "Unable to reschedule your appointment."
+          );
+
+        } finally {
+
+          confirmRescheduleButton.disabled =
+            false;
+
+          confirmRescheduleButton.textContent =
+            "Confirm Reschedule";
+
+        }
+
+      }
+    );
+
+
+    /*
+     * CANCEL APPOINTMENT
+     */
+
+    cancelButton.addEventListener(
+      "click",
+      async () => {
+
+        if (
+          cancelButton.disabled
+        ) {
+
+          return;
+
+        }
+
+
+        const confirmed =
+          confirm(
+            "Are you sure you want to cancel this appointment?"
+          );
+
+
+        if (!confirmed) {
+
+          return;
+
+        }
+
+
+        cancelButton.disabled =
+          true;
+
+        cancelButton.textContent =
+          "Cancelling...";
+
+
+        try {
+
+          const response =
+            await fetch(
+              `${SUPABASE_URL}/functions/v1/cancel-booking`,
+              {
+
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body: JSON.stringify({
+
+                  token:
+                    bookingToken
+
+                })
+
+              }
+            );
+
+
+          const data =
+            await response.json();
+
+
+          if (!response.ok) {
+
+            throw new Error(
+              data.error ||
+              "Unable to cancel your appointment."
+            );
+
+          }
+
+
+          showSuccess(
+            "Your appointment has been cancelled successfully."
+          );
+
+
+          bookingStatus.textContent =
+            "cancelled";
+
+
+          rescheduleButton.disabled =
+            true;
+
+          cancelButton.disabled =
+            true;
+
+
+        } catch (error) {
+
+          console.error(
+            "CANCEL ERROR:",
+            error
+          );
+
+
+          showError(
+            error.message ||
+            "Unable to cancel your appointment."
+          );
+
+
+          cancelButton.disabled =
+            false;
+
+          cancelButton.textContent =
+            "Cancel Appointment";
+
+        }
+
+      }
+    );
+
+
+    /*
+     * START
+     */
+
+    loadBooking();
+
+  </script>
+
+</body>
+</html>
