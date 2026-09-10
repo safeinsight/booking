@@ -1065,14 +1065,10 @@ function escapeAttr(value) {
 }
 
 $("connectCalendarBtn").addEventListener("click", () => {
-
   if (!state.location?.id) {
-
     $("calendarStatus").textContent =
       "Please select a location first.";
-
     return;
-
   }
 
   const oauthUrl =
@@ -1084,7 +1080,6 @@ $("connectCalendarBtn").addEventListener("click", () => {
     "_blank",
     "noopener,noreferrer"
   );
-
 });
 
 (async function init() {
