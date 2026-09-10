@@ -258,21 +258,39 @@ $("confirmBtn").addEventListener("click", async () => {
     const first = day.slots[state.selectedStart];
     const last = day.slots[state.selectedEnd];
 
-    const res = await fetch(`${cfg.functionsBaseUrl}/create-booking`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${cfg.supabaseAnonKey}`
-      },
-      body: JSON.stringify({
-        location_slug: state.location.slug,
-        start_time: first.start,
-        end_time: last.end,
-        student: state.student
-      })
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || "The booking could not be completed.");
+const res = await fetch(`${cfg.functionsBaseUrl}/create-booking`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${cfg.supabaseAnonKey}`
+  },
+  body: JSON.stringify({
+    location_slug: state.location.slug,
+    start_time: first.start,
+    end_time: last.end,
+    student: state.student
+  })
+});
+
+const responseText = await res.text();
+
+console.log("CREATE-BOOKING STATUS:", res.status);
+console.log("CREATE-BOOKING RESPONSE:", responseText);
+
+let json = {};
+try {
+  json = JSON.parse(responseText);
+} catch (parseError) {
+  console.error("CREATE-BOOKING JSON PARSE ERROR:", parseError);
+}
+
+if (!res.ok) {
+  throw new Error(
+    json.error ||
+    responseText ||
+    "The booking could not be completed."
+  );
+}
 
     if (json.checkout_url) {
       window.location.href = json.checkout_url;
