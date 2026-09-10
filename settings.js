@@ -242,7 +242,7 @@ if (connection?.google_calendar_id) {
 if (blockingCalendars.length) {
 
   calendarInfo +=
-    "<strong>Blocking Calendars</strong><br>";
+    "<strong>Calendars That Block Availability</strong><br>";
 
   calendarInfo += blockingCalendars
     .map(calendar => {
@@ -285,23 +285,23 @@ if (controls) {
               ? "Disable"
               : "Enable";
 
-          return `
-            <div style="margin-top:10px;">
-              <strong>
-                ${escapeHtml(calendar.calendar_name)}
-              </strong>
+return `
+  <div style="margin-top:12px;">
+    <strong>
+      ${escapeHtml(calendar.calendar_name)}
+    </strong>
 
-              <button
-                type="button"
-                class="secondary blocking-calendar-toggle"
-                data-calendar-id="${escapeAttr(calendar.google_calendar_id)}"
-                data-calendar-enabled="${calendar.enabled}"
-                style="margin-left:10px;"
-              >
-                ${buttonText}
-              </button>
-            </div>
-          `;
+    <button
+      type="button"
+      class="secondary blocking-calendar-toggle"
+      data-calendar-id="${escapeAttr(calendar.google_calendar_id)}"
+      data-calendar-enabled="${calendar.enabled}"
+      style="margin-left:10px;"
+    >
+      ${buttonText}
+    </button>
+  </div>
+`;
 
         }).join("")
       : "No blocking calendars configured.";
