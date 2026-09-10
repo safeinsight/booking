@@ -182,9 +182,96 @@
           </button>
 
         </div>
+        
+
+    <!-- BOOKING RULES -->
+
+        <div class="settings-section">
+
+          <h2>Booking Rules</h2>
+
+          <p class="muted">
+            Configure the rules that control appointment length,
+            capacity, booking window, and cancellation or rescheduling.
+          </p>
+
+          <label for="appointmentLengthInput">
+            Appointment Length (minutes)
+          </label>
+
+          <input
+            id="appointmentLengthInput"
+            type="number"
+            min="15"
+            step="15"
+            required
+          >
+
+          <label for="maxStudentsInput">
+            Maximum Students Per Slot
+          </label>
+
+          <input
+            id="maxStudentsInput"
+            type="number"
+            min="1"
+            step="1"
+            required
+          >
+
+          <label for="bookingHorizonInput">
+            Booking Horizon (days)
+          </label>
+
+          <input
+            id="bookingHorizonInput"
+            type="number"
+            min="1"
+            step="1"
+            required
+          >
+
+          <label for="minimumNoticeInput">
+            Minimum Advance Notice (hours)
+          </label>
+
+          <input
+            id="minimumNoticeInput"
+            type="number"
+            min="0"
+            step="1"
+            required
+          >
+
+          <label for="cancellationHoursInput">
+            Cancellation Window (hours)
+          </label>
+
+          <input
+            id="cancellationHoursInput"
+            type="number"
+            min="0"
+            step="1"
+            required
+          >
+
+          <label for="rescheduleHoursInput">
+            Reschedule Window (hours)
+          </label>
+
+          <input
+            id="rescheduleHoursInput"
+            type="number"
+            min="0"
+            step="1"
+            required
+          >
+
+        </div>
 
 
-        <!-- LOCATION INFORMATION -->
+        
+    <!-- LOCATION INFORMATION -->
 
         <div class="settings-section">
 
@@ -229,7 +316,7 @@
         </div>
 
 
-        <!-- AVAILABILITY -->
+    <!-- AVAILABILITY -->
 
         <div class="settings-section">
 
@@ -303,7 +390,7 @@
         </div>
 
 
-        <!-- CONFIRMATION EMAIL -->
+    <!-- CONFIRMATION EMAIL -->
 
         <div class="settings-section">
 
