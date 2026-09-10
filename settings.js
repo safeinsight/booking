@@ -215,17 +215,19 @@ if (!calendarResponse.ok || calendarResult.error) {
   const blockingCalendars =
     calendarResult.blocking_calendars || [];
 
-  if (connection?.google_calendar_id) {
+if (connection?.google_calendar_id) {
+  $("calendarStatus").textContent =
+    "Google Calendar connected.";
 
-    $("calendarStatus").textContent =
-      "Google Calendar connected.";
+  $("connectCalendarBtn").textContent =
+    "Reconnect Google Calendar";
+} else {
+  $("calendarStatus").textContent =
+    "Google Calendar not connected.";
 
-  } else {
-
-    $("calendarStatus").textContent =
-      "Google Calendar not connected.";
-
-  }
+  $("connectCalendarBtn").textContent =
+    "Connect Google Calendar";
+}
 
 let calendarInfo = "";
 
