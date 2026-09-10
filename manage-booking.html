@@ -759,58 +759,63 @@
           `;
 
 
-          /*
-           * EXPECTED BACKEND FORMAT:
-           *
-           * data.slots = [
-           *   {
-           *     start: "...",
-           *     end: "...",
-           *     available: true
-           *   }
-           * ]
-           */
+      const days =
+        data.days || [];
 
-          const slots =
-            data.slots || [];
+      const selectedDay =
+        days.find(
+          day =>
+            day.date ===
+            newDate.value
+        );
 
+      const slots =
+        selectedDay?.slots || [];
 
-          slots.forEach(
-            slot => {
-
-              if (
-                slot.available === false
-              ) {
-
-                return;
-
-              }
-
-
-              const option =
-                document.createElement(
-                  "option"
-                );
-
-
-              option.value =
-                slot.start;
-
-              option.textContent =
-                slot.start;
-
-
-              newTime.appendChild(
-                option
-              );
-
-            }
-          );
-
+      slots.forEach(
+        slot => {
 
           if (
-            newTime.options.length === 1
+            slot.blocked ||
+            slot.remaining <= 0
           ) {
+            return;
+          }
+
+          const option =
+            document.createElement(
+              "option"
+            );
+
+          option.value =
+            slot.start;
+
+          option.textContent =
+            new Intl.DateTimeFormat(
+              "en-US",
+              {
+                timeZone:
+                  data.location?.timezone ||
+                  "America/Phoenix",
+                hour:
+                  "numeric",
+                minute:
+                  "2-digit"
+              }
+            ).format(
+              new Date(
+                slot.start
+              )
+            );
+
+          newTime.appendChild(
+            option
+          );
+        });
+
+      if (
+        newTime.options.length === 1
+      ) {
 
             newTime.innerHTML = `
               <option value="">
