@@ -759,10 +759,6 @@ async function loadLocations() {
       confirmation_email_message,
       student_confirmation_enabled,
       instructor_notification_enabled
-      confirmation_email_subject,
-      confirmation_email_message,
-      student_confirmation_enabled,
-      instructor_notification_enabled
     `)
     .eq("active", true)
     .order("name");
