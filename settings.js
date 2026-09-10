@@ -91,6 +91,14 @@ async function loadLocationIntoForm(loc) {
   $("rescheduleHoursInput").value =
     loc.reschedule_hours ?? 12;
 
+    $("emailSubject").value =
+    loc.confirmation_email_subject ||
+    "Your appointment confirmation";
+
+  $("emailMessage").value =
+    loc.confirmation_email_message ||
+    "Thank you for booking with us...";
+
 const { data: availabilityRules, error: availabilityError } =
   await db
     .from("availability_rules")
@@ -740,7 +748,11 @@ async function loadLocations() {
       accent_color,
       logo_url,
       footer_text,
-      payment_required
+      payment_required,
+      confirmation_email_subject,
+      confirmation_email_message,
+      student_confirmation_enabled,
+      instructor_notification_enabled
     `)
     .eq("active", true)
     .order("name");
