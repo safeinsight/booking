@@ -1042,12 +1042,16 @@
           bookingStatus.textContent =
             "cancelled";
 
+          cancelButton.disabled =
+            true;
+
+          cancelButton.textContent =
+            "Appointment Cancelled";
+
 
           rescheduleButton.disabled =
             true;
 
-          cancelButton.disabled =
-            true;
 
 
         } catch (error) {
