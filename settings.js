@@ -1050,11 +1050,11 @@ async function loadLocations() {
 
   select.value = selected.slug;
 
-  loadLocationIntoForm(selected);
+  await loadLocationIntoForm(selected);
 }
 
 
-$("locationSelect").addEventListener("change", event => {
+$("locationSelect").addEventListener("change", async event => {
 
   const selected =
     state.locations.find(
@@ -1062,7 +1062,7 @@ $("locationSelect").addEventListener("change", event => {
     );
 
   if (selected) {
-    loadLocationIntoForm(selected);
+    await loadLocationIntoForm(selected);
   }
 });
 
