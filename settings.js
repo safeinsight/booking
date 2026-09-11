@@ -986,100 +986,33 @@ connectColorInputs(
 );
 
 
-$("saveBtn").addEventListener("click", async () => {
+// ============================================================
+// TAB-SPECIFIC SAVE HANDLERS
+// ============================================================
 
-  const button = $("saveBtn");
+async function saveLocationSettings(button) {
 
   button.disabled = true;
-  $("saveStatus").textContent = "Saving...";
+  const originalText = button.textContent;
+  button.textContent = "Saving...";
 
   try {
 
-const payload = {
-  location_id: state.location.id,
+    const payload = {
+      location_id: state.location.id,
 
-  name:
-    $("locationName").value.trim(),
+      name:
+        $("locationName").value.trim(),
 
-  instructor_name:
-    $("instructorName").value.trim(),
+      instructor_name:
+        $("instructorName").value.trim(),
 
-  address:
-    $("address").value.trim(),
+      address:
+        $("address").value.trim(),
 
-  website:
-    $("website").value.trim(),
-
-  logo_url:
-    $("logoUrl").value.trim(),
-
-  primary_color:
-    $("primaryColorText").value.trim(),
-
-  secondary_color:
-    $("secondaryColorText").value.trim(),
-
-  accent_color:
-    $("accentColorText").value.trim(),
-
-  appointment_length_minutes:
-    Number($("appointmentLengthInput").value),
-
-  max_students_per_slot:
-    Number($("maxStudentsInput").value),
-
-  booking_horizon_days:
-    Number($("bookingHorizonInput").value),
-
-  minimum_booking_notice_hours:
-    Number($("minimumNoticeInput").value),
-
-  cancellation_hours:
-    Number($("cancellationHoursInput").value),
-
-  reschedule_hours:
-    Number($("rescheduleHoursInput").value),
-
-confirmation_email_subject: $("emailSubject").value.trim(),
-
-confirmation_email_message: $("emailMessage").value.trim(),
-
-student_confirmation_enabled: true,
-
-instructor_notification_enabled: true,
-
-reminder_enabled: $("reminderEnabled").checked,
-
-reminder_hours_before:
-  Number($("reminderHoursBefore").value),
-
-instructor_email:
-  $("instructorEmail").value.trim(),
-
-student_reminder_subject:
-  $("studentReminderSubject").value.trim(),
-
-student_reminder_message:
-  $("studentReminderMessage").value.trim(),
-
-instructor_reminder_subject:
-  $("instructorReminderSubject").value.trim(),
-
-  instructor_reminder_message:
-    $("instructorReminderMessage").value.trim(),
-
-  followup_enabled:
-    $("followupEnabled").checked,
-
-  followup_delay_minutes:
-    Number($("followupDelayMinutes").value),
-
-  followup_subject:
-    $("followupSubject").value.trim(),
-
-  followup_message:
-    $("followupMessage").value.trim()
-};
+      website:
+        $("website").value.trim()
+    };
 
     const response = await fetch(
       `${cfg.functionsBaseUrl}/save-location-settings`,
@@ -1095,14 +1028,190 @@ instructor_reminder_subject:
     const result = await response.json();
 
     if (!response.ok || result.error) {
-      console.log("SAVE RESPONSE:", result);
-
       throw new Error(
         typeof result.error === "string"
           ? result.error
           : JSON.stringify(result.error || result)
       );
     }
+
+    state.location = {
+      ...state.location,
+      ...result.location
+    };
+
+    button.textContent = "Saved";
+
+    setTimeout(() => {
+      button.textContent = originalText;
+    }, 1500);
+
+  } catch (error) {
+
+    console.error(
+      "SAVE LOCATION SETTINGS ERROR:",
+      error
+    );
+
+    button.textContent = "Save Failed";
+
+    setTimeout(() => {
+      button.textContent = originalText;
+    }, 2000);
+
+  } finally {
+
+    button.disabled = false;
+
+  }
+
+}
+
+
+async function saveBrandingSettings(button) {
+
+  button.disabled = true;
+  const originalText = button.textContent;
+  button.textContent = "Saving...";
+
+  try {
+
+    const payload = {
+      location_id: state.location.id,
+
+      logo_url:
+        $("logoUrl").value.trim(),
+
+      primary_color:
+        $("primaryColorText").value.trim(),
+
+      secondary_color:
+        $("secondaryColorText").value.trim(),
+
+      accent_color:
+        $("accentColorText").value.trim()
+    };
+
+    const response = await fetch(
+      `${cfg.functionsBaseUrl}/save-location-settings`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || result.error) {
+      throw new Error(
+        typeof result.error === "string"
+          ? result.error
+          : JSON.stringify(result.error || result)
+      );
+    }
+
+    state.location = {
+      ...state.location,
+      ...result.location
+    };
+
+    button.textContent = "Saved";
+
+    setTimeout(() => {
+      button.textContent = originalText;
+    }, 1500);
+
+  } catch (error) {
+
+    console.error(
+      "SAVE BRANDING SETTINGS ERROR:",
+      error
+    );
+
+    button.textContent = "Save Failed";
+
+    setTimeout(() => {
+      button.textContent = originalText;
+    }, 2000);
+
+  } finally {
+
+    button.disabled = false;
+
+  }
+
+}
+
+
+async function saveAvailabilitySettings(button) {
+
+  button.disabled = true;
+  const originalText = button.textContent;
+  button.textContent = "Saving...";
+
+  try {
+
+    // --------------------------------------------------------
+    // Save booking rules
+    // --------------------------------------------------------
+
+    const settingsPayload = {
+      location_id: state.location.id,
+
+      appointment_length_minutes:
+        Number($("appointmentLengthInput").value),
+
+      max_students_per_slot:
+        Number($("maxStudentsInput").value),
+
+      booking_horizon_days:
+        Number($("bookingHorizonInput").value),
+
+      minimum_booking_notice_hours:
+        Number($("minimumNoticeInput").value),
+
+      cancellation_hours:
+        Number($("cancellationHoursInput").value),
+
+      reschedule_hours:
+        Number($("rescheduleHoursInput").value)
+    };
+
+    const settingsResponse = await fetch(
+      `${cfg.functionsBaseUrl}/save-location-settings`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(settingsPayload)
+      }
+    );
+
+    const settingsResult =
+      await settingsResponse.json();
+
+    if (
+      !settingsResponse.ok ||
+      settingsResult.error
+    ) {
+      throw new Error(
+        typeof settingsResult.error === "string"
+          ? settingsResult.error
+          : JSON.stringify(
+              settingsResult.error ||
+              settingsResult
+            )
+      );
+    }
+
+
+    // --------------------------------------------------------
+    // Save recurring availability
+    // --------------------------------------------------------
 
     const availabilityRules =
       Array.from(
@@ -1127,11 +1236,14 @@ instructor_reminder_subject:
         return {
           day_of_week: day,
           enabled: checkbox.checked,
-          start_time: startInput?.value || null,
-          end_time: endInput?.value || null
+          start_time:
+            startInput?.value || null,
+          end_time:
+            endInput?.value || null
         };
 
       });
+
 
     const availabilityResponse =
       await fetch(
@@ -1142,14 +1254,19 @@ instructor_reminder_subject:
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            location_id: state.location.id,
-            rules: availabilityRules
+            location_id:
+              state.location.id,
+
+            rules:
+              availabilityRules
           })
         }
       );
 
+
     const availabilityResult =
       await availabilityResponse.json();
+
 
     if (
       !availabilityResponse.ok ||
@@ -1161,10 +1278,10 @@ instructor_reminder_subject:
       );
     }
 
-    state.location = result.location;
 
-
-    // Save Special Days
+    // --------------------------------------------------------
+    // Save special days
+    // --------------------------------------------------------
 
     const specialDays =
       Array.from(
@@ -1215,12 +1332,10 @@ instructor_reminder_subject:
         `${cfg.functionsBaseUrl}/save-special-days`,
         {
           method: "POST",
-
           headers: {
             "Content-Type":
               "application/json"
           },
-
           body: JSON.stringify({
             location_id:
               state.location.id,
@@ -1240,41 +1355,39 @@ instructor_reminder_subject:
       !specialDaysResponse.ok ||
       specialDaysResult.error
     ) {
-
-      console.error(
-        "SAVE SPECIAL DAYS RESPONSE:",
-        {
-          status:
-            specialDaysResponse.status,
-
-          statusText:
-            specialDaysResponse.statusText,
-
-          result:
-            specialDaysResult
-        }
-      );
-
       throw new Error(
         specialDaysResult.error ||
         `Unable to save special days. HTTP ${specialDaysResponse.status}`
       );
-
     }
 
 
-    $("saveStatus").textContent =
-      "Settings saved successfully.";
+    // Update local location state
+
+    state.location = {
+      ...state.location,
+      ...settingsResult.location
+    };
+
+
+    button.textContent = "Saved";
+
+    setTimeout(() => {
+      button.textContent = originalText;
+    }, 1500);
 
   } catch (error) {
 
     console.error(
-      "SAVE SETTINGS ERROR:",
+      "SAVE AVAILABILITY SETTINGS ERROR:",
       error
     );
 
-    $("saveStatus").textContent =
-      "Error: " + (error.message || error);
+    button.textContent = "Save Failed";
+
+    setTimeout(() => {
+      button.textContent = originalText;
+    }, 2000);
 
   } finally {
 
@@ -1282,7 +1395,158 @@ instructor_reminder_subject:
 
   }
 
-});
+}
+
+
+async function saveEmailSettings(button) {
+
+  button.disabled = true;
+  const originalText = button.textContent;
+  button.textContent = "Saving...";
+
+  try {
+
+    const payload = {
+      location_id: state.location.id,
+
+      confirmation_email_subject:
+        $("emailSubject").value.trim(),
+
+      confirmation_email_message:
+        $("emailMessage").value.trim(),
+
+      reminder_enabled:
+        $("reminderEnabled").checked,
+
+      reminder_hours_before:
+        Number($("reminderHoursBefore").value),
+
+      instructor_email:
+        $("instructorEmail").value.trim(),
+
+      student_reminder_subject:
+        $("studentReminderSubject").value.trim(),
+
+      student_reminder_message:
+        $("studentReminderMessage").value.trim(),
+
+      instructor_reminder_subject:
+        $("instructorReminderSubject").value.trim(),
+
+      instructor_reminder_message:
+        $("instructorReminderMessage").value.trim(),
+
+      followup_enabled:
+        $("followupEnabled").checked,
+
+      followup_delay_minutes:
+        Number($("followupDelayMinutes").value),
+
+      followup_subject:
+        $("followupSubject").value.trim(),
+
+      followup_message:
+        $("followupMessage").value.trim()
+    };
+
+
+    const response = await fetch(
+      `${cfg.functionsBaseUrl}/save-location-settings`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+
+    const result = await response.json();
+
+
+    if (!response.ok || result.error) {
+      throw new Error(
+        typeof result.error === "string"
+          ? result.error
+          : JSON.stringify(
+              result.error ||
+              result
+            )
+      );
+    }
+
+
+    state.location = {
+      ...state.location,
+      ...result.location
+    };
+
+
+    button.textContent = "Saved";
+
+    setTimeout(() => {
+      button.textContent = originalText;
+    }, 1500);
+
+  } catch (error) {
+
+    console.error(
+      "SAVE EMAIL SETTINGS ERROR:",
+      error
+    );
+
+    button.textContent = "Save Failed";
+
+    setTimeout(() => {
+      button.textContent = originalText;
+    }, 2000);
+
+  } finally {
+
+    button.disabled = false;
+
+  }
+
+}
+
+
+// ------------------------------------------------------------
+// Connect the four tab Save buttons
+// ------------------------------------------------------------
+
+document
+  .querySelectorAll(".tab-save-button")
+  .forEach(button => {
+
+    button.addEventListener("click", async () => {
+
+      const tab =
+        button.dataset.saveTab;
+
+      if (!state.location?.id) {
+        return;
+      }
+
+      if (tab === "location") {
+        await saveLocationSettings(button);
+      }
+
+      if (tab === "branding") {
+        await saveBrandingSettings(button);
+      }
+
+      if (tab === "availability") {
+        await saveAvailabilitySettings(button);
+      }
+
+      if (tab === "emails") {
+        await saveEmailSettings(button);
+      }
+
+    });
+
+  });
 
 
 function escapeHtml(value) {
