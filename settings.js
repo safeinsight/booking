@@ -142,6 +142,26 @@ Location: {{LOCATION}}
 Student: {{STUDENT_NAME}}
 Instructor: {{INSTRUCTOR_NAME}}`;
 
+$("followupEnabled").checked =
+  loc.followup_enabled ?? true;
+
+$("followupDelayMinutes").value =
+  loc.followup_delay_minutes ?? 15;
+
+$("followupSubject").value =
+  loc.followup_subject ||
+  "Thank you for your appointment";
+
+$("followupMessage").value =
+  loc.followup_message ||
+  `Thank you for completing your appointment.
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+Student: {{STUDENT_NAME}}
+Instructor: {{INSTRUCTOR_NAME}}`;
+
 const { data: availabilityRules, error: availabilityError } =
   await db
     .from("availability_rules")
@@ -860,7 +880,11 @@ async function loadLocations() {
       student_reminder_subject,
       student_reminder_message,
       instructor_reminder_subject,
-      instructor_reminder_message
+      instructor_reminder_message,
+      followup_enabled,
+      followup_delay_minutes,
+      followup_subject,
+      followup_message
     `)
     .eq("active", true)
     .order("name");
@@ -1041,8 +1065,20 @@ student_reminder_message:
 instructor_reminder_subject:
   $("instructorReminderSubject").value.trim(),
 
-instructor_reminder_message:
-  $("instructorReminderMessage").value.trim()
+  instructor_reminder_message:
+    $("instructorReminderMessage").value.trim(),
+
+  followup_enabled:
+    $("followupEnabled").checked,
+
+  followup_delay_minutes:
+    Number($("followupDelayMinutes").value),
+
+  followup_subject:
+    $("followupSubject").value.trim(),
+
+  followup_message:
+    $("followupMessage").value.trim()
 };
 
     const response = await fetch(
