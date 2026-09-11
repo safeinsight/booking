@@ -436,6 +436,106 @@
         </div>
 
 
+        <!-- REMINDER EMAIL -->
+
+        <div class="settings-section">
+
+          <h2>Appointment Reminders</h2>
+
+          <p class="muted">
+            Configure whether appointment reminders are sent and how far
+            in advance they are sent.
+          </p>
+
+          <label for="reminderEnabled">
+            <input
+              id="reminderEnabled"
+              type="checkbox"
+              checked
+            >
+            Enable Appointment Reminders
+          </label>
+
+          <label for="reminderHoursBefore">
+            Send Reminder (hours before appointment)
+          </label>
+
+          <input
+            id="reminderHoursBefore"
+            type="number"
+            min="1"
+            step="1"
+            value="24"
+          >
+
+          <label for="studentReminderSubject">
+            Student Reminder Email Subject
+          </label>
+
+          <input
+            id="studentReminderSubject"
+            type="text"
+            maxlength="200"
+            placeholder="Reminder: Your upcoming appointment"
+          >
+
+          <label for="studentReminderMessage">
+            Student Reminder Message
+          </label>
+
+          <textarea
+            id="studentReminderMessage"
+            rows="8"
+            maxlength="5000"
+            placeholder="This is a reminder about your upcoming appointment..."
+          ></textarea>
+
+          <label for="instructorEmail">
+            Instructor Email
+          </label>
+
+          <input
+            id="instructorEmail"
+            type="email"
+            maxlength="320"
+            placeholder="instructor@example.com"
+          >
+
+          <label for="instructorReminderSubject">
+            Instructor Reminder Email Subject
+          </label>
+
+          <input
+            id="instructorReminderSubject"
+            type="text"
+            maxlength="200"
+            placeholder="Upcoming appointment reminder"
+          >
+
+          <label for="instructorReminderMessage">
+            Instructor Reminder Message
+          </label>
+
+          <textarea
+            id="instructorReminderMessage"
+            rows="8"
+            maxlength="5000"
+            placeholder="This is a reminder about an upcoming appointment..."
+          ></textarea>
+
+          <p class="muted">
+            Available placeholders:
+            <code>{{DATE}}</code>,
+            <code>{{TIME}}</code>,
+            <code>{{LOCATION}}</code>,
+            <code>{{STUDENT_NAME}}</code>,
+            <code>{{INSTRUCTOR_NAME}}</code>,
+            <code>{{MANAGE_BUTTON}}</code>
+          </p>
+
+        </div>
+
+
         <!-- SAVE -->
 
         <div class="settings-save">
