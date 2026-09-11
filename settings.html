@@ -289,25 +289,56 @@
               Configure the logo displayed on the booking page.
             </p>
 
-            <label for="logoUrl">
-              Logo URL
-            </label>
+<label for="logoUrl">
+  Logo URL
+</label>
 
-            <input
-              id="logoUrl"
-              type="text"
-              placeholder="safe-insight-logo.png"
-            >
+<input
+  id="logoUrl"
+  type="text"
+  placeholder="safe-insight-logo.png"
+>
 
-            <div class="logo-preview">
-              <img
-                id="logoPreview"
-                src=""
-                alt="Logo preview"
-              >
-            </div>
+<p class="muted" style="margin-top:8px;">
+  Enter an image URL, or upload an image from your computer below.
+</p>
 
-          </div>
+<div style="margin-top:15px;">
+
+  <label for="logoFile">
+    Upload Logo
+  </label>
+
+  <input
+    id="logoFile"
+    type="file"
+    accept="image/png,image/jpeg,image/webp,image/gif"
+  >
+
+  <button
+    type="button"
+    id="uploadLogoBtn"
+    class="secondary"
+    style="margin-top:10px;"
+  >
+    Upload Logo
+  </button>
+
+  <span
+    id="logoUploadStatus"
+    class="muted"
+    style="margin-left:10px;"
+  ></span>
+
+</div>
+
+<div class="logo-preview">
+  <img
+    id="logoPreview"
+    src=""
+    alt="Logo preview"
+  >
+</div>
 
 
           <!-- COLORS -->
