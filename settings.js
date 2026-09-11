@@ -105,6 +105,43 @@ Location: {{LOCATION}}
 
 {{MANAGE_BUTTON}}`;
 
+$("reminderEnabled").checked =
+  loc.reminder_enabled ?? true;
+
+$("reminderHoursBefore").value =
+  loc.reminder_hours_before ?? 24;
+
+$("instructorEmail").value =
+  loc.instructor_email || "";
+
+$("studentReminderSubject").value =
+  loc.student_reminder_subject ||
+  "Reminder: Your upcoming appointment";
+
+$("studentReminderMessage").value =
+  loc.student_reminder_message ||
+  `This is a reminder about your upcoming appointment.
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+
+{{MANAGE_BUTTON}}`;
+
+$("instructorReminderSubject").value =
+  loc.instructor_reminder_subject ||
+  "Upcoming appointment reminder";
+
+$("instructorReminderMessage").value =
+  loc.instructor_reminder_message ||
+  `This is a reminder about an upcoming appointment.
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+Student: {{STUDENT_NAME}}
+Instructor: {{INSTRUCTOR_NAME}}`;
+
 const { data: availabilityRules, error: availabilityError } =
   await db
     .from("availability_rules")
@@ -816,7 +853,14 @@ async function loadLocations() {
       confirmation_email_subject,
       confirmation_email_message,
       student_confirmation_enabled,
-      instructor_notification_enabled
+      instructor_notification_enabled,
+      reminder_enabled,
+      reminder_hours_before,
+      instructor_email,
+      student_reminder_subject,
+      student_reminder_message,
+      instructor_reminder_subject,
+      instructor_reminder_message
     `)
     .eq("active", true)
     .order("name");
@@ -972,17 +1016,33 @@ const payload = {
   reschedule_hours:
     Number($("rescheduleHoursInput").value),
 
-  confirmation_email_subject:
-    $("emailSubject").value.trim(),
+confirmation_email_subject: $("emailSubject").value.trim(),
 
-  confirmation_email_message:
-    $("emailMessage").value.trim(),
+confirmation_email_message: $("emailMessage").value.trim(),
 
-  student_confirmation_enabled:
-    true,
+student_confirmation_enabled: true,
 
-  instructor_notification_enabled:
-    true
+instructor_notification_enabled: true,
+
+reminder_enabled: $("reminderEnabled").checked,
+
+reminder_hours_before:
+  Number($("reminderHoursBefore").value),
+
+instructor_email:
+  $("instructorEmail").value.trim(),
+
+student_reminder_subject:
+  $("studentReminderSubject").value.trim(),
+
+student_reminder_message:
+  $("studentReminderMessage").value.trim(),
+
+instructor_reminder_subject:
+  $("instructorReminderSubject").value.trim(),
+
+instructor_reminder_message:
+  $("instructorReminderMessage").value.trim()
 };
 
     const response = await fetch(
