@@ -6,6 +6,73 @@
   <title>Location Settings</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .settings-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 25px 0 20px;
+      border-bottom: 1px solid #ddd;
+      flex-wrap: wrap;
+    }
+
+    .settings-tab {
+      appearance: none;
+      border: 1px solid #ddd;
+      border-bottom: none;
+      background: #f5f5f5;
+      color: #222;
+      padding: 12px 20px;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .settings-tab:hover {
+      background: #eaeaea;
+    }
+
+    .settings-tab.active {
+      background: #fff;
+      border-color: #ccc;
+      color: #000;
+      position: relative;
+      bottom: -1px;
+    }
+
+    .settings-tab-panel {
+      display: none;
+    }
+
+    .settings-tab-panel.active {
+      display: block;
+    }
+
+    .tab-save {
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .tab-save button {
+      min-width: 170px;
+    }
+
+    @media (max-width: 700px) {
+      .settings-tabs {
+        gap: 5px;
+      }
+
+      .settings-tab {
+        flex: 1 1 calc(50% - 5px);
+        padding: 11px 10px;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -45,344 +112,159 @@
 
       <div id="settingsApp" class="hidden">
 
-        <!-- LOCATION SELECTOR -->
+        <!-- SETTINGS TABS -->
 
-        <div class="settings-section">
-
-          <h2>Location</h2>
-
-          <label for="locationSelect">
-            Location / Instructor
-          </label>
-
-          <select id="locationSelect"></select>
-
-        </div>
-
-
-        <!-- LOGOS -->
-
-        <div class="settings-section">
-
-          <h2>Logos</h2>
-
-          <p class="muted">
-            Configure the logo displayed on the booking page.
-          </p>
-
-          <label for="logoUrl">
-            Logo URL
-          </label>
-
-          <input
-            id="logoUrl"
-            type="text"
-            placeholder="safe-insight-logo.png"
-          >
-
-          <div class="logo-preview">
-            <img id="logoPreview" src="" alt="Logo preview">
-          </div>
-
-        </div>
-
-
-        <!-- COLORS -->
-
-        <div class="settings-section">
-
-          <h2>Colors</h2>
-
-          <div class="color-grid">
-
-            <div>
-              <label for="primaryColor">
-                Primary
-              </label>
-
-              <input
-                id="primaryColor"
-                type="color"
-              >
-
-              <input
-                id="primaryColorText"
-                type="text"
-                maxlength="7"
-              >
-            </div>
-
-
-            <div>
-              <label for="secondaryColor">
-                Secondary
-              </label>
-
-              <input
-                id="secondaryColor"
-                type="color"
-              >
-
-              <input
-                id="secondaryColorText"
-                type="text"
-                maxlength="7"
-              >
-            </div>
-
-
-            <div>
-              <label for="accentColor">
-                Accent
-              </label>
-
-              <input
-                id="accentColor"
-                type="color"
-              >
-
-              <input
-                id="accentColorText"
-                type="text"
-                maxlength="7"
-              >
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- CALENDAR -->
-
-        <div class="settings-section">
-
-          <h2>Calendar</h2>
-
-          <div class="settings-status">
-            <strong>Google Calendar</strong>
-            <span id="calendarStatus">Checking connection…</span>
-          </div>
-
-          <p class="muted">
-            Connect your Google Calendar and choose which calendars
-            should block appointment availability.
-          </p>
-
-          <div id="calendarInfo" class="summary"></div>
-          
-          <div id="blockingCalendarControls"></div>
+        <div class="settings-tabs" role="tablist">
 
           <button
             type="button"
-            id="connectCalendarBtn"
-            class="secondary"
+            class="settings-tab active"
+            data-tab="locationTab"
           >
-            Connect Google Calendar
+            Location
+          </button>
+
+          <button
+            type="button"
+            class="settings-tab"
+            data-tab="brandingTab"
+          >
+            Branding
+          </button>
+
+          <button
+            type="button"
+            class="settings-tab"
+            data-tab="availabilityTab"
+          >
+            Availability
+          </button>
+
+          <button
+            type="button"
+            class="settings-tab"
+            data-tab="emailsTab"
+          >
+            Emails
           </button>
 
         </div>
-        
-
-    <!-- BOOKING RULES -->
-
-        <div class="settings-section">
-
-          <h2>Booking Rules</h2>
-
-          <p class="muted">
-            Configure the rules that control appointment length,
-            capacity, booking window, and cancellation or rescheduling.
-          </p>
-
-          <label for="appointmentLengthInput">
-            Appointment Length (minutes)
-          </label>
-
-          <input
-            id="appointmentLengthInput"
-            type="number"
-            min="15"
-            step="15"
-            required
-          >
-
-          <label for="maxStudentsInput">
-            Maximum Students Per Slot
-          </label>
-
-          <input
-            id="maxStudentsInput"
-            type="number"
-            min="1"
-            step="1"
-            required
-          >
-
-          <label for="bookingHorizonInput">
-            Booking Horizon (days)
-          </label>
-
-          <input
-            id="bookingHorizonInput"
-            type="number"
-            min="1"
-            step="1"
-            required
-          >
-
-          <label for="minimumNoticeInput">
-            Minimum Advance Notice (hours)
-          </label>
-
-          <input
-            id="minimumNoticeInput"
-            type="number"
-            min="0"
-            step="1"
-            required
-          >
-
-          <label for="cancellationHoursInput">
-            Cancellation Window (hours)
-          </label>
-
-          <input
-            id="cancellationHoursInput"
-            type="number"
-            min="0"
-            step="1"
-            required
-          >
-
-          <label for="rescheduleHoursInput">
-            Reschedule Window (hours)
-          </label>
-
-          <input
-            id="rescheduleHoursInput"
-            type="number"
-            min="0"
-            step="1"
-            required
-          >
-
-        </div>
 
 
-        
-    <!-- LOCATION INFORMATION -->
+        <!-- LOCATION TAB -->
 
-        <div class="settings-section">
+        <div
+          id="locationTab"
+          class="settings-tab-panel active"
+        >
 
-          <h2>Location Information</h2>
+          <!-- LOCATION SELECTOR -->
 
-          <label for="locationName">
-            Location Name
-          </label>
+          <div class="settings-section">
 
-          <input id="locationName" type="text" maxlength="120">
+            <h2>Location</h2>
 
+            <label for="locationSelect">
+              Location / Instructor
+            </label>
 
-          <label for="instructorName">
-            Instructor
-          </label>
-
-          <input id="instructorName" type="text" maxlength="120">
-
-
-          <label for="address">
-            Physical Address
-          </label>
-
-          <textarea
-            id="address"
-            rows="3"
-            maxlength="300"
-          ></textarea>
-
-
-          <label for="website">
-            Website
-          </label>
-
-          <input
-            id="website"
-            type="url"
-            placeholder="https://example.com"
-            maxlength="500"
-          >
-
-        </div>
-
-
-    <!-- AVAILABILITY -->
-
-        <div class="settings-section">
-
-          <h2>Availability</h2>
-
-          <p class="muted">
-            Configure the days and hours when appointments are available.
-          </p>
-
-          <div class="availability-summary">
-
-            <div>
-              <strong>Appointment Length</strong>
-              <span id="appointmentLength"></span>
-            </div>
-
-            <div>
-              <strong>Maximum Students</strong>
-              <span id="maxStudents"></span>
-            </div>
-
-            <div>
-              <strong>Booking Horizon</strong>
-              <span id="bookingHorizon"></span>
-            </div>
-
-            <div>
-              <strong>Minimum Notice</strong>
-              <span id="minimumNotice"></span>
-            </div>
+            <select id="locationSelect"></select>
 
           </div>
 
-          <div
-            id="availabilityRules"
-            style="margin-top:20px;"
-          ></div>
 
-          <div
-            style="
-              margin-top:30px;
-              padding-top:20px;
-              border-top:1px solid #ddd;
-            "
-          >
+          <!-- CALENDAR -->
 
-            <h3>Special Days</h3>
+          <div class="settings-section">
+
+            <h2>Calendar</h2>
+
+            <div class="settings-status">
+              <strong>Google Calendar</strong>
+              <span id="calendarStatus">Checking connection…</span>
+            </div>
 
             <p class="muted">
-              Override the normal availability for specific dates.
-              Use Closed for holidays or other days when appointments
-              should not be available.
+              Connect your Google Calendar and choose which calendars
+              should block appointment availability.
             </p>
 
-            <div
-              id="specialDays"
-              style="margin-top:15px;"
-            ></div>
+            <div id="calendarInfo" class="summary"></div>
+
+            <div id="blockingCalendarControls"></div>
 
             <button
               type="button"
-              id="addSpecialDayBtn"
+              id="connectCalendarBtn"
               class="secondary"
-              style="margin-top:15px;"
             >
-              + Add Special Day
+              Connect Google Calendar
+            </button>
+
+          </div>
+
+
+          <!-- LOCATION INFORMATION -->
+
+          <div class="settings-section">
+
+            <h2>Location Information</h2>
+
+            <label for="locationName">
+              Location Name
+            </label>
+
+            <input
+              id="locationName"
+              type="text"
+              maxlength="120"
+            >
+
+
+            <label for="instructorName">
+              Instructor
+            </label>
+
+            <input
+              id="instructorName"
+              type="text"
+              maxlength="120"
+            >
+
+
+            <label for="address">
+              Physical Address
+            </label>
+
+            <textarea
+              id="address"
+              rows="3"
+              maxlength="300"
+            ></textarea>
+
+
+            <label for="website">
+              Website
+            </label>
+
+            <input
+              id="website"
+              type="url"
+              placeholder="https://example.com"
+              maxlength="500"
+            >
+
+          </div>
+
+
+          <div class="tab-save">
+
+            <button
+              type="button"
+              class="primary tab-save-button"
+              data-save-tab="location"
+            >
+              Save Location Settings
             </button>
 
           </div>
@@ -390,221 +272,552 @@
         </div>
 
 
-    <!-- CONFIRMATION EMAIL -->
+        <!-- BRANDING TAB -->
 
-        <div class="settings-section">
+        <div
+          id="brandingTab"
+          class="settings-tab-panel"
+        >
 
-          <h2>Confirmation Email</h2>
+          <!-- LOGOS -->
 
-          <p class="muted">
-            Customize the message sent to the student after a
-            successful booking.
-          </p>
+          <div class="settings-section">
 
-          <label for="emailSubject">
-            Email Subject
-          </label>
+            <h2>Logos</h2>
 
-          <input
-            id="emailSubject"
-            type="text"
-            maxlength="200"
-            placeholder="Your appointment confirmation"
-          >
+            <p class="muted">
+              Configure the logo displayed on the booking page.
+            </p>
 
+            <label for="logoUrl">
+              Logo URL
+            </label>
 
-          <label for="emailMessage">
-            Confirmation Message
-          </label>
-
-          <textarea
-            id="emailMessage"
-            rows="8"
-            maxlength="5000"
-            placeholder="Thank you for booking with us..."
-          ></textarea>
-
-          <button
-            type="button"
-            id="restoreEmailDefaultBtn"
-            class="secondary"
-            style="margin-top:10px;"
-          >
-            Restore Default
-          </button>
-
-        </div>
-
-
-        <!-- REMINDER EMAIL -->
-
-        <div class="settings-section">
-
-          <h2>Appointment Reminders</h2>
-
-          <p class="muted">
-            Configure whether appointment reminders are sent and how far
-            in advance they are sent.
-          </p>
-
-          <label for="reminderEnabled">
             <input
-              id="reminderEnabled"
-              type="checkbox"
-              checked
+              id="logoUrl"
+              type="text"
+              placeholder="safe-insight-logo.png"
             >
-            Enable Appointment Reminders
-          </label>
 
-          <label for="reminderHoursBefore">
-            Send Reminder (hours before appointment)
-          </label>
+            <div class="logo-preview">
+              <img
+                id="logoPreview"
+                src=""
+                alt="Logo preview"
+              >
+            </div>
 
-          <input
-            id="reminderHoursBefore"
-            type="number"
-            min="1"
-            step="1"
-            value="24"
-          >
+          </div>
 
-          <label for="studentReminderSubject">
-            Student Reminder Email Subject
-          </label>
 
-          <input
-            id="studentReminderSubject"
-            type="text"
-            maxlength="200"
-            placeholder="Reminder: Your upcoming appointment"
-          >
+          <!-- COLORS -->
 
-          <label for="studentReminderMessage">
-            Student Reminder Message
-          </label>
+          <div class="settings-section">
 
-          <textarea
-            id="studentReminderMessage"
-            rows="8"
-            maxlength="5000"
-            placeholder="This is a reminder about your upcoming appointment..."
-          ></textarea>
+            <h2>Colors</h2>
 
-          <label for="instructorEmail">
-            Instructor Email
-          </label>
+            <div class="color-grid">
 
-          <input
-            id="instructorEmail"
-            type="email"
-            maxlength="320"
-            placeholder="instructor@example.com"
-          >
+              <div>
 
-          <label for="instructorReminderSubject">
-            Instructor Reminder Email Subject
-          </label>
+                <label for="primaryColor">
+                  Primary
+                </label>
 
-          <input
-            id="instructorReminderSubject"
-            type="text"
-            maxlength="200"
-            placeholder="Upcoming appointment reminder"
-          >
+                <input
+                  id="primaryColor"
+                  type="color"
+                >
 
-          <label for="instructorReminderMessage">
-            Instructor Reminder Message
-          </label>
+                <input
+                  id="primaryColorText"
+                  type="text"
+                  maxlength="7"
+                >
 
-          <textarea
-            id="instructorReminderMessage"
-            rows="8"
-            maxlength="5000"
-            placeholder="This is a reminder about an upcoming appointment..."
-          ></textarea>
+              </div>
 
-          <p class="muted">
-            Available placeholders:
-            <code>{{DATE}}</code>,
-            <code>{{TIME}}</code>,
-            <code>{{LOCATION}}</code>,
-            <code>{{STUDENT_NAME}}</code>,
-            <code>{{INSTRUCTOR_NAME}}</code>,
-            <code>{{MANAGE_BUTTON}}</code>
-          </p>
+
+              <div>
+
+                <label for="secondaryColor">
+                  Secondary
+                </label>
+
+                <input
+                  id="secondaryColor"
+                  type="color"
+                >
+
+                <input
+                  id="secondaryColorText"
+                  type="text"
+                  maxlength="7"
+                >
+
+              </div>
+
+
+              <div>
+
+                <label for="accentColor">
+                  Accent
+                </label>
+
+                <input
+                  id="accentColor"
+                  type="color"
+                >
+
+                <input
+                  id="accentColorText"
+                  type="text"
+                  maxlength="7"
+                >
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="tab-save">
+
+            <button
+              type="button"
+              class="primary tab-save-button"
+              data-save-tab="branding"
+            >
+              Save Branding
+            </button>
+
+          </div>
 
         </div>
 
 
-        <!-- FOLLOW-UP EMAIL -->
+        <!-- AVAILABILITY TAB -->
 
-        <div class="settings-section">
+        <div
+          id="availabilityTab"
+          class="settings-tab-panel"
+        >
 
-          <h2>Post-Appointment Follow-Up Email</h2>
+          <!-- BOOKING RULES -->
 
-          <p class="muted">
-            Configure the email sent automatically to the student after
-            their appointment has been completed.
-          </p>
+          <div class="settings-section">
 
-          <label for="followupEnabled">
+            <h2>Booking Rules</h2>
+
+            <p class="muted">
+              Configure the rules that control appointment length,
+              capacity, booking window, and cancellation or rescheduling.
+            </p>
+
+            <label for="appointmentLengthInput">
+              Appointment Length (minutes)
+            </label>
+
             <input
-              id="followupEnabled"
-              type="checkbox"
-              checked
+              id="appointmentLengthInput"
+              type="number"
+              min="15"
+              step="15"
+              required
             >
-            Enable Post-Appointment Follow-Up Email
-          </label>
 
-          <label for="followupDelayMinutes">
-            Send Follow-Up (minutes after appointment)
-          </label>
+            <label for="maxStudentsInput">
+              Maximum Students Per Slot
+            </label>
 
-          <input
-            id="followupDelayMinutes"
-            type="number"
-            min="0"
-            step="15"
-            value="15"
-          >
+            <input
+              id="maxStudentsInput"
+              type="number"
+              min="1"
+              step="1"
+              required
+            >
 
-          <label for="followupSubject">
-            Follow-Up Email Subject
-          </label>
+            <label for="bookingHorizonInput">
+              Booking Horizon (days)
+            </label>
 
-          <input
-            id="followupSubject"
-            type="text"
-            maxlength="200"
-            placeholder="Thank you for your appointment"
-          >
+            <input
+              id="bookingHorizonInput"
+              type="number"
+              min="1"
+              step="1"
+              required
+            >
 
-          <label for="followupMessage">
-            Follow-Up Email Message
-          </label>
+            <label for="minimumNoticeInput">
+              Minimum Advance Notice (hours)
+            </label>
 
-          <textarea
-            id="followupMessage"
-            rows="10"
-            maxlength="5000"
-            placeholder="Thank you for completing your appointment..."
-          ></textarea>
+            <input
+              id="minimumNoticeInput"
+              type="number"
+              min="0"
+              step="1"
+              required
+            >
 
-          <p class="muted">
-            Available placeholders:
-            <code>{{DATE}}</code>,
-            <code>{{TIME}}</code>,
-            <code>{{LOCATION}}</code>,
-            <code>{{STUDENT_NAME}}</code>,
-            <code>{{INSTRUCTOR_NAME}}</code>
-          </p>
+            <label for="cancellationHoursInput">
+              Cancellation Window (hours)
+            </label>
+
+            <input
+              id="cancellationHoursInput"
+              type="number"
+              min="0"
+              step="1"
+              required
+            >
+
+            <label for="rescheduleHoursInput">
+              Reschedule Window (hours)
+            </label>
+
+            <input
+              id="rescheduleHoursInput"
+              type="number"
+              min="0"
+              step="1"
+              required
+            >
+
+          </div>
+
+
+          <!-- AVAILABILITY -->
+
+          <div class="settings-section">
+
+            <h2>Availability</h2>
+
+            <p class="muted">
+              Configure the days and hours when appointments are available.
+            </p>
+
+            <div class="availability-summary">
+
+              <div>
+                <strong>Appointment Length</strong>
+                <span id="appointmentLength"></span>
+              </div>
+
+              <div>
+                <strong>Maximum Students</strong>
+                <span id="maxStudents"></span>
+              </div>
+
+              <div>
+                <strong>Booking Horizon</strong>
+                <span id="bookingHorizon"></span>
+              </div>
+
+              <div>
+                <strong>Minimum Notice</strong>
+                <span id="minimumNotice"></span>
+              </div>
+
+            </div>
+
+            <div
+              id="availabilityRules"
+              style="margin-top:20px;"
+            ></div>
+
+            <div
+              style="
+                margin-top:30px;
+                padding-top:20px;
+                border-top:1px solid #ddd;
+              "
+            >
+
+              <h3>Special Days</h3>
+
+              <p class="muted">
+                Override the normal availability for specific dates.
+                Use Closed for holidays or other days when appointments
+                should not be available.
+              </p>
+
+              <div
+                id="specialDays"
+                style="margin-top:15px;"
+              ></div>
+
+              <button
+                type="button"
+                id="addSpecialDayBtn"
+                class="secondary"
+                style="margin-top:15px;"
+              >
+                + Add Special Day
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <div class="tab-save">
+
+            <button
+              type="button"
+              class="primary tab-save-button"
+              data-save-tab="availability"
+            >
+              Save Availability Settings
+            </button>
+
+          </div>
 
         </div>
 
 
-        <!-- SAVE -->
+        <!-- EMAILS TAB -->
 
-        <div class="settings-save">
+        <div
+          id="emailsTab"
+          class="settings-tab-panel"
+        >
+
+          <!-- CONFIRMATION EMAIL -->
+
+          <div class="settings-section">
+
+            <h2>Confirmation Email</h2>
+
+            <p class="muted">
+              Customize the message sent to the student after a
+              successful booking.
+            </p>
+
+            <label for="emailSubject">
+              Email Subject
+            </label>
+
+            <input
+              id="emailSubject"
+              type="text"
+              maxlength="200"
+              placeholder="Your appointment confirmation"
+            >
+
+            <label for="emailMessage">
+              Confirmation Message
+            </label>
+
+            <textarea
+              id="emailMessage"
+              rows="8"
+              maxlength="5000"
+              placeholder="Thank you for booking with us..."
+            ></textarea>
+
+            <button
+              type="button"
+              id="restoreEmailDefaultBtn"
+              class="secondary"
+              style="margin-top:10px;"
+            >
+              Restore Default
+            </button>
+
+          </div>
+
+
+          <!-- REMINDER EMAIL -->
+
+          <div class="settings-section">
+
+            <h2>Appointment Reminders</h2>
+
+            <p class="muted">
+              Configure whether appointment reminders are sent and how far
+              in advance they are sent.
+            </p>
+
+            <label for="reminderEnabled">
+              <input
+                id="reminderEnabled"
+                type="checkbox"
+                checked
+              >
+              Enable Appointment Reminders
+            </label>
+
+            <label for="reminderHoursBefore">
+              Send Reminder (hours before appointment)
+            </label>
+
+            <input
+              id="reminderHoursBefore"
+              type="number"
+              min="1"
+              step="1"
+              value="24"
+            >
+
+            <label for="studentReminderSubject">
+              Student Reminder Email Subject
+            </label>
+
+            <input
+              id="studentReminderSubject"
+              type="text"
+              maxlength="200"
+              placeholder="Reminder: Your upcoming appointment"
+            >
+
+            <label for="studentReminderMessage">
+              Student Reminder Message
+            </label>
+
+            <textarea
+              id="studentReminderMessage"
+              rows="8"
+              maxlength="5000"
+              placeholder="This is a reminder about your upcoming appointment..."
+            ></textarea>
+
+            <label for="instructorEmail">
+              Instructor Email
+            </label>
+
+            <input
+              id="instructorEmail"
+              type="email"
+              maxlength="320"
+              placeholder="instructor@example.com"
+            >
+
+            <label for="instructorReminderSubject">
+              Instructor Reminder Email Subject
+            </label>
+
+            <input
+              id="instructorReminderSubject"
+              type="text"
+              maxlength="200"
+              placeholder="Upcoming appointment reminder"
+            >
+
+            <label for="instructorReminderMessage">
+              Instructor Reminder Message
+            </label>
+
+            <textarea
+              id="instructorReminderMessage"
+              rows="8"
+              maxlength="5000"
+              placeholder="This is a reminder about an upcoming appointment..."
+            ></textarea>
+
+            <p class="muted">
+              Available placeholders:
+              <code>{{DATE}}</code>,
+              <code>{{TIME}}</code>,
+              <code>{{LOCATION}}</code>,
+              <code>{{STUDENT_NAME}}</code>,
+              <code>{{INSTRUCTOR_NAME}}</code>,
+              <code>{{MANAGE_BUTTON}}</code>
+            </p>
+
+          </div>
+
+
+          <!-- FOLLOW-UP EMAIL -->
+
+          <div class="settings-section">
+
+            <h2>Post-Appointment Follow-Up Email</h2>
+
+            <p class="muted">
+              Configure the email sent automatically to the student after
+              their appointment has been completed.
+            </p>
+
+            <label for="followupEnabled">
+              <input
+                id="followupEnabled"
+                type="checkbox"
+                checked
+              >
+              Enable Post-Appointment Follow-Up Email
+            </label>
+
+            <label for="followupDelayMinutes">
+              Send Follow-Up (minutes after appointment)
+            </label>
+
+            <input
+              id="followupDelayMinutes"
+              type="number"
+              min="0"
+              step="15"
+              value="15"
+            >
+
+            <label for="followupSubject">
+              Follow-Up Email Subject
+            </label>
+
+            <input
+              id="followupSubject"
+              type="text"
+              maxlength="200"
+              placeholder="Thank you for your appointment"
+            >
+
+            <label for="followupMessage">
+              Follow-Up Email Message
+            </label>
+
+            <textarea
+              id="followupMessage"
+              rows="10"
+              maxlength="5000"
+              placeholder="Thank you for completing your appointment..."
+            ></textarea>
+
+            <p class="muted">
+              Available placeholders:
+              <code>{{DATE}}</code>,
+              <code>{{TIME}}</code>,
+              <code>{{LOCATION}}</code>,
+              <code>{{STUDENT_NAME}}</code>,
+              <code>{{INSTRUCTOR_NAME}}</code>
+            </p>
+
+          </div>
+
+
+          <div class="tab-save">
+
+            <button
+              type="button"
+              class="primary tab-save-button"
+              data-save-tab="emails"
+            >
+              Save Email Settings
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- EXISTING SAVE -->
+
+        <div
+          class="settings-save"
+          style="display:none;"
+        >
 
           <div id="saveStatus" class="muted"></div>
 
@@ -617,8 +830,6 @@
           </button>
 
         </div>
-
-      </div>
 
     </section>
 
