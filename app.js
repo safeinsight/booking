@@ -299,8 +299,10 @@ if (!res.ok) {
 
     $("bookingApp").querySelectorAll(".step-panel").forEach(p => p.classList.add("hidden"));
     $("success").classList.remove("hidden");
-    $("successText").textContent =
-      `Your appointment at ${state.location.name} is confirmed for ${formatDate(first.start, state.location.timezone)}, ${formatTime(first.start, state.location.timezone)} – ${formatTime(last.end, state.location.timezone)}.`;
+    $("successText").innerHTML =
+      `Your appointment at ${escapeHtml(state.location.name)} is confirmed for<br>` +
+      `${formatDate(first.start, state.location.timezone)}<br>` +
+      `${formatTime(first.start, state.location.timezone)} – ${formatTime(last.end, state.location.timezone)}`;
     $("manageLink").href = json.manage_url || "#";
   } catch (err) {
     $("submitStatus").textContent = err.message;
