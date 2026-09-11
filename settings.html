@@ -845,7 +845,31 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
-  <script src="settings.js"></script>
+<script src="settings.js"></script>
+
+<script>
+  document.querySelectorAll(".settings-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.tab;
+
+      document.querySelectorAll(".settings-tab").forEach(t => {
+        t.classList.remove("active");
+      });
+
+      document.querySelectorAll(".settings-tab-panel").forEach(panel => {
+        panel.classList.remove("active");
+      });
+
+      tab.classList.add("active");
+
+      const panel = document.getElementById(target);
+
+      if (panel) {
+        panel.classList.add("active");
+      }
+    });
+  });
+</script>
 
 </body>
 </html>
