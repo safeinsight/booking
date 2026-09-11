@@ -198,73 +198,203 @@ const { data: availabilityRules, error: availabilityError } =
       "Saturday"
     ];
 
-    const rules =
-      availabilityRules || [];
+const rules =
+  availabilityRules || [];
 
-    $("availabilityRules").innerHTML =
-      dayNames.map((dayName, dayIndex) => {
+$("availabilityRules").innerHTML =
+  dayNames.map((dayName, dayIndex) => {
 
-        const dayRules =
-          rules.filter(
-            rule =>
-              Number(rule.day_of_week) === dayIndex
-          );
+    const dayRules =
+      rules.filter(
+        rule =>
+          Number(rule.day_of_week) === dayIndex
+      );
 
-        const rule =
-          dayRules[0] || null;
+    const rows =
+      dayRules.length
+        ? dayRules
+        : [null];
 
-        return `
-          <div
-            class="availability-row"
-            style="
-              display:grid;
-              grid-template-columns:
-                120px
-                90px
-                130px
-                130px;
-              gap:10px;
-              align-items:center;
-              margin-top:10px;
-            "
-          >
+    return `
+      <div
+        class="availability-day"
+        data-day="${dayIndex}"
+        style="
+          margin-top:16px;
+          padding:12px;
+          border:1px solid #ddd;
+          border-radius:8px;
+        "
+      >
 
-            <strong>
-              ${dayName}
-            </strong>
+        <strong>
+          ${dayName}
+        </strong>
 
-            <label style="margin:0;">
+        <div class="availability-slots">
+
+          ${rows.map(rule => `
+            <div
+              class="availability-row"
+              style="
+                display:grid;
+                grid-template-columns:
+                  90px
+                  130px
+                  130px
+                  90px;
+                gap:10px;
+                align-items:center;
+                margin-top:10px;
+              "
+            >
+
+              <label style="margin:0;">
+                <input
+                  type="checkbox"
+                  class="availability-enabled"
+                  data-day="${dayIndex}"
+                  ${rule?.enabled ? "checked" : ""}
+                >
+                Enabled
+              </label>
+
               <input
-                type="checkbox"
-                class="availability-enabled"
+                type="time"
+                class="availability-start"
                 data-day="${dayIndex}"
-                ${rule?.enabled ? "checked" : ""}
+                value="${rule?.start_time
+                  ? rule.start_time.substring(0, 5)
+                  : ""}"
               >
-              Enabled
-            </label>
 
-            <input
-              type="time"
-              class="availability-start"
-              data-day="${dayIndex}"
-              value="${rule?.start_time
-                ? rule.start_time.substring(0, 5)
-                : ""}"
-            >
+              <input
+                type="time"
+                class="availability-end"
+                data-day="${dayIndex}"
+                value="${rule?.end_time
+                  ? rule.end_time.substring(0, 5)
+                  : ""}"
+              >
 
-            <input
-              type="time"
-              class="availability-end"
-              data-day="${dayIndex}"
-              value="${rule?.end_time
-                ? rule.end_time.substring(0, 5)
-                : ""}"
-            >
+              <button
+                type="button"
+                class="secondary availability-delete"
+              >
+                Delete
+              </button>
 
-          </div>
-        `;
+            </div>
+          `).join("")}
 
-      }).join("");
+        </div>
+
+        <button
+          type="button"
+          class="secondary availability-add"
+          data-day="${dayIndex}"
+          style="margin-top:10px;"
+        >
+          + Add Time Slot
+        </button>
+
+      </div>
+    `;
+  }).join("");
+
+  document
+  .querySelectorAll(".availability-add")
+  .forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      const day =
+        button.dataset.day;
+
+      const container =
+        button
+          .closest(".availability-day")
+          .querySelector(".availability-slots");
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "availability-row";
+
+      row.style.cssText = `
+        display:grid;
+        grid-template-columns:
+          90px
+          130px
+          130px
+          90px;
+        gap:10px;
+        align-items:center;
+        margin-top:10px;
+      `;
+
+      row.innerHTML = `
+        <label style="margin:0;">
+          <input
+            type="checkbox"
+            class="availability-enabled"
+            data-day="${day}"
+            checked
+          >
+          Enabled
+        </label>
+
+        <input
+          type="time"
+          class="availability-start"
+          data-day="${day}"
+          value=""
+        >
+
+        <input
+          type="time"
+          class="availability-end"
+          data-day="${day}"
+          value=""
+        >
+
+        <button
+          type="button"
+          class="secondary availability-delete"
+        >
+          Delete
+        </button>
+      `;
+
+      container.appendChild(row);
+
+      row
+        .querySelector(".availability-delete")
+        .addEventListener("click", () => {
+          row.remove();
+        });
+
+    });
+
+  });
+
+document
+  .querySelectorAll(".availability-delete")
+  .forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      const row =
+        button.closest(".availability-row");
+
+      if (row) {
+        row.remove();
+      }
+
+    });
+
+  });
 
   }
 
@@ -1213,36 +1343,43 @@ async function saveAvailabilitySettings(button) {
     // Save recurring availability
     // --------------------------------------------------------
 
-    const availabilityRules =
-      Array.from(
-        document.querySelectorAll(
-          ".availability-enabled"
-        )
-      ).map(checkbox => {
+const availabilityRules =
+  Array.from(
+    document.querySelectorAll(
+      ".availability-row"
+    )
+  ).map(row => {
 
-        const day =
-          Number(checkbox.dataset.day);
+    const checkbox =
+      row.querySelector(
+        ".availability-enabled"
+      );
 
-        const startInput =
-          document.querySelector(
-            `.availability-start[data-day="${day}"]`
-          );
+    const startInput =
+      row.querySelector(
+        ".availability-start"
+      );
 
-        const endInput =
-          document.querySelector(
-            `.availability-end[data-day="${day}"]`
-          );
+    const endInput =
+      row.querySelector(
+        ".availability-end"
+      );
 
-        return {
-          day_of_week: day,
-          enabled: checkbox.checked,
-          start_time:
-            startInput?.value || null,
-          end_time:
-            endInput?.value || null
-        };
+    return {
+      day_of_week:
+        Number(checkbox.dataset.day),
 
-      });
+      enabled:
+        checkbox.checked,
+
+      start_time:
+        startInput?.value || null,
+
+      end_time:
+        endInput?.value || null
+    };
+
+  });
 
 
     const availabilityResponse =
