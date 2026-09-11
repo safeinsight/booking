@@ -536,6 +536,72 @@
         </div>
 
 
+        <!-- FOLLOW-UP EMAIL -->
+
+        <div class="settings-section">
+
+          <h2>Post-Appointment Follow-Up Email</h2>
+
+          <p class="muted">
+            Configure the email sent automatically to the student after
+            their appointment has been completed.
+          </p>
+
+          <label for="followupEnabled">
+            <input
+              id="followupEnabled"
+              type="checkbox"
+              checked
+            >
+            Enable Post-Appointment Follow-Up Email
+          </label>
+
+          <label for="followupDelayMinutes">
+            Send Follow-Up (minutes after appointment)
+          </label>
+
+          <input
+            id="followupDelayMinutes"
+            type="number"
+            min="0"
+            step="15"
+            value="15"
+          >
+
+          <label for="followupSubject">
+            Follow-Up Email Subject
+          </label>
+
+          <input
+            id="followupSubject"
+            type="text"
+            maxlength="200"
+            placeholder="Thank you for your appointment"
+          >
+
+          <label for="followupMessage">
+            Follow-Up Email Message
+          </label>
+
+          <textarea
+            id="followupMessage"
+            rows="10"
+            maxlength="5000"
+            placeholder="Thank you for completing your appointment..."
+          ></textarea>
+
+          <p class="muted">
+            Available placeholders:
+            <code>{{DATE}}</code>,
+            <code>{{TIME}}</code>,
+            <code>{{LOCATION}}</code>,
+            <code>{{STUDENT_NAME}}</code>,
+            <code>{{INSTRUCTOR_NAME}}</code>
+          </p>
+
+        </div>
+
+
         <!-- SAVE -->
 
         <div class="settings-save">
