@@ -1076,6 +1076,131 @@ $("logoUrl").addEventListener("input", () => {
   $("brandLogo").src = logoUrl;
 });
 
+$("uploadLogoBtn").addEventListener("click", async () => {
+
+  const fileInput =
+    $("logoFile");
+
+  const status =
+    $("logoUploadStatus");
+
+  const file =
+    fileInput.files?.[0];
+
+  if (!file) {
+    status.textContent =
+      "Please choose an image first.";
+    return;
+  }
+
+  if (!state.location?.id) {
+    status.textContent =
+      "Please select a location first.";
+    return;
+  }
+
+  const allowedTypes = [
+    "image/png",
+    "image/jpeg",
+    "image/webp",
+    "image/gif"
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    status.textContent =
+      "Please select a PNG, JPG, WEBP, or GIF image.";
+    return;
+  }
+
+  const maxSize =
+    5 * 1024 * 1024;
+
+  if (file.size > maxSize) {
+    status.textContent =
+      "Image must be 5 MB or smaller.";
+    return;
+  }
+
+  const button =
+    $("uploadLogoBtn");
+
+  button.disabled = true;
+  status.textContent =
+    "Uploading...";
+
+  try {
+
+    const extension =
+      file.name
+        .split(".")
+        .pop()
+        .toLowerCase();
+
+    const filePath =
+      `${state.location.id}/logo-${Date.now()}.${extension}`;
+
+    const {
+      data,
+      error
+    } =
+      await db.storage
+        .from("location-assets")
+        .upload(
+          filePath,
+          file,
+          {
+            cacheControl: "3600",
+            upsert: true,
+            contentType: file.type
+          }
+        );
+
+    if (error) {
+      throw error;
+    }
+
+    const {
+      data: publicUrlData
+    } =
+      db.storage
+        .from("location-assets")
+        .getPublicUrl(
+          data.path
+        );
+
+    const publicUrl =
+      publicUrlData.publicUrl;
+
+    $("logoUrl").value =
+      publicUrl;
+
+    $("logoPreview").src =
+      publicUrl;
+
+    $("brandLogo").src =
+      publicUrl;
+
+    status.textContent =
+      "Logo uploaded.";
+
+  } catch (error) {
+
+    console.error(
+      "LOGO UPLOAD ERROR:",
+      error
+    );
+
+    status.textContent =
+      error.message ||
+      "Unable to upload logo.";
+
+  } finally {
+
+    button.disabled = false;
+
+  }
+
+});
 
 function connectColorInputs(colorId, textId) {
 
