@@ -573,32 +573,52 @@ return `
 
   }
 
-  // Enable / disable special-day time fields
+    // Enable / disable special-day time fields
 
-  document
-    .querySelectorAll(".special-day-closed")
-    .forEach(checkbox => {
+    document
+      .querySelectorAll(".special-day-closed")
+      .forEach(checkbox => {
 
-      checkbox.addEventListener("change", () => {
+        checkbox.addEventListener("change", () => {
 
-        const row =
-          checkbox.closest(".special-day-row");
+          const row =
+            checkbox.closest(".special-day-row");
 
-        const start =
-          row.querySelector(".special-day-start");
+          const start =
+            row.querySelector(".special-day-start");
 
-        const end =
-          row.querySelector(".special-day-end");
+          const end =
+            row.querySelector(".special-day-end");
 
-        start.disabled =
-          checkbox.checked;
+          start.disabled =
+            checkbox.checked;
 
-        end.disabled =
-          checkbox.checked;
+          end.disabled =
+            checkbox.checked;
+
+        });
 
       });
 
-    });
+
+    // Delete existing special-day rows
+
+    document
+      .querySelectorAll(".special-day-delete")
+      .forEach(button => {
+
+        button.addEventListener("click", () => {
+
+          const row =
+            button.closest(".special-day-row");
+
+          if (row) {
+            row.remove();
+          }
+
+        });
+
+      });
 
 $("emailSubject").value =
   loc.confirmation_email_subject ||
