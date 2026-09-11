@@ -198,7 +198,123 @@
       font-size: 13px;
     }
 
+    /* =======================================================
+       CUSTOM ALERT / CONFIRM
+    ======================================================== */
+
+    #customAlertOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0,0,0,.72);
+    }
+
+    #customAlertOverlay.show {
+      display: flex;
+    }
+
+    .customAlertBox {
+      width: min(92vw, 760px);
+      min-height: 360px;
+      padding: 34px 42px 30px;
+      background: #e6e6e6;
+      color: #000;
+      border: 6px solid #ed1c24;
+      border-radius: 64px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      text-align: center;
+    }
+
+    .customAlertLogo {
+      width: min(300px, 55%);
+      max-height: 100px;
+      object-fit: contain;
+      margin: 0 auto 18px;
+    }
+
+    #customAlertMessage {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 12px 24px;
+      font-size: clamp(22px, 3vw, 42px);
+      line-height: 1.2;
+      font-weight: bold;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .customAlertButtons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .customAlertButton {
+      min-width: 120px;
+      padding: 11px 24px;
+      border: 0;
+      border-radius: 7px;
+      background: #000;
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .customAlertButton:hover {
+      background: #555;
+    }
+
+    .customAlertButton.cancel {
+      background: #8b0000;
+    }
+
     @media (max-width: 600px) {
+      #customAlertOverlay {
+        padding: 14px;
+      }
+
+      .customAlertBox {
+        min-height: 280px;
+        padding: 25px 20px 22px;
+        border-width: 5px;
+        border-radius: 42px;
+      }
+
+      .customAlertLogo {
+        width: min(220px, 70%);
+        max-height: 72px;
+        margin-bottom: 8px;
+      }
+
+      #customAlertMessage {
+        padding: 8px 4px 18px;
+        font-size: clamp(19px, 6vw, 30px);
+      }
+
+      .customAlertButtons {
+        gap: 8px;
+      }
+
+      .customAlertButton {
+        min-width: 100px;
+        padding: 10px 16px;
+        font-size: 14px;
+      }
+    }
 
       .container {
         padding: 22px;
@@ -419,6 +535,45 @@
 
   </div>
 
+  <!-- =======================================================
+       CUSTOM ALERT / CONFIRM
+  ======================================================== -->
+
+  <div id="customAlertOverlay" aria-hidden="true">
+    <div
+      id="customAlertBox"
+      class="customAlertBox"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="customAlertMessage"
+    >
+      <img
+        src="safe-insight-logo.png"
+        class="customAlertLogo"
+        alt="Safe Insight"
+      >
+
+      <div id="customAlertMessage"></div>
+
+      <div class="customAlertButtons">
+        <button
+          type="button"
+          id="customAlertCancel"
+          class="customAlertButton cancel"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          id="customAlertOk"
+          class="customAlertButton"
+        >
+          Continue
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script>
 
@@ -959,6 +1114,106 @@
 
 
     /*
+     * CUSTOM ALERT / CONFIRM
+     */
+
+    const customAlertOverlay =
+      document.getElementById("customAlertOverlay");
+
+    const customAlertMessage =
+      document.getElementById("customAlertMessage");
+
+    const customAlertOk =
+      document.getElementById("customAlertOk");
+
+    const customAlertCancel =
+      document.getElementById("customAlertCancel");
+
+
+    function showCustomConfirm(message) {
+
+      return new Promise(
+        function(resolve) {
+
+          customAlertMessage.textContent =
+            message;
+
+          customAlertCancel.style.display =
+            "inline-block";
+
+          customAlertOk.textContent =
+            "Continue";
+
+          customAlertOverlay.classList.add(
+            "show"
+          );
+
+          customAlertOverlay.setAttribute(
+            "aria-hidden",
+            "false"
+          );
+
+
+          function finish(result) {
+
+            customAlertOverlay.classList.remove(
+              "show"
+            );
+
+            customAlertOverlay.setAttribute(
+              "aria-hidden",
+              "true"
+            );
+
+            customAlertCancel.style.display =
+              "none";
+
+            customAlertOk.textContent =
+              "OK";
+
+            customAlertOk.removeEventListener(
+              "click",
+              onConfirm
+            );
+
+            customAlertCancel.removeEventListener(
+              "click",
+              onCancel
+            );
+
+            resolve(result);
+          }
+
+
+          function onConfirm() {
+            finish(true);
+          }
+
+
+          function onCancel() {
+            finish(false);
+          }
+
+
+          customAlertOk.addEventListener(
+            "click",
+            onConfirm
+          );
+
+          customAlertCancel.addEventListener(
+            "click",
+            onCancel
+          );
+
+
+          customAlertOk.focus();
+
+        }
+      );
+    }
+
+
+    /*
      * CANCEL APPOINTMENT
      */
 
@@ -976,7 +1231,7 @@
 
 
         const confirmed =
-          confirm(
+          await showCustomConfirm(
             "Are you sure you want to cancel this appointment?"
           );
 
@@ -1051,7 +1306,6 @@
 
           rescheduleButton.disabled =
             true;
-
 
 
         } catch (error) {
