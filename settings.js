@@ -29,6 +29,42 @@ function setColorPair(colorInput, textInput, value) {
   $(textInput).value = color;
 }
 
+async function authenticateSettingsUser() {
+  const {
+    data: { user },
+    error
+  } = await db.auth.getUser();
+
+  if (error) {
+    throw new Error("Unable to verify your login.");
+  }
+
+  if (!user) {
+    throw new Error("Please log in to access Booking Settings.");
+  }
+
+  const { data: settingsUser, error: roleError } =
+    await db
+      .from("settings_users")
+      .select("role, active")
+      .eq("user_id", user.id)
+      .single();
+
+  if (roleError || !settingsUser) {
+    throw new Error(
+      "Your account is not authorized to access Booking Settings."
+    );
+  }
+
+  if (!settingsUser.active) {
+    throw new Error(
+      "Your Booking Settings account has been deactivated."
+    );
+  }
+
+  state.user = user;
+  state.role = settingsUser.role;
+}
 
 async function loadLocationIntoForm(loc) {
 
@@ -1852,18 +1888,14 @@ $("connectCalendarBtn").addEventListener("click", () => {
 });
 
 (async function init() {
-
   try {
+    await authenticateSettingsUser();
 
     await loadLocations();
 
     $("loading").classList.add("hidden");
     $("settingsApp").classList.remove("hidden");
-
   } catch (err) {
-
     showError(err.message);
-
   }
-
 })();
