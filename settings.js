@@ -7,6 +7,23 @@ const db = window.supabase.createClient(
 
 const $ = id => document.getElementById(id);
 
+async function getAuthHeaders() {
+  const {
+    data: { session }
+  } = await db.auth.getSession();
+
+  if (!session?.access_token) {
+    throw new Error(
+      "Your session has expired. Please log in again."
+    );
+  }
+
+  return {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${session.access_token}`
+  };
+}
+
 function isAdministrator() {
   return state.role === "Administrator";
 }
@@ -1415,9 +1432,7 @@ async function saveLocationSettings(button) {
       `${cfg.functionsBaseUrl}/save-location-settings`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+headers: await getAuthHeaders(),
         body: JSON.stringify(payload)
       }
     );
@@ -1493,11 +1508,9 @@ async function saveBrandingSettings(button) {
       `${cfg.functionsBaseUrl}/save-location-settings`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      }
+        headers: await getAuthHeaders(),
+                body: JSON.stringify(payload)
+        }
     );
 
     const result = await response.json();
@@ -1581,10 +1594,8 @@ async function saveAvailabilitySettings(button) {
       `${cfg.functionsBaseUrl}/save-location-settings`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(settingsPayload)
+        headers: await getAuthHeaders(),
+                body: JSON.stringify(settingsPayload)
       }
     );
 
@@ -1654,9 +1665,7 @@ const availabilityRules =
         `${cfg.functionsBaseUrl}/save-availability-rules`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: await getAuthHeaders(),
           body: JSON.stringify({
             location_id:
               state.location.id,
@@ -1858,10 +1867,8 @@ async function saveEmailSettings(button) {
       `${cfg.functionsBaseUrl}/save-location-settings`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
+        headers: await getAuthHeaders(),
+                body: JSON.stringify(payload)
       }
     );
 
