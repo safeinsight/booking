@@ -7,6 +7,23 @@ const db = window.supabase.createClient(
 
 const $ = id => document.getElementById(id);
 
+async function getAuthHeaders() {
+  const {
+    data: { session }
+  } = await db.auth.getSession();
+
+  if (!session?.access_token) {
+    throw new Error(
+      "Your session has expired. Please log in again."
+    );
+  }
+
+  return {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${session.access_token}`
+  };
+}
+
 function isAdministrator() {
   return state.role === "Administrator";
 }
@@ -1415,9 +1432,7 @@ async function saveLocationSettings(button) {
       `${cfg.functionsBaseUrl}/save-location-settings`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+headers: await getAuthHeaders(),
         body: JSON.stringify(payload)
       }
     );
