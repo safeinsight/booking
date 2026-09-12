@@ -155,7 +155,38 @@
 
 <div id="settingsApp" class="hidden">
 
-        <!-- SETTINGS TABS -->
+  <div
+    class="settings-status"
+    style="
+      margin-bottom:20px;
+      padding:12px 15px;
+      border:1px solid #ddd;
+      border-radius:8px;
+      background:#f8f8f8;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:15px;
+      flex-wrap:wrap;
+    "
+  >
+    <div>
+      <strong id="settingsUserEmail"></strong>
+      <span class="muted">
+        — <span id="settingsUserRole"></span>
+      </span>
+    </div>
+
+    <button
+      type="button"
+      id="logoutBtn"
+      class="secondary"
+    >
+      Logout
+    </button>
+  </div>
+
+  <!-- SETTINGS TABS -->
 
         <div class="settings-tabs" role="tablist">
 
