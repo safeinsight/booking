@@ -70,16 +70,20 @@ function setColorPair(colorInput, textInput, value) {
 
 async function authenticateSettingsUser() {
   const {
+    data: { session }
+  } = await db.auth.getSession();
+
+  if (!session) {
+    return false;
+  }
+
+  const {
     data: { user },
     error
   } = await db.auth.getUser();
 
-  if (error) {
-    throw new Error("Unable to verify your login.");
-  }
-
-  if (!user) {
-    throw new Error("Please log in to access Booking Settings.");
+  if (error || !user) {
+    return false;
   }
 
   const { data: settingsUser, error: roleError } =
@@ -103,6 +107,8 @@ async function authenticateSettingsUser() {
 
   state.user = user;
   state.role = settingsUser.role;
+
+  return true;
 }
 
 function applyRolePermissions() {
