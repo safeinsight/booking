@@ -1740,7 +1740,7 @@ const availabilityRules =
       });
 
 
-    const specialDaysResponse =
+const specialDaysResponse =
       await fetch(
         `${cfg.functionsBaseUrl}/save-special-days`,
         {
