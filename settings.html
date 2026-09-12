@@ -153,63 +153,6 @@
   ></div>
 </div>
 
-
-<!-- ========================================================
-     INVITATION / FIRST-TIME PASSWORD SETUP
-     ======================================================== -->
-
-<div
-  id="invitePanel"
-  class="settings-section hidden"
->
-
-  <h2>Welcome to Booking Settings</h2>
-
-  <p class="muted">
-    You've been invited to access Booking Settings.
-    Please create your password to finish setting up your account.
-  </p>
-
-  <label for="invitePassword">
-    Create Password
-  </label>
-
-  <input
-    id="invitePassword"
-    type="password"
-    autocomplete="new-password"
-    placeholder="Create a password"
-  >
-
-  <label for="invitePasswordConfirm">
-    Confirm Password
-  </label>
-
-  <input
-    id="invitePasswordConfirm"
-    type="password"
-    autocomplete="new-password"
-    placeholder="Confirm your password"
-  >
-
-  <button
-    type="button"
-    id="setInvitePasswordBtn"
-    class="primary"
-    style="margin-top:15px;"
-  >
-    Set Password
-  </button>
-
-  <div
-    id="inviteError"
-    class="state error hidden"
-    style="margin-top:15px;"
-  ></div>
-
-</div>
-
-
 <div id="settingsApp" class="hidden">
 
   <div
@@ -277,14 +220,6 @@
             data-tab="emailsTab"
           >
             Emails
-          </button>
-
-          <button
-            type="button"
-            class="settings-tab hidden"
-            data-tab="usersTab"
-          >
-            Users
           </button>
 
         </div>
@@ -791,6 +726,32 @@
               placeholder="Thank you for booking with us..."
             ></textarea>
 
+            <div style="margin-top:18px; padding:15px; border:1px solid #ddd; border-radius:8px; background:#fafafa;">
+              <strong>Confirmation Button</strong>
+              <p class="muted" style="margin:6px 0 12px;">
+                Add a button to the confirmation email. Administrators and Managers can change the destination URL and button text here.
+              </p>
+
+              <label for="confirmationButtonEnabled">
+                <input id="confirmationButtonEnabled" type="checkbox">
+                Include button in confirmation emails
+              </label>
+
+              <label for="confirmationButtonText" style="display:block; margin-top:12px;">
+                Button Text
+              </label>
+              <input id="confirmationButtonText" type="text" maxlength="100" placeholder="Join Video Conference">
+
+              <label for="confirmationButtonUrl" style="display:block; margin-top:12px;">
+                Button URL
+              </label>
+              <input id="confirmationButtonUrl" type="url" maxlength="1000" placeholder="https://safeinsight.github.io/video-conference/?room=LACCW">
+
+              <p class="muted" style="margin:8px 0 0; font-size:13px;">
+                The button is generated as HTML by the booking system. You do not need to paste HTML into the message box.
+              </p>
+            </div>
+
             <button
               type="button"
               id="restoreEmailDefaultBtn"
@@ -983,182 +944,6 @@
 
         </div>
 
-  <!-- ========================================================
-     USERS TAB
-     Administrator only
-     ======================================================== -->
-
-<div
-  id="usersTab"
-  class="settings-tab-panel"
->
-
-  <div class="settings-section">
-
-    <h2>User Management</h2>
-
-    <p class="muted">
-      Add and manage users who can access Booking Settings.
-    </p>
-
-    <div
-      id="userManagementMessage"
-      class="state hidden"
-      style="margin-top:15px;"
-    ></div>
-
-
-    <div
-      style="
-        display:grid;
-        grid-template-columns:minmax(0, 1fr) minmax(180px, 220px) auto;
-        gap:15px;
-        align-items:end;
-        margin-top:20px;
-      "
-    >
-
-      <div>
-
-        <label for="newUserEmail">
-          Email Address
-        </label>
-
-        <input
-          id="newUserEmail"
-          type="email"
-          autocomplete="off"
-          placeholder="user@example.com"
-        >
-
-      </div>
-
-
-      <div>
-
-        <label for="newUserRole">
-          Role
-        </label>
-
-        <select id="newUserRole">
-
-          <option value="Administrator">
-            Administrator
-          </option>
-
-          <option value="Manager">
-            Manager
-          </option>
-
-          <option value="Instructor">
-            Instructor
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div>
-
-        <button
-          type="button"
-          id="sendInviteBtn"
-          class="primary"
-        >
-          Send Invite
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <div class="settings-section">
-
-    <h2>Current Users</h2>
-
-    <div
-      id="usersLoading"
-      class="muted"
-    >
-      Loading users…
-    </div>
-
-
-    <div
-      id="usersTableWrapper"
-      class="hidden"
-      style="overflow-x:auto;"
-    >
-
-      <table
-        style="
-          width:100%;
-          border-collapse:collapse;
-          margin-top:15px;
-        "
-      >
-
-        <thead>
-
-          <tr>
-
-            <th
-              style="
-                text-align:left;
-                padding:12px 8px;
-                border-bottom:1px solid #ddd;
-              "
-            >
-              Email
-            </th>
-
-            <th
-              style="
-                text-align:left;
-                padding:12px 8px;
-                border-bottom:1px solid #ddd;
-              "
-            >
-              Role
-            </th>
-
-            <th
-              style="
-                text-align:left;
-                padding:12px 8px;
-                border-bottom:1px solid #ddd;
-              "
-            >
-              Status
-            </th>
-
-            <th
-              style="
-                text-align:left;
-                padding:12px 8px;
-                border-bottom:1px solid #ddd;
-              "
-            >
-              Actions
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody id="usersTableBody"></tbody>
-
-      </table>
-
-    </div>
-
-  </div>
-
-</div>
 
         <!-- EXISTING SAVE -->
 
