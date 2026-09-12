@@ -7,6 +7,45 @@ const db = window.supabase.createClient(
 
 const $ = id => document.getElementById(id);
 
+function isAdministrator() {
+  return state.role === "Administrator";
+}
+
+function isManager() {
+  return state.role === "Manager";
+}
+
+function isInstructor() {
+  return state.role === "Instructor";
+}
+
+function canEditLocation() {
+  return isAdministrator();
+}
+
+function canEditBranding() {
+  return isAdministrator();
+}
+
+function canEditAvailability() {
+  return (
+    isAdministrator() ||
+    isManager() ||
+    isInstructor()
+  );
+}
+
+function canEditEmails() {
+  return (
+    isAdministrator() ||
+    isManager()
+  );
+}
+
+function canManageUsers() {
+  return isAdministrator();
+}
+
 const state = {
   locations: [],
   location: null,
@@ -64,6 +103,65 @@ async function authenticateSettingsUser() {
 
   state.user = user;
   state.role = settingsUser.role;
+}
+
+function applyRolePermissions() {
+  const locationTab = $("locationTab");
+  const brandingTab = $("brandingTab");
+  const availabilityTab = $("availabilityTab");
+  const emailsTab = $("emailsTab");
+
+  const locationTabButton =
+    document.querySelector('[data-tab="locationTab"]');
+
+  const brandingTabButton =
+    document.querySelector('[data-tab="brandingTab"]');
+
+  const availabilityTabButton =
+    document.querySelector('[data-tab="availabilityTab"]');
+
+  const emailsTabButton =
+    document.querySelector('[data-tab="emailsTab"]');
+
+  // Administrator: full access
+  if (canEditLocation()) {
+    locationTabButton?.classList.remove("hidden");
+    locationTab?.classList.remove("hidden");
+  }
+
+  if (canEditBranding()) {
+    brandingTabButton?.classList.remove("hidden");
+    brandingTab?.classList.remove("hidden");
+  }
+
+  // Availability: Administrator, Manager, Instructor
+  if (canEditAvailability()) {
+    availabilityTabButton?.classList.remove("hidden");
+    availabilityTab?.classList.remove("hidden");
+  }
+
+  // Emails: Administrator and Manager
+  if (canEditEmails()) {
+    emailsTabButton?.classList.remove("hidden");
+    emailsTab?.classList.remove("hidden");
+  }
+
+  // Hide tabs that this role cannot access
+  if (!canEditLocation()) {
+    locationTabButton?.classList.add("hidden");
+  }
+
+  if (!canEditBranding()) {
+    brandingTabButton?.classList.add("hidden");
+  }
+
+  if (!canEditAvailability()) {
+    availabilityTabButton?.classList.add("hidden");
+  }
+
+  if (!canEditEmails()) {
+    emailsTabButton?.classList.add("hidden");
+  }
 }
 
 async function loadLocationIntoForm(loc) {
@@ -1889,9 +1987,11 @@ $("connectCalendarBtn").addEventListener("click", () => {
 
 (async function init() {
   try {
-    await authenticateSettingsUser();
-
-    await loadLocations();
+      await authenticateSettingsUser();
+      
+      applyRolePermissions();
+      
+      await loadLocations();
 
     $("loading").classList.add("hidden");
     $("settingsApp").classList.remove("hidden");
