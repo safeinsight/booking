@@ -1665,9 +1665,7 @@ const availabilityRules =
         `${cfg.functionsBaseUrl}/save-availability-rules`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: await getAuthHeaders(),
           body: JSON.stringify({
             location_id:
               state.location.id,
