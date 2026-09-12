@@ -133,7 +133,6 @@ function applyRolePermissions() {
   const brandingTab = $("brandingTab");
   const availabilityTab = $("availabilityTab");
   const emailsTab = $("emailsTab");
-  const usersTab = $("usersTab");
 
   const locationTabButton =
     document.querySelector('[data-tab="locationTab"]');
@@ -147,10 +146,6 @@ function applyRolePermissions() {
   const emailsTabButton =
     document.querySelector('[data-tab="emailsTab"]');
 
-  const usersTabButton =
-    document.querySelector('[data-tab="usersTab"]');
-
-
   // Administrator: full access
   if (canEditLocation()) {
     locationTabButton?.classList.remove("hidden");
@@ -162,13 +157,11 @@ function applyRolePermissions() {
     brandingTab?.classList.remove("hidden");
   }
 
-
   // Availability: Administrator, Manager, Instructor
   if (canEditAvailability()) {
     availabilityTabButton?.classList.remove("hidden");
     availabilityTab?.classList.remove("hidden");
   }
-
 
   // Emails: Administrator and Manager
   if (canEditEmails()) {
@@ -176,38 +169,21 @@ function applyRolePermissions() {
     emailsTab?.classList.remove("hidden");
   }
 
-
-  // Users: Administrator only
-  if (canManageUsers()) {
-    usersTabButton?.classList.remove("hidden");
-    usersTab?.classList.remove("hidden");
-  }
-
-
   // Hide tabs that this role cannot access
   if (!canEditLocation()) {
     locationTabButton?.classList.add("hidden");
-    locationTab?.classList.remove("active");
   }
 
   if (!canEditBranding()) {
     brandingTabButton?.classList.add("hidden");
-    brandingTab?.classList.remove("active");
   }
 
   if (!canEditAvailability()) {
     availabilityTabButton?.classList.add("hidden");
-    availabilityTab?.classList.remove("active");
   }
 
   if (!canEditEmails()) {
     emailsTabButton?.classList.add("hidden");
-    emailsTab?.classList.remove("active");
-  }
-
-  if (!canManageUsers()) {
-    usersTabButton?.classList.add("hidden");
-    usersTab?.classList.remove("active");
   }
 }
 
@@ -286,7 +262,18 @@ Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
 Location: {{LOCATION}}
 
+{{CONFIRMATION_BUTTON}}
+
 {{MANAGE_BUTTON}}`;
+
+$("confirmationButtonEnabled").checked =
+  Boolean(loc.confirmation_button_enabled);
+
+$("confirmationButtonText").value =
+  loc.confirmation_button_text || "Join Video Conference";
+
+$("confirmationButtonUrl").value =
+  loc.confirmation_button_url || "";
 
 $("reminderEnabled").checked =
   loc.reminder_enabled ?? true;
@@ -308,6 +295,8 @@ $("studentReminderMessage").value =
 Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
 Location: {{LOCATION}}
+
+{{CONFIRMATION_BUTTON}}
 
 {{MANAGE_BUTTON}}`;
 
@@ -1002,6 +991,8 @@ Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
 Location: {{LOCATION}}
 
+{{CONFIRMATION_BUTTON}}
+
 {{MANAGE_BUTTON}}`;
 
 
@@ -1024,6 +1015,8 @@ if (restoreEmailDefaultBtn) {
 Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
 Location: {{LOCATION}}
+
+{{CONFIRMATION_BUTTON}}
 
 {{MANAGE_BUTTON}}`;
 
@@ -1185,6 +1178,9 @@ async function loadLocations() {
       payment_required,
       confirmation_email_subject,
       confirmation_email_message,
+      confirmation_button_enabled,
+      confirmation_button_text,
+      confirmation_button_url,
       student_confirmation_enabled,
       instructor_notification_enabled,
       reminder_enabled,
@@ -1850,6 +1846,15 @@ async function saveEmailSettings(button) {
       confirmation_email_message:
         $("emailMessage").value.trim(),
 
+      confirmation_button_enabled:
+        $("confirmationButtonEnabled").checked,
+
+      confirmation_button_text:
+        $("confirmationButtonText").value.trim(),
+
+      confirmation_button_url:
+        $("confirmationButtonUrl").value.trim(),
+
       reminder_enabled:
         $("reminderEnabled").checked,
 
@@ -2020,688 +2025,6 @@ $("connectCalendarBtn").addEventListener("click", () => {
   );
 });
 
-// ============================================================
-// USER MANAGEMENT
-// Administrator only
-// ============================================================
-
-async function manageSettingsUsersRequest(
-  method = "GET",
-  body = null
-) {
-  const headers = await getAuthHeaders();
-
-  const options = {
-    method,
-    headers
-  };
-
-  if (body !== null) {
-    options.body = JSON.stringify(body);
-  }
-
-  const response = await fetch(
-    `${cfg.functionsBaseUrl}/manage-settings-users`,
-    options
-  );
-
-  let result;
-
-  try {
-    result = await response.json();
-  } catch {
-    throw new Error(
-      "The user-management service returned an invalid response."
-    );
-  }
-
-  if (!response.ok || result.success === false) {
-    throw new Error(
-      result.error ||
-      "Unable to complete the user-management request."
-    );
-  }
-
-  return result;
-}
-
-
-function showUserManagementMessage(
-  message,
-  isError = false
-) {
-  const box = $("userManagementMessage");
-
-  if (!box) {
-    return;
-  }
-
-  box.textContent = message;
-  box.classList.remove("hidden");
-
-  if (isError) {
-    box.classList.add("error");
-  } else {
-    box.classList.remove("error");
-  }
-}
-
-
-function clearUserManagementMessage() {
-  const box = $("userManagementMessage");
-
-  if (!box) {
-    return;
-  }
-
-  box.textContent = "";
-  box.classList.add("hidden");
-  box.classList.remove("error");
-}
-
-
-function getUserStatusText(user) {
-  if (!user.active) {
-    return "Inactive";
-  }
-
-  if (!user.email_confirmed) {
-    return "Invitation pending";
-  }
-
-  return "Active";
-}
-
-
-async function loadSettingsUsers() {
-  if (!canManageUsers()) {
-    return;
-  }
-
-  const loading = $("usersLoading");
-  const wrapper = $("usersTableWrapper");
-  const tbody = $("usersTableBody");
-
-  if (!loading || !wrapper || !tbody) {
-    return;
-  }
-
-  loading.textContent = "Loading users…";
-  loading.classList.remove("hidden");
-  wrapper.classList.add("hidden");
-
-  try {
-    const result =
-      await manageSettingsUsersRequest("GET");
-
-    const users =
-      result.users || [];
-
-    tbody.innerHTML = users.map(user => {
-      const isCurrentUser =
-        user.user_id === state.user?.id;
-
-      return `
-        <tr>
-          <td
-            style="
-              padding:12px 8px;
-              border-bottom:1px solid #eee;
-            "
-          >
-            ${escapeHtml(user.email)}
-          </td>
-
-          <td
-            style="
-              padding:12px 8px;
-              border-bottom:1px solid #eee;
-            "
-          >
-            <select
-              class="user-role-select"
-              data-user-id="${escapeAttr(user.user_id)}"
-              ${isCurrentUser ? "disabled" : ""}
-            >
-              <option
-                value="Administrator"
-                ${user.role === "Administrator" ? "selected" : ""}
-              >
-                Administrator
-              </option>
-
-              <option
-                value="Manager"
-                ${user.role === "Manager" ? "selected" : ""}
-              >
-                Manager
-              </option>
-
-              <option
-                value="Instructor"
-                ${user.role === "Instructor" ? "selected" : ""}
-              >
-                Instructor
-              </option>
-            </select>
-          </td>
-
-          <td
-            style="
-              padding:12px 8px;
-              border-bottom:1px solid #eee;
-            "
-          >
-            ${escapeHtml(getUserStatusText(user))}
-          </td>
-
-          <td
-            style="
-              padding:12px 8px;
-              border-bottom:1px solid #eee;
-              white-space:nowrap;
-            "
-          >
-            ${
-              isCurrentUser
-                ? `<span class="muted">Current account</span>`
-                : `
-                  <button
-                    type="button"
-                    class="secondary user-active-button"
-                    data-user-id="${escapeAttr(user.user_id)}"
-                    data-active="${user.active ? "true" : "false"}"
-                  >
-                    ${user.active ? "Deactivate" : "Activate"}
-                  </button>
-                `
-            }
-          </td>
-        </tr>
-      `;
-    }).join("");
-
-    loading.classList.add("hidden");
-    wrapper.classList.remove("hidden");
-
-
-    document
-      .querySelectorAll(".user-role-select")
-      .forEach(select => {
-
-        select.addEventListener(
-          "change",
-          async event => {
-
-            const userId =
-              event.target.dataset.userId;
-
-            const role =
-              event.target.value;
-
-            try {
-
-              await manageSettingsUsersRequest(
-                "POST",
-                {
-                  action: "update_role",
-                  user_id: userId,
-                  role
-                }
-              );
-
-              showUserManagementMessage(
-                "User role updated."
-              );
-
-            } catch (error) {
-
-              showUserManagementMessage(
-                error.message,
-                true
-              );
-
-              await loadSettingsUsers();
-            }
-
-          }
-        );
-
-      });
-
-
-    document
-      .querySelectorAll(".user-active-button")
-      .forEach(button => {
-
-        button.addEventListener(
-          "click",
-          async () => {
-
-            const userId =
-              button.dataset.userId;
-
-            const currentlyActive =
-              button.dataset.active === "true";
-
-
-            const confirmed =
-              confirm(
-                currentlyActive
-                  ? "Deactivate this user's Booking Settings access?"
-                  : "Activate this user's Booking Settings access?"
-              );
-
-            if (!confirmed) {
-              return;
-            }
-
-
-            button.disabled = true;
-
-
-            try {
-
-              await manageSettingsUsersRequest(
-                "POST",
-                {
-                  action: "update_active",
-                  user_id: userId,
-                  active: !currentlyActive
-                }
-              );
-
-              showUserManagementMessage(
-                currentlyActive
-                  ? "User deactivated."
-                  : "User activated."
-              );
-
-              await loadSettingsUsers();
-
-            } catch (error) {
-
-              button.disabled = false;
-
-              showUserManagementMessage(
-                error.message,
-                true
-              );
-
-            }
-
-          }
-        );
-
-      });
-
-  } catch (error) {
-
-    loading.textContent =
-      error.message ||
-      "Unable to load users.";
-
-  }
-}
-
-
-async function sendSettingsUserInvite() {
-  clearUserManagementMessage();
-
-  const email =
-    $("newUserEmail")
-      .value
-      .trim()
-      .toLowerCase();
-
-  const role =
-    $("newUserRole")
-      .value;
-
-
-  if (!email) {
-
-    showUserManagementMessage(
-      "Please enter an email address.",
-      true
-    );
-
-    return;
-  }
-
-
-  const button =
-    $("sendInviteBtn");
-
-  const originalText =
-    button.textContent;
-
-
-  button.disabled = true;
-  button.textContent = "Sending…";
-
-
-  try {
-
-    const result =
-      await manageSettingsUsersRequest(
-        "POST",
-        {
-          action: "invite",
-          email,
-          role
-        }
-      );
-
-
-    showUserManagementMessage(
-      result.message ||
-      "Invitation sent successfully."
-    );
-
-
-    $("newUserEmail").value = "";
-
-
-    await loadSettingsUsers();
-
-  } catch (error) {
-
-    console.error(
-      "SEND USER INVITE ERROR:",
-      error
-    );
-
-    showUserManagementMessage(
-      error.message ||
-      "Unable to send invitation.",
-      true
-    );
-
-  } finally {
-
-    button.disabled = false;
-    button.textContent = originalText;
-
-  }
-}
-
-
-$("sendInviteBtn")?.addEventListener(
-  "click",
-  sendSettingsUserInvite
-);
-
-
-$("newUserEmail")?.addEventListener(
-  "keydown",
-  event => {
-
-    if (event.key === "Enter") {
-
-      event.preventDefault();
-
-      sendSettingsUserInvite();
-
-    }
-
-  }
-);
-
-// ============================================================
-// INVITATION / FIRST-TIME PASSWORD SETUP
-// ============================================================
-
-function isInvitationSession() {
-  const hash =
-    window.location.hash.replace(/^#/, "");
-
-  const params =
-    new URLSearchParams(hash);
-
-  return params.get("type") === "invite";
-}
-
-
-async function handleInvitationSetup() {
-
-  if (!isInvitationSession()) {
-    return false;
-  }
-
-
-  const {
-    data: { session },
-    error: sessionError
-  } = await db.auth.getSession();
-
-
-  if (sessionError) {
-    throw sessionError;
-  }
-
-
-  if (!session) {
-    $("loading").classList.add("hidden");
-
-    $("loginPanel").classList.add("hidden");
-
-    $("invitePanel").classList.remove("hidden");
-
-    $("inviteError").textContent =
-      "This invitation link is no longer valid. Please ask the Administrator to send a new invitation.";
-
-    $("inviteError").classList.remove("hidden");
-
-    return true;
-  }
-
-
-  $("loading").classList.add("hidden");
-
-  $("loginPanel").classList.add("hidden");
-
-  $("settingsApp").classList.add("hidden");
-
-  $("invitePanel").classList.remove("hidden");
-
-
-  return true;
-}
-
-
-async function setInvitationPassword() {
-
-  const password =
-    $("invitePassword").value;
-
-  const confirmation =
-    $("invitePasswordConfirm").value;
-
-
-  $("inviteError").classList.add("hidden");
-
-  $("inviteError").textContent = "";
-
-
-  if (!password || !confirmation) {
-
-    $("inviteError").textContent =
-      "Please enter and confirm your password.";
-
-    $("inviteError").classList.remove(
-      "hidden"
-    );
-
-    return;
-
-  }
-
-
-  if (password.length < 6) {
-
-    $("inviteError").textContent =
-      "Your password must be at least 6 characters.";
-
-    $("inviteError").classList.remove(
-      "hidden"
-    );
-
-    return;
-
-  }
-
-
-  if (password !== confirmation) {
-
-    $("inviteError").textContent =
-      "The passwords do not match.";
-
-    $("inviteError").classList.remove(
-      "hidden"
-    );
-
-    return;
-
-  }
-
-
-  const button =
-    $("setInvitePasswordBtn");
-
-  const originalText =
-    button.textContent;
-
-
-  button.disabled = true;
-
-  button.textContent =
-    "Saving…";
-
-
-  try {
-
-    const {
-      data,
-      error
-    } = await db.auth.updateUser({
-      password
-    });
-
-
-    if (error) {
-      throw error;
-    }
-
-
-    if (!data?.user) {
-      throw new Error(
-        "Unable to complete your account setup."
-      );
-    }
-
-
-    /*
-     * The invitation has now been accepted and the user
-     * has created their password.
-     *
-     * Clear the invitation parameters from the URL so
-     * refreshing the page does not attempt setup again.
-     */
-
-    window.history.replaceState(
-      {},
-      document.title,
-      window.location.pathname +
-        window.location.search
-    );
-
-
-    /*
-     * Sign out the temporary invitation session.
-     *
-     * The user will then use the normal Login form with
-     * the password they just created.
-     */
-
-    await db.auth.signOut();
-
-
-    $("invitePanel").classList.add(
-      "hidden"
-    );
-
-    $("loginPanel").classList.remove(
-      "hidden"
-    );
-
-
-    $("loginEmail").value =
-      data.user.email || "";
-
-    $("loginPassword").value =
-      "";
-
-
-    $("loginError").classList.remove(
-      "hidden"
-    );
-
-    $("loginError").textContent =
-      "Your password has been created. Please log in.";
-
-
-  } catch (error) {
-
-    console.error(
-      "INVITATION PASSWORD ERROR:",
-      error
-    );
-
-
-    $("inviteError").textContent =
-      error.message ||
-      "Unable to set your password.";
-
-    $("inviteError").classList.remove(
-      "hidden"
-    );
-
-  } finally {
-
-    button.disabled = false;
-
-    button.textContent =
-      originalText;
-
-  }
-
-}
-
-
-$("setInvitePasswordBtn")
-  ?.addEventListener(
-    "click",
-    setInvitationPassword
-  );
-
-
-$("invitePasswordConfirm")
-  ?.addEventListener(
-    "keydown",
-    event => {
-
-      if (event.key === "Enter") {
-
-        event.preventDefault();
-
-        setInvitationPassword();
-
-      }
-
-    }
-  );
-
 async function handleSettingsLogin() {
   const email = $("loginEmail").value.trim();
   const password = $("loginPassword").value;
@@ -2756,91 +2079,31 @@ $("logoutBtn").addEventListener(
 
 (async function init() {
   try {
-
-    /*
-     * First check whether this is an invitation acceptance.
-     *
-     * If it is, show the password-creation screen instead
-     * of immediately running the normal Settings authentication.
-     */
-
-    const invitation =
-      await handleInvitationSetup();
-
-
-    if (invitation) {
-      return;
-    }
-
-
-    /*
-     * Normal Booking Settings authentication.
-     */
-
     const authenticated =
       await authenticateSettingsUser();
 
-
-    $("loading").classList.add(
-      "hidden"
-    );
-
+    $("loading").classList.add("hidden");
 
     if (!authenticated) {
-
-      $("loginPanel")
-        .classList.remove("hidden");
-
-      $("settingsApp")
-        .classList.add("hidden");
-
+      $("loginPanel").classList.remove("hidden");
+      $("settingsApp").classList.add("hidden");
       return;
-
     }
 
+$("loginPanel").classList.add("hidden");
 
-    $("loginPanel")
-      .classList.add("hidden");
+$("settingsUserEmail").textContent =
+  state.user.email;
 
-
-    $("settingsUserEmail").textContent =
-      state.user.email;
-
-
-    $("settingsUserRole").textContent =
-      state.role;
-
+$("settingsUserRole").textContent =
+  state.role;
 
 applyRolePermissions();
 
 await loadLocations();
 
-await loadSettingsUsers();
-
-// Managers and Instructors should open on Availability
-if (
-  state.role === "Manager" ||
-  state.role === "Instructor"
-) {
-  const availabilityTabButton =
-    document.querySelector(
-      '[data-tab="availabilityTab"]'
-    );
-
-  availabilityTabButton?.click();
-}
-
-
-    $("settingsApp")
-      .classList.remove("hidden");
-
-
+    $("settingsApp").classList.remove("hidden");
   } catch (err) {
-
-    showError(
-      err.message
-    );
-
+    showError(err.message);
   }
-
 })();
