@@ -1740,24 +1740,21 @@ const availabilityRules =
       });
 
 
-    const specialDaysResponse =
-      await fetch(
-        `${cfg.functionsBaseUrl}/save-special-days`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-          body: JSON.stringify({
-            location_id:
-              state.location.id,
-
-            days:
-              specialDays
-          })
-        }
-      );
+      const specialDaysResponse =
+        await fetch(
+          `${cfg.functionsBaseUrl}/save-special-days`,
+          {
+            method: "POST",
+            headers: await getAuthHeaders(),
+            body: JSON.stringify({
+              location_id:
+                state.location.id,
+      
+              days:
+                specialDays
+            })
+          }
+        );
 
 
     const specialDaysResult =
