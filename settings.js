@@ -2448,6 +2448,260 @@ $("newUserEmail")?.addEventListener(
   }
 );
 
+// ============================================================
+// INVITATION / FIRST-TIME PASSWORD SETUP
+// ============================================================
+
+function isInvitationSession() {
+  const hash =
+    window.location.hash.replace(/^#/, "");
+
+  const params =
+    new URLSearchParams(hash);
+
+  return params.get("type") === "invite";
+}
+
+
+async function handleInvitationSetup() {
+
+  if (!isInvitationSession()) {
+    return false;
+  }
+
+
+  const {
+    data: { session },
+    error: sessionError
+  } = await db.auth.getSession();
+
+
+  if (sessionError) {
+    throw sessionError;
+  }
+
+
+  if (!session) {
+    $("loading").classList.add("hidden");
+
+    $("loginPanel").classList.add("hidden");
+
+    $("invitePanel").classList.remove("hidden");
+
+    $("inviteError").textContent =
+      "This invitation link is no longer valid. Please ask the Administrator to send a new invitation.";
+
+    $("inviteError").classList.remove("hidden");
+
+    return true;
+  }
+
+
+  $("loading").classList.add("hidden");
+
+  $("loginPanel").classList.add("hidden");
+
+  $("settingsApp").classList.add("hidden");
+
+  $("invitePanel").classList.remove("hidden");
+
+
+  return true;
+}
+
+
+async function setInvitationPassword() {
+
+  const password =
+    $("invitePassword").value;
+
+  const confirmation =
+    $("invitePasswordConfirm").value;
+
+
+  $("inviteError").classList.add("hidden");
+
+  $("inviteError").textContent = "";
+
+
+  if (!password || !confirmation) {
+
+    $("inviteError").textContent =
+      "Please enter and confirm your password.";
+
+    $("inviteError").classList.remove(
+      "hidden"
+    );
+
+    return;
+
+  }
+
+
+  if (password.length < 6) {
+
+    $("inviteError").textContent =
+      "Your password must be at least 6 characters.";
+
+    $("inviteError").classList.remove(
+      "hidden"
+    );
+
+    return;
+
+  }
+
+
+  if (password !== confirmation) {
+
+    $("inviteError").textContent =
+      "The passwords do not match.";
+
+    $("inviteError").classList.remove(
+      "hidden"
+    );
+
+    return;
+
+  }
+
+
+  const button =
+    $("setInvitePasswordBtn");
+
+  const originalText =
+    button.textContent;
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "Saving…";
+
+
+  try {
+
+    const {
+      data,
+      error
+    } = await db.auth.updateUser({
+      password
+    });
+
+
+    if (error) {
+      throw error;
+    }
+
+
+    if (!data?.user) {
+      throw new Error(
+        "Unable to complete your account setup."
+      );
+    }
+
+
+    /*
+     * The invitation has now been accepted and the user
+     * has created their password.
+     *
+     * Clear the invitation parameters from the URL so
+     * refreshing the page does not attempt setup again.
+     */
+
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname +
+        window.location.search
+    );
+
+
+    /*
+     * Sign out the temporary invitation session.
+     *
+     * The user will then use the normal Login form with
+     * the password they just created.
+     */
+
+    await db.auth.signOut();
+
+
+    $("invitePanel").classList.add(
+      "hidden"
+    );
+
+    $("loginPanel").classList.remove(
+      "hidden"
+    );
+
+
+    $("loginEmail").value =
+      data.user.email || "";
+
+    $("loginPassword").value =
+      "";
+
+
+    $("loginError").classList.remove(
+      "hidden"
+    );
+
+    $("loginError").textContent =
+      "Your password has been created. Please log in.";
+
+
+  } catch (error) {
+
+    console.error(
+      "INVITATION PASSWORD ERROR:",
+      error
+    );
+
+
+    $("inviteError").textContent =
+      error.message ||
+      "Unable to set your password.";
+
+    $("inviteError").classList.remove(
+      "hidden"
+    );
+
+  } finally {
+
+    button.disabled = false;
+
+    button.textContent =
+      originalText;
+
+  }
+
+}
+
+
+$("setInvitePasswordBtn")
+  ?.addEventListener(
+    "click",
+    setInvitationPassword
+  );
+
+
+$("invitePasswordConfirm")
+  ?.addEventListener(
+    "keydown",
+    event => {
+
+      if (event.key === "Enter") {
+
+        event.preventDefault();
+
+        setInvitationPassword();
+
+      }
+
+    }
+  );
+
 async function handleSettingsLogin() {
   const email = $("loginEmail").value.trim();
   const password = $("loginPassword").value;
@@ -2502,33 +2756,80 @@ $("logoutBtn").addEventListener(
 
 (async function init() {
   try {
-    const authenticated =
-      await authenticateSettingsUser();
 
-    $("loading").classList.add("hidden");
+    /*
+     * First check whether this is an invitation acceptance.
+     *
+     * If it is, show the password-creation screen instead
+     * of immediately running the normal Settings authentication.
+     */
 
-    if (!authenticated) {
-      $("loginPanel").classList.remove("hidden");
-      $("settingsApp").classList.add("hidden");
+    const invitation =
+      await handleInvitationSetup();
+
+
+    if (invitation) {
       return;
     }
 
-$("loginPanel").classList.add("hidden");
 
-$("settingsUserEmail").textContent =
-  state.user.email;
+    /*
+     * Normal Booking Settings authentication.
+     */
 
-$("settingsUserRole").textContent =
-  state.role;
+    const authenticated =
+      await authenticateSettingsUser();
 
-applyRolePermissions();
 
-await loadLocations();
+    $("loading").classList.add(
+      "hidden"
+    );
 
-await loadSettingsUsers();
 
-    $("settingsApp").classList.remove("hidden");
+    if (!authenticated) {
+
+      $("loginPanel")
+        .classList.remove("hidden");
+
+      $("settingsApp")
+        .classList.add("hidden");
+
+      return;
+
+    }
+
+
+    $("loginPanel")
+      .classList.add("hidden");
+
+
+    $("settingsUserEmail").textContent =
+      state.user.email;
+
+
+    $("settingsUserRole").textContent =
+      state.role;
+
+
+    applyRolePermissions();
+
+
+    await loadLocations();
+
+
+    await loadSettingsUsers();
+
+
+    $("settingsApp")
+      .classList.remove("hidden");
+
+
   } catch (err) {
-    showError(err.message);
+
+    showError(
+      err.message
+    );
+
   }
+
 })();
