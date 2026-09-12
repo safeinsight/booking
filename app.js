@@ -149,7 +149,7 @@ function selectSlot(index) {
   if (!clicked || clicked.blocked || clicked.remaining <= 0) return;
 
   // First click starts a contiguous booking.
-  if (!state.selectedStart) {
+  if (state.selectedStart === null) {
     state.selectedStart = index;
     state.selectedEnd = index;
   } else if (index === state.selectedStart) {
