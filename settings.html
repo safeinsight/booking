@@ -153,6 +153,63 @@
   ></div>
 </div>
 
+
+<!-- ========================================================
+     INVITATION / FIRST-TIME PASSWORD SETUP
+     ======================================================== -->
+
+<div
+  id="invitePanel"
+  class="settings-section hidden"
+>
+
+  <h2>Welcome to Booking Settings</h2>
+
+  <p class="muted">
+    You've been invited to access Booking Settings.
+    Please create your password to finish setting up your account.
+  </p>
+
+  <label for="invitePassword">
+    Create Password
+  </label>
+
+  <input
+    id="invitePassword"
+    type="password"
+    autocomplete="new-password"
+    placeholder="Create a password"
+  >
+
+  <label for="invitePasswordConfirm">
+    Confirm Password
+  </label>
+
+  <input
+    id="invitePasswordConfirm"
+    type="password"
+    autocomplete="new-password"
+    placeholder="Confirm your password"
+  >
+
+  <button
+    type="button"
+    id="setInvitePasswordBtn"
+    class="primary"
+    style="margin-top:15px;"
+  >
+    Set Password
+  </button>
+
+  <div
+    id="inviteError"
+    class="state error hidden"
+    style="margin-top:15px;"
+  ></div>
+
+</div>
+
+
 <div id="settingsApp" class="hidden">
 
   <div
