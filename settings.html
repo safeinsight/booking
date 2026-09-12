@@ -222,6 +222,14 @@
             Emails
           </button>
 
+          <button
+            type="button"
+            class="settings-tab hidden"
+            data-tab="usersTab"
+          >
+            Users
+          </button>
+
         </div>
 
 
@@ -918,6 +926,182 @@
 
         </div>
 
+  <!-- ========================================================
+     USERS TAB
+     Administrator only
+     ======================================================== -->
+
+<div
+  id="usersTab"
+  class="settings-tab-panel"
+>
+
+  <div class="settings-section">
+
+    <h2>User Management</h2>
+
+    <p class="muted">
+      Add and manage users who can access Booking Settings.
+    </p>
+
+    <div
+      id="userManagementMessage"
+      class="state hidden"
+      style="margin-top:15px;"
+    ></div>
+
+
+    <div
+      style="
+        display:grid;
+        grid-template-columns:minmax(0, 1fr) minmax(180px, 220px) auto;
+        gap:15px;
+        align-items:end;
+        margin-top:20px;
+      "
+    >
+
+      <div>
+
+        <label for="newUserEmail">
+          Email Address
+        </label>
+
+        <input
+          id="newUserEmail"
+          type="email"
+          autocomplete="off"
+          placeholder="user@example.com"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label for="newUserRole">
+          Role
+        </label>
+
+        <select id="newUserRole">
+
+          <option value="Administrator">
+            Administrator
+          </option>
+
+          <option value="Manager">
+            Manager
+          </option>
+
+          <option value="Instructor">
+            Instructor
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <button
+          type="button"
+          id="sendInviteBtn"
+          class="primary"
+        >
+          Send Invite
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="settings-section">
+
+    <h2>Current Users</h2>
+
+    <div
+      id="usersLoading"
+      class="muted"
+    >
+      Loading users…
+    </div>
+
+
+    <div
+      id="usersTableWrapper"
+      class="hidden"
+      style="overflow-x:auto;"
+    >
+
+      <table
+        style="
+          width:100%;
+          border-collapse:collapse;
+          margin-top:15px;
+        "
+      >
+
+        <thead>
+
+          <tr>
+
+            <th
+              style="
+                text-align:left;
+                padding:12px 8px;
+                border-bottom:1px solid #ddd;
+              "
+            >
+              Email
+            </th>
+
+            <th
+              style="
+                text-align:left;
+                padding:12px 8px;
+                border-bottom:1px solid #ddd;
+              "
+            >
+              Role
+            </th>
+
+            <th
+              style="
+                text-align:left;
+                padding:12px 8px;
+                border-bottom:1px solid #ddd;
+              "
+            >
+              Status
+            </th>
+
+            <th
+              style="
+                text-align:left;
+                padding:12px 8px;
+                border-bottom:1px solid #ddd;
+              "
+            >
+              Actions
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="usersTableBody"></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
 
         <!-- EXISTING SAVE -->
 
