@@ -2811,13 +2811,24 @@ $("logoutBtn").addEventListener(
       state.role;
 
 
-    applyRolePermissions();
+applyRolePermissions();
 
+await loadLocations();
 
-    await loadLocations();
+await loadSettingsUsers();
 
+// Managers and Instructors should open on Availability
+if (
+  state.role === "Manager" ||
+  state.role === "Instructor"
+) {
+  const availabilityTabButton =
+    document.querySelector(
+      '[data-tab="availabilityTab"]'
+    );
 
-    await loadSettingsUsers();
+  availabilityTabButton?.click();
+}
 
 
     $("settingsApp")
