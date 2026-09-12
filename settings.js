@@ -9,7 +9,9 @@ const $ = id => document.getElementById(id);
 
 const state = {
   locations: [],
-  location: null
+  location: null,
+  user: null,
+  role: null
 };
 
 
