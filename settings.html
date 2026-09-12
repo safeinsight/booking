@@ -104,13 +104,56 @@
         </a>
       </div>
 
-      <div id="loading" class="state">
-        Loading location settings…
-      </div>
+<div id="loading" class="state">
+  Checking login…
+</div>
 
-      <div id="error" class="state error hidden"></div>
+<div id="loginPanel" class="settings-section">
+  <h2>Booking Settings Login</h2>
 
-      <div id="settingsApp" class="hidden">
+  <p class="muted">
+    Sign in with your authorized Booking Settings account.
+  </p>
+
+  <label for="loginEmail">
+    Email
+  </label>
+
+  <input
+    id="loginEmail"
+    type="email"
+    autocomplete="username"
+    placeholder="Email address"
+  >
+
+  <label for="loginPassword">
+    Password
+  </label>
+
+  <input
+    id="loginPassword"
+    type="password"
+    autocomplete="current-password"
+    placeholder="Password"
+  >
+
+  <button
+    type="button"
+    id="loginBtn"
+    class="primary"
+    style="margin-top:15px;"
+  >
+    Login
+  </button>
+
+  <div
+    id="loginError"
+    class="state error hidden"
+    style="margin-top:15px;"
+  ></div>
+</div>
+
+<div id="settingsApp" class="hidden">
 
         <!-- SETTINGS TABS -->
 
