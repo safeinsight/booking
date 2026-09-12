@@ -1991,15 +1991,68 @@ $("connectCalendarBtn").addEventListener("click", () => {
   );
 });
 
+async function handleSettingsLogin() {
+  const email = $("loginEmail").value.trim();
+  const password = $("loginPassword").value;
+
+  $("loginError").classList.add("hidden");
+  $("loginError").textContent = "";
+
+  if (!email || !password) {
+    $("loginError").textContent =
+      "Please enter your email and password.";
+    $("loginError").classList.remove("hidden");
+    return;
+  }
+
+  const { error } = await db.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    $("loginError").textContent =
+      "Login failed. Please check your email and password.";
+    $("loginError").classList.remove("hidden");
+    return;
+  }
+
+  window.location.reload();
+}
+
+$("loginBtn").addEventListener(
+  "click",
+  handleSettingsLogin
+);
+
+$("loginPassword").addEventListener(
+  "keydown",
+  event => {
+    if (event.key === "Enter") {
+      handleSettingsLogin();
+    }
+  }
+);
+
 (async function init() {
   try {
+    const authenticated =
       await authenticateSettingsUser();
-      
-      applyRolePermissions();
-      
-      await loadLocations();
 
     $("loading").classList.add("hidden");
+
+    if (!authenticated) {
+      $("loginPanel").classList.remove("hidden");
+      $("settingsApp").classList.add("hidden");
+      return;
+    }
+
+    $("loginPanel").classList.add("hidden");
+
+    applyRolePermissions();
+
+    await loadLocations();
+
     $("settingsApp").classList.remove("hidden");
   } catch (err) {
     showError(err.message);
