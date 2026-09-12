@@ -1508,11 +1508,9 @@ async function saveBrandingSettings(button) {
       `${cfg.functionsBaseUrl}/save-location-settings`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      }
+        headers: await getAuthHeaders(),
+                body: JSON.stringify(payload)
+        }
     );
 
     const result = await response.json();
@@ -1596,10 +1594,8 @@ async function saveAvailabilitySettings(button) {
       `${cfg.functionsBaseUrl}/save-location-settings`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(settingsPayload)
+        headers: await getAuthHeaders(),
+                body: JSON.stringify(settingsPayload)
       }
     );
 
@@ -1873,10 +1869,8 @@ async function saveEmailSettings(button) {
       `${cfg.functionsBaseUrl}/save-location-settings`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
+        headers: await getAuthHeaders(),
+                body: JSON.stringify(payload)
       }
     );
 
