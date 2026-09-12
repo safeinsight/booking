@@ -2034,6 +2034,15 @@ $("loginPassword").addEventListener(
   }
 );
 
+$("logoutBtn").addEventListener(
+  "click",
+  async () => {
+    await db.auth.signOut();
+    window.location.reload();
+  }
+);
+
+
 (async function init() {
   try {
     const authenticated =
@@ -2047,11 +2056,17 @@ $("loginPassword").addEventListener(
       return;
     }
 
-    $("loginPanel").classList.add("hidden");
+$("loginPanel").classList.add("hidden");
 
-    applyRolePermissions();
+$("settingsUserEmail").textContent =
+  state.user.email;
 
-    await loadLocations();
+$("settingsUserRole").textContent =
+  state.role;
+
+applyRolePermissions();
+
+await loadLocations();
 
     $("settingsApp").classList.remove("hidden");
   } catch (err) {
