@@ -126,6 +126,11 @@ async function authenticateSettingsUser() {
   state.user = user;
   state.role = settingsUser.role;
 
+  console.log("BOOKING SETTINGS DEBUG");
+  console.log("user.id:", user.id);
+  console.log("settingsUser:", settingsUser);
+  console.log("state.role:", state.role);
+
   return true;
 }
 
