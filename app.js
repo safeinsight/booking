@@ -84,9 +84,11 @@ function applyBranding(loc) {
 
 function renderLocationSummary() {
   const l = state.location;
+  const instructorName = state.instructor?.name || l.instructor_name;
+
   $("locationSummary").innerHTML = `
     <strong>${escapeHtml(l.name)}</strong><br>
-    ${l.instructor_name ? `Instructor: ${escapeHtml(l.instructor_name)}<br>` : ""}
+    ${instructorName ? `Instructor: ${escapeHtml(instructorName)}<br>` : ""}
     ${l.address ? escapeHtml(l.address) + "<br>" : ""}
     ${l.appointment_length_minutes} minute slots<br>
     Capacity: ${l.max_students_per_slot} student${l.max_students_per_slot === 1 ? "" : "s"} per slot
@@ -253,7 +255,7 @@ function buildReview() {
 
   $("review").innerHTML = `
     <strong>${escapeHtml(l.name)}</strong><br>
-    ${l.instructor_name ? `Instructor: ${escapeHtml(l.instructor_name)}<br>` : ""}
+        ${(state.instructor?.name || l.instructor_name) ? `Instructor: ${escapeHtml(state.instructor?.name || l.instructor_name)}<br>` : ""}
 ${formatDate(first.start, state.location.timezone)}<br>
 ${formatTime(first.start, state.location.timezone)} – ${formatTime(last.end, state.location.timezone)}<br>
     ${l.address ? escapeHtml(l.address) + "<br>" : ""}
