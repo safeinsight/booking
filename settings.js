@@ -2049,10 +2049,10 @@ function renderInstructorList() {
   container.innerHTML =
     state.instructors.map(instructor => {
 
-      const bookingUrl =
-        instructor.slug
-          ? `/book/${state.location.slug}/${instructor.slug}`
-          : "";
+const bookingUrl =
+  instructor.slug
+    ? `${window.location.origin}/booking/book/${state.location.slug}/${instructor.slug}`
+    : "";
 
       return `
         <div
