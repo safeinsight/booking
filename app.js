@@ -134,20 +134,21 @@ async function loadInstructor() {
 
   const { data, error } = await db
     .from("instructors")
-    .select("id,location_id,user_id,name,email,slug")
-    .eq("location_id", state.location.id)
+    .select("id, location_id, user_id, name, email, slug")
     .eq("slug", state.instructorSlug)
-    .single();
+    .eq("location_id", state.location.id);
 
   if (error) {
     throw error;
   }
 
-  if (!data) {
-    throw new Error("The requested instructor could not be found.");
+  if (!data || data.length !== 1) {
+    throw new Error(
+      `Instructor "${state.instructorSlug}" was not found for this location.`
+    );
   }
 
-  state.instructor = data;
+  state.instructor = data[0];
 }
 
 async function loadDates() {
