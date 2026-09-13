@@ -66,6 +66,7 @@ function canManageUsers() {
 const state = {
   locations: [],
   location: null,
+  instructors: [],
   user: null,
   role: null
 };
@@ -190,6 +191,25 @@ function applyRolePermissions() {
 async function loadLocationIntoForm(loc) {
 
   state.location = loc;
+
+  const { data: instructors, error: instructorError } =
+  await db
+    .from("instructors")
+    .select("*")
+    .eq("location_id", loc.id)
+    .order("name");
+
+if (instructorError) {
+  console.error(
+    "INSTRUCTOR LOAD ERROR:",
+    instructorError
+  );
+  state.instructors = [];
+} else {
+  state.instructors = instructors || [];
+}
+
+renderInstructorList();
 
   $("locationName").value = loc.name || "";
   $("instructorName").value = loc.instructor_name || "";
@@ -2005,6 +2025,47 @@ function escapeHtml(value) {
 
 function escapeAttr(value) {
   return escapeHtml(value);
+}
+
+function renderInstructorList() {
+
+  const container = $("instructorList");
+
+  if (!container) return;
+
+  if (!state.instructors.length) {
+    container.innerHTML =
+      `<div class="muted">
+        No instructors assigned.
+      </div>`;
+    return;
+  }
+
+
+  container.innerHTML =
+    state.instructors.map(instructor => `
+      <div
+        style="
+          padding:10px;
+          border:1px solid #ddd;
+          margin-top:8px;
+          border-radius:6px;
+        "
+      >
+
+        <strong>
+          ${escapeHtml(instructor.name)}
+        </strong>
+
+        <br>
+
+        <small>
+          ${escapeHtml(instructor.email || "")}
+        </small>
+
+      </div>
+    `).join("");
+
 }
 
 $("connectCalendarBtn").addEventListener("click", () => {
