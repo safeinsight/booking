@@ -131,6 +131,12 @@ async function authenticateSettingsUser() {
   console.log("settingsUser:", settingsUser);
   console.log("state.role:", state.role);
 
+  const { data: adminCheck, error: adminCheckError } =
+    await db.rpc("is_settings_administrator");
+
+  console.log("RLS ADMIN FUNCTION RESULT:", adminCheck);
+  console.log("RLS ADMIN FUNCTION ERROR:", adminCheckError);
+
   return true;
 }
 
