@@ -4,6 +4,8 @@ const db = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
 const state = {
   locations: [],
   location: null,
+  instructor: null,
+  instructorSlug: null,
   date: null,
   availability: null,
   selectedStart: null,
@@ -45,8 +47,27 @@ function formatDate(iso, timeZone) {
   }).format(new Date(iso));
 }
 
-function getSlug() {
-  return new URLSearchParams(location.search).get("location") || cfg.defaultLocationSlug;
+function getBookingRoute() {
+  const path = window.location.pathname.replace(/\/+$/, "");
+
+  const match = path.match(
+    /\/booking\/book\/([^/]+)\/([^/]+)$/
+  );
+
+  if (!match) {
+    return {
+      locationSlug:
+        new URLSearchParams(window.location.search).get("location") ||
+        cfg.defaultLocationSlug,
+
+      instructorSlug: null
+    };
+  }
+
+  return {
+    locationSlug: decodeURIComponent(match[1]),
+    instructorSlug: decodeURIComponent(match[2])
+  };
 }
 
 function applyBranding(loc) {
@@ -88,12 +109,44 @@ async function loadLocations() {
     `<option value="${escapeAttr(l.slug)}">${escapeHtml(l.name)}${l.instructor_name ? " — " + escapeHtml(l.instructor_name) : ""}</option>`
   ).join("");
 
-  const wanted = getSlug();
-  const selected = state.locations.find(l => l.slug === wanted) || state.locations[0];
+  const route = getBookingRoute();
+
+  const selected =
+    state.locations.find(
+      l => l.slug === route.locationSlug
+    ) || state.locations[0];
+
   select.value = selected.slug;
   state.location = selected;
+
   applyBranding(selected);
   renderLocationSummary();
+
+  state.instructorSlug = route.instructorSlug;
+}
+
+async function loadInstructor() {
+  if (!state.instructorSlug) {
+    state.instructor = null;
+    return;
+  }
+
+  const { data, error } = await db
+    .from("instructors")
+    .select("id,location_id,user_id,name,email,slug")
+    .eq("location_id", state.location.id)
+    .eq("slug", state.instructorSlug)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data) {
+    throw new Error("The requested instructor could not be found.");
+  }
+
+  state.instructor = data;
 }
 
 async function loadDates() {
@@ -318,8 +371,12 @@ function escapeAttr(v) { return escapeHtml(v); }
 (async function init() {
   try {
     await loadLocations();
+    await loadInstructor();
+
     $("loading").classList.add("hidden");
     $("bookingApp").classList.remove("hidden");
     showStep(1);
-  } catch (err) { showError(err.message); }
+  } catch (err) {
+    showError(err.message);
+  }
 })();
