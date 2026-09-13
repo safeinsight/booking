@@ -118,11 +118,35 @@ async function loadLocations() {
 
   select.value = selected.slug;
   state.location = selected;
+  state.instructorSlug = route.instructorSlug;
 
   applyBranding(selected);
-  renderLocationSummary();
 
-  state.instructorSlug = route.instructorSlug;
+  if (state.instructorSlug) {
+    const { data: instructor, error: instructorError } =
+      await db
+        .from("instructors")
+        .select("id, location_id, user_id, name, email, slug")
+        .eq("location_id", selected.id)
+        .eq("slug", state.instructorSlug)
+        .single();
+
+    if (instructorError) {
+      throw instructorError;
+    }
+
+    if (!instructor) {
+      throw new Error("Instructor not found.");
+    }
+
+    state.instructor = instructor;
+
+    $("brandSubtitle").textContent =
+      `Instructor: ${instructor.name}`;
+  } else {
+    state.instructor = null;
+    renderLocationSummary();
+  }
 }
 
 async function loadInstructor() {
