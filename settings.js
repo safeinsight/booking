@@ -192,10 +192,17 @@ async function loadLocationIntoForm(loc) {
 
   state.location = loc;
 
-  const { data: instructors, error: instructorError } =
+const { data: instructors, error: instructorError } =
   await db
     .from("instructors")
-    .select("*")
+    .select(`
+      id,
+      location_id,
+      user_id,
+      name,
+      email,
+      slug
+    `)
     .eq("location_id", loc.id)
     .order("name");
 
@@ -212,7 +219,6 @@ if (instructorError) {
 renderInstructorList();
 
   $("locationName").value = loc.name || "";
-  $("instructorName").value = loc.instructor_name || "";
   $("address").value = loc.address || "";
   $("website").value = loc.website || "";
 
@@ -1458,9 +1464,6 @@ async function saveLocationSettings(button) {
       name:
         $("locationName").value.trim(),
 
-      instructor_name:
-        $("instructorName").value.trim(),
-
       address:
         $("address").value.trim(),
 
@@ -2041,32 +2044,158 @@ function renderInstructorList() {
     return;
   }
 
-
   container.innerHTML =
-    state.instructors.map(instructor => `
-      <div
-        style="
-          padding:10px;
-          border:1px solid #ddd;
-          margin-top:8px;
-          border-radius:6px;
-        "
-      >
+    state.instructors.map(instructor => {
 
-        <strong>
-          ${escapeHtml(instructor.name)}
-        </strong>
+      const bookingUrl =
+        instructor.slug
+          ? `/book/${state.location.slug}/${instructor.slug}`
+          : "";
 
-        <br>
+      return `
+        <div
+          style="
+            padding:10px;
+            border:1px solid #ddd;
+            margin-top:8px;
+            border-radius:6px;
+          "
+        >
 
-        <small>
-          ${escapeHtml(instructor.email || "")}
-        </small>
+          <strong>
+            ${escapeHtml(instructor.name)}
+          </strong>
 
-      </div>
-    `).join("");
+          <br>
 
+          <small>
+            ${escapeHtml(instructor.email || "")}
+          </small>
+
+          ${
+            bookingUrl
+              ? `
+                <br>
+                <small>
+                  Booking URL:
+                  <code>${escapeHtml(bookingUrl)}</code>
+                </small>
+              `
+              : `
+                <br>
+                <small class="muted">
+                  No booking URL configured.
+                </small>
+              `
+          }
+
+        </div>
+      `;
+
+    }).join("");
 }
+
+function makeSlug(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+
+$("addInstructorBtn").addEventListener("click", async () => {
+
+  if (!state.location?.id) {
+    alert("Please select a location first.");
+    return;
+  }
+
+  const name = prompt("Instructor name:");
+
+  if (!name?.trim()) {
+    return;
+  }
+
+  const email = prompt("Instructor email address:");
+
+  if (!email?.trim()) {
+    return;
+  }
+
+  const slug = makeSlug(name);
+
+  if (!slug) {
+    alert("Unable to generate an instructor URL slug.");
+    return;
+  }
+
+  const duplicate = state.instructors.some(
+    instructor =>
+      instructor.slug?.toLowerCase() === slug.toLowerCase()
+  );
+
+  if (duplicate) {
+    alert(
+      `An instructor with the slug "${slug}" already exists at this location.`
+    );
+    return;
+  }
+
+  const button = $("addInstructorBtn");
+
+  button.disabled = true;
+  const originalText = button.textContent;
+  button.textContent = "Adding...";
+
+  try {
+
+    const { data, error } =
+      await db
+        .from("instructors")
+        .insert({
+          location_id: state.location.id,
+          name: name.trim(),
+          email: email.trim(),
+          slug
+        })
+        .select()
+        .single();
+
+    if (error) {
+      throw error;
+    }
+
+    state.instructors = [
+      ...state.instructors,
+      data
+    ].sort((a, b) =>
+      String(a.name || "")
+        .localeCompare(String(b.name || ""))
+    );
+
+    renderInstructorList();
+
+  } catch (error) {
+
+    console.error(
+      "ADD INSTRUCTOR ERROR:",
+      error
+    );
+
+    alert(
+      error.message ||
+      "Unable to add instructor."
+    );
+
+  } finally {
+
+    button.disabled = false;
+    button.textContent = originalText;
+
+  }
+
+});
 
 $("connectCalendarBtn").addEventListener("click", () => {
   if (!state.location?.id) {
