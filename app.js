@@ -107,11 +107,18 @@ async function loadLocations() {
   if (!state.locations.length) throw new Error("No active booking locations are configured.");
 
   const select = $("locationSelect");
+  const route = getBookingRoute();
+
   select.innerHTML = state.locations.map(l =>
     `<option value="${escapeAttr(l.slug)}">${escapeHtml(l.name)}${l.instructor_name ? " — " + escapeHtml(l.instructor_name) : ""}</option>`
   ).join("");
 
-  const route = getBookingRoute();
+  if (route.instructorSlug) {
+    select.classList.add("hidden");
+  } else {
+    select.classList.remove("hidden");
+  }
+
 
   const selected =
     state.locations.find(
