@@ -78,7 +78,7 @@ function applyBranding(loc) {
   $("brandLogo").src = loc.logo_url || "safe-insight-logo.png";
   $("brandLogo").alt = loc.name || "Booking";
   $("brandName").textContent = loc.name || "Booking";
-  $("brandSubtitle").textContent = loc.instructor_name ? `with ${loc.instructor_name}` : "Booking";
+  $("brandSubtitle").textContent = state.instructor?.name ? `with ${state.instructor.name}` : "Booking";
   $("footerText").textContent = loc.footer_text || `Booking powered by ${loc.name || "Safe Insight"}`;
 }
 
@@ -114,9 +114,11 @@ async function loadLocations() {
   ).join("");
 
   if (route.instructorSlug) {
-    select.classList.add("hidden");
+    select.disabled = true;
+    select.style.display = "none";
   } else {
-    select.classList.remove("hidden");
+    select.disabled = false;
+    select.style.display = "";
   }
 
 
@@ -156,6 +158,9 @@ async function loadInstructor() {
   }
 
   state.instructor = data[0];
+
+  $("brandSubtitle").textContent = `with ${state.instructor.name}`;
+  renderLocationSummary();
 }
 
 async function loadDates() {
