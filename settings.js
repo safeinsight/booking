@@ -2205,26 +2205,42 @@ document.addEventListener("click", async function (event) {
 
   if (!selectedInstructor) return;
 
-  state.instructor =
-    selectedInstructor;
+state.instructor =
+  selectedInstructor;
 
-  const selectedCalendarName =
-    $("selectedCalendarName");
+const selectedCalendarName =
+  $("selectedCalendarName");
 
-  if (selectedCalendarName) {
-    selectedCalendarName.textContent =
-      selectedInstructor.name;
-  }
+if (selectedCalendarName) {
+  selectedCalendarName.textContent =
+    selectedInstructor.name;
+}
 
-  const calendarSelectedName =
-    $("calendarSelectedName");
+const calendarSelectedName =
+  $("calendarSelectedName");
 
-  if (calendarSelectedName) {
-    calendarSelectedName.textContent =
-      selectedInstructor.name;
-  }
+if (calendarSelectedName) {
+  calendarSelectedName.textContent =
+    selectedInstructor.name;
+}
 
-  renderInstructorList();
+const availabilityInstructorName =
+  $("availabilityInstructorName");
+
+if (availabilityInstructorName) {
+  availabilityInstructorName.textContent =
+    selectedInstructor.name;
+}
+
+const emailsInstructorName =
+  $("emailsInstructorName");
+
+if (emailsInstructorName) {
+  emailsInstructorName.textContent =
+    selectedInstructor.name;
+}
+
+renderInstructorList();
 
   const selectedUserPanel =
     $("selectedUserPanel");
