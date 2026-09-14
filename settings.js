@@ -2364,6 +2364,10 @@ document.addEventListener("click", async function (event) {
 state.instructor =
   selectedInstructor;
 
+await loadLocationIntoForm(
+  state.location
+);
+
 const selectedLocationInstructor =
   $("selectedLocationInstructor");
 
