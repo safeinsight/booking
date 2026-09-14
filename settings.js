@@ -2216,6 +2216,14 @@ document.addEventListener("click", async function (event) {
 state.instructor =
   selectedInstructor;
 
+const selectedLocationInstructor =
+  $("selectedLocationInstructor");
+
+if (selectedLocationInstructor) {
+  selectedLocationInstructor.textContent =
+    selectedInstructor.name;
+}
+
 const selectedCalendarName =
   $("selectedCalendarName");
 
