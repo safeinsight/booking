@@ -1264,6 +1264,56 @@ async function loadLocations() {
   await loadLocationIntoForm(selected);
 }
 
+async function loadAllInstructors() {
+
+  const { data, error } =
+    await db
+      .from("instructors")
+      .select(`
+        id,
+        location_id,
+        user_id,
+        name,
+        email,
+        slug
+      `)
+      .order("name");
+
+  if (error) {
+    console.error(
+      "ALL INSTRUCTORS LOAD ERROR:",
+      error
+    );
+
+    state.instructors = [];
+
+    renderInstructorList();
+
+    throw error;
+  }
+
+  state.instructors =
+    data || [];
+
+  if (
+    state.instructor &&
+    state.instructors.some(
+      instructor =>
+        instructor.id === state.instructor.id
+    )
+  ) {
+    state.instructor =
+      state.instructors.find(
+        instructor =>
+          instructor.id === state.instructor.id
+      );
+  } else {
+    state.instructor =
+      state.instructors[0] || null;
+  }
+
+  renderInstructorList();
+}
 
 $("locationSelect").addEventListener("change", async event => {
 
@@ -2387,7 +2437,10 @@ applyRolePermissions();
 
 await loadLocations();
 
-    $("settingsApp").classList.remove("hidden");
+await loadAllInstructors();
+
+$("settingsApp").classList.remove("hidden");
+    
   } catch (err) {
     showError(err.message);
   }
