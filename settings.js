@@ -60,7 +60,10 @@ function canEditEmails() {
 }
 
 function canManageUsers() {
-  return isAdministrator();
+  return (
+    isAdministrator() ||
+    isManager()
+  );
 }
 
 const state = {
