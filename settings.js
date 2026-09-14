@@ -229,9 +229,7 @@ if (instructorError) {
     "INSTRUCTOR LOAD ERROR:",
     instructorError
   );
-  state.instructors = [];
-  state.instructor = null;
-} else {
+} else if (!state.instructor) {
   state.instructors = instructors || [];
   state.instructor = state.instructors[0] || null;
 }
