@@ -1397,12 +1397,16 @@ try {
             instructorEmail
         );
 
-      return {
-        ...instructor,
-        role:
-          settingsUser?.role ||
-          "Instructor"
-      };
+return {
+  ...instructor,
+  user_id:
+    settingsUser?.user_id ||
+    instructor.user_id ||
+    null,
+  role:
+    settingsUser?.role ||
+    "Instructor"
+};
 
     });
 
@@ -2423,6 +2427,109 @@ renderInstructorList();
     `;
 
     selectedUserPanel.classList.remove("hidden");
+  }
+
+});
+
+document.addEventListener("change", async function (event) {
+
+  const select =
+    event.target.closest("[data-role-instructor]");
+
+  if (!select) return;
+
+  const instructorId =
+    select.getAttribute("data-role-instructor");
+
+  if (!instructorId) return;
+
+  const instructor =
+    state.instructors.find(
+      item =>
+        item.id === instructorId
+    );
+
+  if (!instructor) return;
+
+  const newRole =
+    select.value;
+
+  if (!instructor.user_id) {
+
+    alert(
+      "This instructor does not have a Booking Settings account yet."
+    );
+
+    renderInstructorList();
+
+    return;
+  }
+
+  const previousRole =
+    instructor.role;
+
+  select.disabled = true;
+
+  try {
+
+    const authHeaders =
+      await getAuthHeaders();
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/manage-settings-users`,
+        {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify({
+            action: "update_role",
+            user_id: instructor.user_id,
+            role: newRole
+          })
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if (!response.ok || result.error) {
+      throw new Error(
+        result.error ||
+        "Unable to update instructor role."
+      );
+    }
+
+    instructor.role =
+      result.user?.role ||
+      newRole;
+
+    if (
+      state.instructor?.id ===
+      instructor.id
+    ) {
+      state.instructor =
+        instructor;
+    }
+
+    renderInstructorList();
+
+  } catch (error) {
+
+    console.error(
+      "UPDATE INSTRUCTOR ROLE ERROR:",
+      error
+    );
+
+    instructor.role =
+      previousRole;
+
+    renderInstructorList();
+
+    alert(
+      error.message ||
+      "Unable to update instructor role."
+    );
+
   }
 
 });
