@@ -1341,47 +1341,44 @@ async function loadAllInstructors() {
   state.instructors =
     data || [];
 
-  let settingsUsers = [];
+let settingsUsers = [];
 
-  try {
+try {
 
-    const authHeaders =
-      await getAuthHeaders();
+  const authHeaders =
+    await getAuthHeaders();
 
-    const response =
-      await fetch(
-        `${cfg.functionsBaseUrl}/manage-settings-users`,
-        {
-          method: "POST",
-          headers: authHeaders,
-          body: JSON.stringify({
-            action: "list"
-          })
-        }
-      );
-
-    const result =
-      await response.json();
-
-    if (!response.ok || result.error) {
-      throw new Error(
-        result.error ||
-        "Unable to load settings users."
-      );
-    }
-
-    settingsUsers =
-      result.users || [];
-
-  } catch (error) {
-
-    console.error(
-      "SETTINGS USERS LOAD ERROR:",
-      error
+  const response =
+    await fetch(
+      `${cfg.functionsBaseUrl}/manage-settings-users`,
+      {
+        method: "GET",
+        headers: authHeaders
+      }
     );
 
-    throw error;
+  const result =
+    await response.json();
+
+  if (!response.ok || result.error) {
+    throw new Error(
+      result.error ||
+      "Unable to load settings users."
+    );
   }
+
+  settingsUsers =
+    result.users || [];
+
+} catch (error) {
+
+  console.error(
+    "SETTINGS USERS LOAD ERROR:",
+    error
+  );
+
+  throw error;
+}
 
   state.instructors =
     state.instructors.map(instructor => {
