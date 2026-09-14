@@ -2184,7 +2184,7 @@ function renderInstructorList() {
     }).join("");
 }
 
-document.addEventListener("click", function (event) {
+document.addEventListener("click", async function (event) {
 
   const button =
     event.target.closest("[data-select-instructor]");
@@ -2208,6 +2208,10 @@ document.addEventListener("click", function (event) {
     selectedInstructor;
 
   renderInstructorList();
+
+  if (state.location) {
+    await loadLocationIntoForm(state.location);
+  }
 
   const selectedUserPanel =
     $("selectedUserPanel");
