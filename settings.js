@@ -2178,9 +2178,23 @@ function renderInstructorList() {
 
               <br>
 
-              <small>
-                ${escapeHtml(instructor.email || "")}
-              </small>
+<small>
+  ${escapeHtml(instructor.email || "")}
+</small>
+
+<br>
+
+<label style="display:block; margin-top:10px;">
+  <strong>Role:</strong>
+  <select
+    data-role-instructor="${escapeHtml(instructor.id)}"
+    style="margin-left:8px;"
+  >
+    <option value="Administrator">Administrator</option>
+    <option value="Manager">Manager</option>
+    <option value="Instructor">Instructor</option>
+  </select>
+</label>
 
               ${
                 bookingUrl
