@@ -1338,68 +1338,99 @@ async function loadAllInstructors() {
     throw error;
   }
 
-state.instructors =
-  data || [];
+  state.instructors =
+    data || [];
 
-const userIds =
-  state.instructors
-    .map(instructor => instructor.user_id)
-    .filter(Boolean);
+  let settingsUsers = [];
 
-if (userIds.length) {
+  try {
 
-  const {
-    data: settingsUsers,
-    error: settingsUsersError
-  } = await db
-    .from("settings_users")
-    .select("user_id, role")
-    .in("user_id", userIds);
+    const authHeaders =
+      await getAuthHeaders();
 
-  if (settingsUsersError) {
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/manage-settings-users`,
+        {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify({
+            action: "list"
+          })
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if (!response.ok || result.error) {
+      throw new Error(
+        result.error ||
+        "Unable to load settings users."
+      );
+    }
+
+    settingsUsers =
+      result.users || [];
+
+  } catch (error) {
+
     console.error(
       "SETTINGS USERS LOAD ERROR:",
-      settingsUsersError
+      error
     );
 
-    throw settingsUsersError;
+    throw error;
   }
 
   state.instructors =
     state.instructors.map(instructor => {
 
+      const instructorEmail =
+        instructor.email
+          ?.trim()
+          .toLowerCase();
+
       const settingsUser =
-        settingsUsers?.find(
+        settingsUsers.find(
           user =>
-            user.user_id === instructor.user_id
+            user.email
+              ?.trim()
+              .toLowerCase() ===
+            instructorEmail
         );
 
       return {
         ...instructor,
         role:
-          settingsUser?.role || "Instructor"
+          settingsUser?.role ||
+          "Instructor"
       };
 
     });
-}
 
-if (
-  state.instructor &&
-  state.instructors.some(
-    instructor =>
-      instructor.id === state.instructor.id
-  )
-) {
+  if (
+    state.instructor &&
+    state.instructors.some(
+      instructor =>
+        instructor.id === state.instructor.id
+    )
+  ) {
+
     state.instructor =
       state.instructors.find(
         instructor =>
           instructor.id === state.instructor.id
       );
+
   } else {
+
     state.instructor = null;
+
   }
 
   renderInstructorList();
+
 }
 
 $("locationSelect").addEventListener("change", async event => {
