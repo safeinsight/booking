@@ -1405,7 +1405,13 @@ return {
     null,
   role:
     settingsUser?.role ||
-    "Instructor"
+    "Instructor",
+  active:
+    settingsUser?.active ??
+    false,
+  email_confirmed:
+    settingsUser?.email_confirmed ??
+    false
 };
 
     });
@@ -2257,6 +2263,19 @@ function renderInstructorList() {
 </small>
 
 <br>
+
+<small style="display:block; margin-top:8px;">
+  <strong>Account:</strong>
+  ${
+    instructor.user_id
+      ? (
+          instructor.email_confirmed
+            ? "Active"
+            : "Invited — awaiting confirmation"
+        )
+      : "No Booking Settings account"
+  }
+</small>
 
 <label style="display:block; margin-top:10px;">
   <strong>Role:</strong>
