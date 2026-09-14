@@ -368,20 +368,31 @@ Location: {{LOCATION}}
 Student: {{STUDENT_NAME}}
 Instructor: {{INSTRUCTOR_NAME}}`;
 
-const { data: availabilityRules, error: availabilityError } =
-  await db
-    .from("availability_rules")
-    .select(`
-      id,
-      instructor_id,
-      day_of_week,
-      start_time,
-      end_time,
-      enabled
-    `)
-    .eq("instructor_id", state.instructor.id)
-    .order("day_of_week")
-    .order("start_time");
+  let availabilityRules = [];
+  let availabilityError = null;
+
+  if (state.instructor?.id) {
+    const response =
+      await db
+        .from("availability_rules")
+        .select(`
+          id,
+          instructor_id,
+          day_of_week,
+          start_time,
+          end_time,
+          enabled
+        `)
+        .eq("instructor_id", state.instructor.id)
+        .order("day_of_week")
+        .order("start_time");
+
+    availabilityRules =
+      response.data || [];
+
+    availabilityError =
+      response.error;
+  }
 
   if (availabilityError) {
     console.error(
