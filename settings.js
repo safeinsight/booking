@@ -2184,14 +2184,10 @@ document.addEventListener("click", async function (event) {
 
   if (!selectedInstructor) return;
 
-  state.instructor =
-    selectedInstructor;
+state.instructor =
+  selectedInstructor;
 
-  renderInstructorList();
-
-  if (state.location) {
-    await loadLocationIntoForm(state.location);
-  }
+renderInstructorList();
 
   const selectedUserPanel =
     $("selectedUserPanel");
