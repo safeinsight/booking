@@ -2408,7 +2408,11 @@ if (emailsInstructorName) {
     selectedInstructor.name;
 }
 
-renderInstructorList();
+  await loadLocationIntoForm(
+    state.location
+  );
+
+  renderInstructorList();
 
   const selectedUserPanel =
     $("selectedUserPanel");
