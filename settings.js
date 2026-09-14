@@ -210,31 +210,11 @@ async function loadLocationIntoForm(loc) {
 
   state.location = loc;
 
-const { data: instructors, error: instructorError } =
-  await db
-    .from("instructors")
-    .select(`
-      id,
-      location_id,
-      user_id,
-      name,
-      email,
-      slug
-    `)
-    .eq("location_id", loc.id)
-    .order("name");
-
-if (instructorError) {
-  console.error(
-    "INSTRUCTOR LOAD ERROR:",
-    instructorError
-  );
-} else if (!state.instructor) {
-  state.instructors = instructors || [];
-  state.instructor = state.instructors[0] || null;
-}
-
-renderInstructorList();
+  if (!state.instructor) {
+    console.warn(
+      "No instructor is currently selected."
+    );
+  }
 
   $("locationName").value = loc.name || "";
   $("address").value = loc.address || "";
@@ -2452,11 +2432,11 @@ $("settingsUserRole").textContent =
 
 applyRolePermissions();
 
-await loadLocations();
+  await loadAllInstructors();
 
-await loadAllInstructors();
+  await loadLocations();
 
-$("settingsApp").classList.remove("hidden");
+  $("settingsApp").classList.remove("hidden");
     
   } catch (err) {
     showError(err.message);
