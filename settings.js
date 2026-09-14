@@ -2183,10 +2183,26 @@ document.addEventListener("click", async function (event) {
 
   if (!selectedInstructor) return;
 
-state.instructor =
-  selectedInstructor;
+  state.instructor =
+    selectedInstructor;
 
-renderInstructorList();
+  const selectedCalendarName =
+    $("selectedCalendarName");
+
+  if (selectedCalendarName) {
+    selectedCalendarName.textContent =
+      selectedInstructor.name;
+  }
+
+  const calendarSelectedName =
+    $("calendarSelectedName");
+
+  if (calendarSelectedName) {
+    calendarSelectedName.textContent =
+      selectedInstructor.name;
+  }
+
+  renderInstructorList();
 
   const selectedUserPanel =
     $("selectedUserPanel");
