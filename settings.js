@@ -150,22 +150,26 @@ function applyRolePermissions() {
   const usersTab = $("usersTab");
   const brandingTab = $("brandingTab");
   const availabilityTab = $("availabilityTab");
+  const calendarTab = $("calendarTab");
   const emailsTab = $("emailsTab");
 
-  const locationTabButton =
-    document.querySelector('[data-tab="locationTab"]');
+const locationTabButton =
+  document.querySelector('[data-tab="locationTab"]');
 
-  const usersTabButton =
-    document.querySelector('[data-tab="usersTab"]');
+const usersTabButton =
+  document.querySelector('[data-tab="usersTab"]');
 
-  const brandingTabButton =
-    document.querySelector('[data-tab="brandingTab"]');
+const brandingTabButton =
+  document.querySelector('[data-tab="brandingTab"]');
 
-  const availabilityTabButton =
-    document.querySelector('[data-tab="availabilityTab"]');
+const availabilityTabButton =
+  document.querySelector('[data-tab="availabilityTab"]');
 
-  const emailsTabButton =
-    document.querySelector('[data-tab="emailsTab"]');
+const calendarTabButton =
+  document.querySelector('[data-tab="calendarTab"]');
+
+const emailsTabButton =
+  document.querySelector('[data-tab="emailsTab"]');
 
   // Administrator: full access
   if (canEditLocation()) {
@@ -185,16 +189,24 @@ if (canManageUsers()) {
   }
 
   // Availability: Administrator, Manager, Instructor
-  if (canEditAvailability()) {
-    availabilityTabButton?.classList.remove("hidden");
-    availabilityTab?.classList.remove("hidden");
-  }
+if (canEditAvailability()) {
+  availabilityTabButton?.classList.remove("hidden");
+  availabilityTab?.classList.remove("hidden");
+}
 
-  // Emails: Administrator and Manager
-  if (canEditEmails()) {
-    emailsTabButton?.classList.remove("hidden");
-    emailsTab?.classList.remove("hidden");
-  }
+if (
+  isAdministrator() ||
+  isManager() ||
+  isInstructor()
+) {
+  calendarTabButton?.classList.remove("hidden");
+  calendarTab?.classList.remove("hidden");
+}
+
+if (canEditEmails()) {
+  emailsTabButton?.classList.remove("hidden");
+  emailsTab?.classList.remove("hidden");
+}
 
   // Hide tabs that this role cannot access
   if (!canEditLocation()) {
@@ -210,13 +222,22 @@ if (!canManageUsers()) {
     brandingTabButton?.classList.add("hidden");
   }
 
-  if (!canEditAvailability()) {
-    availabilityTabButton?.classList.add("hidden");
-  }
+if (!canEditAvailability()) {
+  availabilityTabButton?.classList.add("hidden");
+}
 
-  if (!canEditEmails()) {
-    emailsTabButton?.classList.add("hidden");
-  }
+if (
+  !isAdministrator() &&
+  !isManager() &&
+  !isInstructor()
+) {
+  calendarTabButton?.classList.add("hidden");
+  calendarTab?.classList.add("hidden");
+}
+
+if (!canEditEmails()) {
+  emailsTabButton?.classList.add("hidden");
+}
 }
 
 async function loadLocationIntoForm(loc) {
