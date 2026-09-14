@@ -218,7 +218,15 @@ function applyRolePermissions() {
 
 async function loadLocationIntoForm(loc) {
 
-  state.location = loc;
+state.location = loc;
+
+const selectedLocationName =
+  $("selectedLocationName");
+
+if (selectedLocationName) {
+  selectedLocationName.textContent =
+    loc.name || "Default";
+}
 
   if (!state.instructor) {
     console.warn(
