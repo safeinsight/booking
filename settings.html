@@ -260,17 +260,31 @@
 
           <!-- LOCATION SELECTOR -->
 
-          <div class="settings-section">
+<div class="settings-section">
 
-            <h2>Location</h2>
+  <h2>Location</h2>
 
-            <label for="locationSelect">
-              Location / Instructor
-            </label>
+  <div class="summary">
 
-            <select id="locationSelect"></select>
+    <div>
+      <strong>Location Name:</strong>
+      <span id="selectedLocationName">Default</span>
+    </div>
 
-          </div>
+    <div style="margin-top:12px;">
+      <strong>Instructor:</strong>
+      <span id="selectedLocationInstructor">None selected</span>
+    </div>
+
+  </div>
+
+  <select
+    id="locationSelect"
+    class="hidden"
+    aria-hidden="true"
+  ></select>
+
+</div>
 
 
           <!-- CALENDAR -->
