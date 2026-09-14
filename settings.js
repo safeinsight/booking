@@ -210,33 +210,8 @@ async function loadLocationIntoForm(loc) {
 
   state.location = loc;
 
-const { data: instructors, error: instructorError } =
-  await db
-    .from("instructors")
-    .select(`
-      id,
-      location_id,
-      user_id,
-      name,
-      email,
-      slug
-    `)
-    .eq("location_id", loc.id)
-    .order("name");
-
-if (instructorError) {
-  console.error(
-    "INSTRUCTOR LOAD ERROR:",
-    instructorError
-  );
-  state.instructors = [];
-  state.instructor = null;
-} else {
-  state.instructors = instructors || [];
-  state.instructor = state.instructors[0] || null;
-}
-
-renderInstructorList();
+  // Instructor selection is managed by the Users tab.
+  // Do not reload or replace state.instructors here.
 
   $("locationName").value = loc.name || "";
   $("address").value = loc.address || "";
