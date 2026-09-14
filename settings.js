@@ -2312,6 +2312,8 @@ $("addInstructorBtn").addEventListener("click", async () => {
         .localeCompare(String(b.name || ""))
     );
 
+    state.instructor = data;
+
     renderInstructorList();
 
   } catch (error) {
