@@ -1338,16 +1338,58 @@ async function loadAllInstructors() {
     throw error;
   }
 
-  state.instructors =
-    data || [];
+state.instructors =
+  data || [];
 
-  if (
-    state.instructor &&
-    state.instructors.some(
-      instructor =>
-        instructor.id === state.instructor.id
-    )
-  ) {
+const userIds =
+  state.instructors
+    .map(instructor => instructor.user_id)
+    .filter(Boolean);
+
+if (userIds.length) {
+
+  const {
+    data: settingsUsers,
+    error: settingsUsersError
+  } = await db
+    .from("settings_users")
+    .select("user_id, role")
+    .in("user_id", userIds);
+
+  if (settingsUsersError) {
+    console.error(
+      "SETTINGS USERS LOAD ERROR:",
+      settingsUsersError
+    );
+
+    throw settingsUsersError;
+  }
+
+  state.instructors =
+    state.instructors.map(instructor => {
+
+      const settingsUser =
+        settingsUsers?.find(
+          user =>
+            user.user_id === instructor.user_id
+        );
+
+      return {
+        ...instructor,
+        role:
+          settingsUser?.role || "Instructor"
+      };
+
+    });
+}
+
+if (
+  state.instructor &&
+  state.instructors.some(
+    instructor =>
+      instructor.id === state.instructor.id
+  )
+) {
     state.instructor =
       state.instructors.find(
         instructor =>
@@ -2190,9 +2232,26 @@ function renderInstructorList() {
     data-role-instructor="${escapeHtml(instructor.id)}"
     style="margin-left:8px;"
   >
-    <option value="Administrator">Administrator</option>
-    <option value="Manager">Manager</option>
-    <option value="Instructor">Instructor</option>
+<option
+  value="Administrator"
+  ${instructor.role === "Administrator" ? "selected" : ""}
+>
+  Administrator
+</option>
+
+<option
+  value="Manager"
+  ${instructor.role === "Manager" ? "selected" : ""}
+>
+  Manager
+</option>
+
+<option
+  value="Instructor"
+  ${instructor.role === "Instructor" ? "selected" : ""}
+>
+  Instructor
+</option>
   </select>
 </label>
 
