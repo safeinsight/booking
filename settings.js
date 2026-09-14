@@ -74,9 +74,19 @@ const state = {
 
 
 function showError(message) {
-  $("loading").classList.add("hidden");
-  $("error").textContent = message;
-  $("error").classList.remove("hidden");
+  $("loading")?.classList.add("hidden");
+
+  const error = $("error");
+
+  if (error) {
+    error.textContent = message;
+    error.classList.remove("hidden");
+  } else {
+    console.error(
+      "SETTINGS ERROR:",
+      message
+    );
+  }
 }
 
 
