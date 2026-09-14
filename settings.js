@@ -134,12 +134,16 @@ async function authenticateSettingsUser() {
 
 function applyRolePermissions() {
   const locationTab = $("locationTab");
+  const usersTab = $("usersTab");
   const brandingTab = $("brandingTab");
   const availabilityTab = $("availabilityTab");
   const emailsTab = $("emailsTab");
 
   const locationTabButton =
     document.querySelector('[data-tab="locationTab"]');
+
+  const usersTabButton =
+    document.querySelector('[data-tab="usersTab"]');
 
   const brandingTabButton =
     document.querySelector('[data-tab="brandingTab"]');
@@ -154,6 +158,12 @@ function applyRolePermissions() {
   if (canEditLocation()) {
     locationTabButton?.classList.remove("hidden");
     locationTab?.classList.remove("hidden");
+  }
+
+  // Users: Administrator only
+  if (canEditLocation()) {
+    usersTabButton?.classList.remove("hidden");
+    usersTab?.classList.remove("hidden");
   }
 
   if (canEditBranding()) {
@@ -176,6 +186,11 @@ function applyRolePermissions() {
   // Hide tabs that this role cannot access
   if (!canEditLocation()) {
     locationTabButton?.classList.add("hidden");
+  }
+
+  if (!canEditLocation()) {
+    usersTabButton?.classList.add("hidden");
+    usersTab?.classList.add("hidden");
   }
 
   if (!canEditBranding()) {
