@@ -1301,8 +1301,7 @@ async function loadAllInstructors() {
           instructor.id === state.instructor.id
       );
   } else {
-    state.instructor =
-      state.instructors[0] || null;
+    state.instructor = null;
   }
 
   renderInstructorList();
