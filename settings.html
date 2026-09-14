@@ -201,6 +201,14 @@
           <button
             type="button"
             class="settings-tab"
+            data-tab="usersTab"
+          >
+            Users
+          </button>
+
+          <button
+            type="button"
+            class="settings-tab"
             data-tab="brandingTab"
           >
             Branding
@@ -350,6 +358,46 @@
             >
               Save Location Settings
             </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- USERS TAB -->
+
+        <div
+          id="usersTab"
+          class="settings-tab-panel"
+        >
+
+          <div class="settings-section">
+
+            <h2>Users</h2>
+
+            <p class="muted">
+              Manage instructors and their booking access.
+            </p>
+
+            <div
+              id="usersList"
+              style="margin-top:20px;"
+            ></div>
+
+          </div>
+
+
+          <div
+            id="selectedUserPanel"
+            class="settings-section hidden"
+          >
+
+            <h2>Selected Instructor</h2>
+
+            <div
+              id="selectedUserInfo"
+              class="summary"
+            ></div>
 
           </div>
 
