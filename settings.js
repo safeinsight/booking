@@ -2106,7 +2106,8 @@ function renderInstructorList() {
     state.instructors.map(instructor => {
 
       const bookingUrl =
-        instructor.slug
+        instructor.slug &&
+        state.location?.slug
           ? `${window.location.origin}/booking/book/${state.location.slug}/${instructor.slug}`
           : "";
 
