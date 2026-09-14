@@ -173,11 +173,11 @@ function applyRolePermissions() {
     locationTab?.classList.remove("hidden");
   }
 
-  // Users: Administrator only
-  if (canEditLocation()) {
-    usersTabButton?.classList.remove("hidden");
-    usersTab?.classList.remove("hidden");
-  }
+// Users: Administrator and Manager
+if (canManageUsers()) {
+  usersTabButton?.classList.remove("hidden");
+  usersTab?.classList.remove("hidden");
+}
 
   if (canEditBranding()) {
     brandingTabButton?.classList.remove("hidden");
@@ -201,10 +201,10 @@ function applyRolePermissions() {
     locationTabButton?.classList.add("hidden");
   }
 
-  if (!canEditLocation()) {
-    usersTabButton?.classList.add("hidden");
-    usersTab?.classList.add("hidden");
-  }
+if (!canManageUsers()) {
+  usersTabButton?.classList.add("hidden");
+  usersTab?.classList.add("hidden");
+}
 
   if (!canEditBranding()) {
     brandingTabButton?.classList.add("hidden");
