@@ -2038,7 +2038,7 @@ function escapeAttr(value) {
 
 function renderInstructorList() {
 
-  const container = $("instructorList");
+  const container = $("usersList");
 
   if (!container) return;
 
@@ -2053,53 +2053,142 @@ function renderInstructorList() {
   container.innerHTML =
     state.instructors.map(instructor => {
 
-const bookingUrl =
-  instructor.slug
-    ? `${window.location.origin}/booking/book/${state.location.slug}/${instructor.slug}`
-    : "";
+      const bookingUrl =
+        instructor.slug
+          ? `${window.location.origin}/booking/book/${state.location.slug}/${instructor.slug}`
+          : "";
+
+      const isSelected =
+        state.instructor &&
+        state.instructor.id === instructor.id;
 
       return `
         <div
           style="
-            padding:10px;
-            border:1px solid #ddd;
-            margin-top:8px;
-            border-radius:6px;
+            padding:15px;
+            border:1px solid ${isSelected ? "#333" : "#ddd"};
+            margin-top:10px;
+            border-radius:8px;
           "
         >
 
-          <strong>
-            ${escapeHtml(instructor.name)}
-          </strong>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:15px; flex-wrap:wrap;">
 
-          <br>
+            <div>
 
-          <small>
-            ${escapeHtml(instructor.email || "")}
-          </small>
+              <strong>
+                ${escapeHtml(instructor.name)}
+              </strong>
 
-          ${
-            bookingUrl
-              ? `
-                <br>
-                <small>
-                  Booking URL:
-                  <code>${escapeHtml(bookingUrl)}</code>
-                </small>
-              `
-              : `
-                <br>
-                <small class="muted">
-                  No booking URL configured.
-                </small>
-              `
-          }
+              <br>
+
+              <small>
+                ${escapeHtml(instructor.email || "")}
+              </small>
+
+              ${
+                bookingUrl
+                  ? `
+                    <br>
+                    <small>
+                      Booking URL:
+                      <code>${escapeHtml(bookingUrl)}</code>
+                    </small>
+                  `
+                  : `
+                    <br>
+                    <small class="muted">
+                      No booking URL configured.
+                    </small>
+                  `
+              }
+
+            </div>
+
+            <button
+              type="button"
+              class="${isSelected ? "primary" : "secondary"}"
+              data-select-instructor="${escapeHtml(instructor.id)}"
+            >
+              ${isSelected ? "Selected" : "Select"}
+            </button>
+
+          </div>
 
         </div>
       `;
 
     }).join("");
 }
+
+document.addEventListener("click", function (event) {
+
+  const button =
+    event.target.closest("[data-select-instructor]");
+
+  if (!button) return;
+
+  const instructorId =
+    button.getAttribute("data-select-instructor");
+
+  if (!instructorId) return;
+
+  const selectedInstructor =
+    state.instructors.find(
+      instructor =>
+        instructor.id === instructorId
+    );
+
+  if (!selectedInstructor) return;
+
+  state.instructor =
+    selectedInstructor;
+
+  renderInstructorList();
+
+  const selectedUserPanel =
+    $("selectedUserPanel");
+
+  const selectedUserInfo =
+    $("selectedUserInfo");
+
+  if (
+    selectedUserPanel &&
+    selectedUserInfo
+  ) {
+
+    const bookingUrl =
+      selectedInstructor.slug
+        ? `${window.location.origin}/booking/book/${state.location.slug}/${selectedInstructor.slug}`
+        : "";
+
+    selectedUserInfo.innerHTML = `
+      <strong>
+        ${escapeHtml(selectedInstructor.name)}
+      </strong>
+
+      <br>
+
+      <span>
+        ${escapeHtml(selectedInstructor.email || "")}
+      </span>
+
+      ${
+        bookingUrl
+          ? `
+            <br><br>
+            <strong>Booking URL:</strong>
+            <br>
+            <code>${escapeHtml(bookingUrl)}</code>
+          `
+          : ""
+      }
+    `;
+
+    selectedUserPanel.classList.remove("hidden");
+  }
+
+});
 
 function makeSlug(value) {
   return String(value || "")
