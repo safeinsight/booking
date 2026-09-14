@@ -67,6 +67,7 @@ const state = {
   locations: [],
   location: null,
   instructors: [],
+  instructor: null,
   user: null,
   role: null
 };
@@ -214,8 +215,10 @@ if (instructorError) {
     instructorError
   );
   state.instructors = [];
+  state.instructor = null;
 } else {
   state.instructors = instructors || [];
+  state.instructor = state.instructors[0] || null;
 }
 
 renderInstructorList();
@@ -367,14 +370,15 @@ const { data: availabilityRules, error: availabilityError } =
     .from("availability_rules")
     .select(`
       id,
+      instructor_id,
       day_of_week,
       start_time,
       end_time,
       enabled
     `)
-      .eq("location_id", loc.id)
-      .order("day_of_week")
-      .order("start_time");
+    .eq("instructor_id", state.instructor.id)
+    .order("day_of_week")
+    .order("start_time");
 
   if (availabilityError) {
     console.error(
@@ -1705,21 +1709,21 @@ const availabilityRules =
   });
 
 
-    const availabilityResponse =
-      await fetch(
-        `${cfg.functionsBaseUrl}/save-availability-rules`,
-        {
-          method: "POST",
-          headers: await getAuthHeaders(),
-          body: JSON.stringify({
-            location_id:
-              state.location.id,
-
-            rules:
-              availabilityRules
-          })
-        }
-      );
+const availabilityResponse =
+  await fetch(
+    `${cfg.functionsBaseUrl}/save-availability-rules`,
+    {
+      method: "POST",
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({
+        instructor_id:
+          state.instructor.id,
+        
+        rules:
+          availabilityRules
+      })
+    }
+  );
 
 
     const availabilityResult =
