@@ -2671,13 +2671,23 @@ function renderInstructorList() {
 
 document.addEventListener("click", async function (event) {
 
-  const button =
+  // Do not treat management controls as instructor selection.
+  if (
+    event.target.closest("[data-role-instructor]") ||
+    event.target.closest("[data-deactivate-user]") ||
+    event.target.closest("[data-delete-user]") ||
+    event.target.closest("[data-resend-invite]")
+  ) {
+    return;
+  }
+
+  const card =
     event.target.closest("[data-select-instructor]");
 
-  if (!button) return;
+  if (!card) return;
 
   const instructorId =
-    button.getAttribute("data-select-instructor");
+    card.getAttribute("data-select-instructor");
 
   if (!instructorId) return;
 
@@ -2689,100 +2699,61 @@ document.addEventListener("click", async function (event) {
 
   if (!selectedInstructor) return;
 
-state.instructor =
-  selectedInstructor;
+  state.instructor =
+    selectedInstructor;
 
-await loadLocationIntoForm(
-  state.location
-);
-
-const selectedLocationInstructor =
-  $("selectedLocationInstructor");
-
-if (selectedLocationInstructor) {
-  selectedLocationInstructor.textContent =
-    selectedInstructor.name;
-}
-
-const selectedCalendarName =
-  $("selectedCalendarName");
-
-if (selectedCalendarName) {
-  selectedCalendarName.textContent =
-    selectedInstructor.name;
-}
-
-const calendarSelectedName =
-  $("calendarSelectedName");
-
-if (calendarSelectedName) {
-  calendarSelectedName.textContent =
-    selectedInstructor.name;
-}
-
-const availabilityInstructorName =
-  $("availabilityInstructorName");
-
-if (availabilityInstructorName) {
-  availabilityInstructorName.textContent =
-    selectedInstructor.name;
-}
-
-const emailsInstructorName =
-  $("emailsInstructorName");
-
-if (emailsInstructorName) {
-  emailsInstructorName.textContent =
-    selectedInstructor.name;
-}
 
   await loadLocationIntoForm(
     state.location
   );
 
-  renderInstructorList();
 
-  const selectedUserPanel =
-    $("selectedUserPanel");
+  const selectedLocationInstructor =
+    $("selectedLocationInstructor");
 
-  const selectedUserInfo =
-    $("selectedUserInfo");
-
-  if (
-    selectedUserPanel &&
-    selectedUserInfo
-  ) {
-
-    const bookingUrl =
-      selectedInstructor.slug
-        ? `${window.location.origin}/booking/book/${state.location.slug}/${selectedInstructor.slug}`
-        : "";
-
-    selectedUserInfo.innerHTML = `
-      <strong>
-        ${escapeHtml(selectedInstructor.name)}
-      </strong>
-
-      <br>
-
-      <span>
-        ${escapeHtml(selectedInstructor.email || "")}
-      </span>
-
-      ${
-        bookingUrl
-          ? `
-            <br><br>
-            <strong>Booking URL:</strong>
-            <br>
-            <code>${escapeHtml(bookingUrl)}</code>
-          `
-          : ""
-      }
-    `;
-
-    selectedUserPanel.classList.remove("hidden");
+  if (selectedLocationInstructor) {
+    selectedLocationInstructor.textContent =
+      selectedInstructor.name;
   }
+
+
+  const selectedCalendarName =
+    $("selectedCalendarName");
+
+  if (selectedCalendarName) {
+    selectedCalendarName.textContent =
+      selectedInstructor.name;
+  }
+
+
+  const calendarSelectedName =
+    $("calendarSelectedName");
+
+  if (calendarSelectedName) {
+    calendarSelectedName.textContent =
+      selectedInstructor.name;
+  }
+
+
+  const availabilityInstructorName =
+    $("availabilityInstructorName");
+
+  if (availabilityInstructorName) {
+    availabilityInstructorName.textContent =
+      selectedInstructor.name;
+  }
+
+
+  const emailsInstructorName =
+    $("emailsInstructorName");
+
+  if (emailsInstructorName) {
+    emailsInstructorName.textContent =
+      selectedInstructor.name;
+  }
+
+
+  renderInstructorList();
 
 });
 
