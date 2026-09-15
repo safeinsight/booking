@@ -894,19 +894,30 @@ return `
 
   // Load special days
 
-  const { data: specialDays, error: specialDaysError } =
-    await db
-      .from("special_days")
-      .select(`
-        id,
-        instructor_id,
-        service_date,
-        is_closed,
-        start_time,
-        end_time
-      `)
-      .eq("instructor_id", state.instructor.id)
-      .order("service_date");
+  let specialDays = [];
+  let specialDaysError = null;
+
+  if (state.instructor?.id) {
+    const response =
+      await db
+        .from("special_days")
+        .select(`
+          id,
+          instructor_id,
+          service_date,
+          is_closed,
+          start_time,
+          end_time
+        `)
+        .eq("instructor_id", state.instructor.id)
+        .order("service_date");
+
+    specialDays =
+      response.data || [];
+
+    specialDaysError =
+      response.error;
+  }
 
   if (specialDaysError) {
 
