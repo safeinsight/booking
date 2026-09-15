@@ -2014,11 +2014,28 @@ const specialDaysResponse =
     }
 
 
-    // Update local location state
+    // Update local instructor state
 
-    state.location = {
-      ...state.location,
-      ...settingsResult.location
+    state.instructor = {
+      ...state.instructor,
+
+      appointment_length_minutes:
+        Number($("appointmentLengthInput").value),
+
+      max_students_per_slot:
+        Number($("maxStudentsInput").value),
+
+      booking_horizon_days:
+        Number($("bookingHorizonInput").value),
+
+      minimum_booking_notice_hours:
+        Number($("minimumNoticeInput").value),
+
+      cancellation_hours:
+        Number($("cancellationHoursInput").value),
+
+      reschedule_hours:
+        Number($("rescheduleHoursInput").value)
     };
 
 
