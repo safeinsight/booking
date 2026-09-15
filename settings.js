@@ -1464,16 +1464,19 @@ return {
       globalSelector.classList.remove("hidden");
 
       globalSelect.innerHTML =
+        `
+          <option value="">
+            CHOOSE ONE
+          </option>
+        ` +
         state.instructors.map(instructor => `
           <option value="${escapeAttr(instructor.id)}">
             ${escapeHtml(instructor.name)}
           </option>
         `).join("");
 
-      globalSelect.value =
-        state.instructor?.id ||
-        state.instructors[0]?.id ||
-        "";
+      globalSelect.value = "";
+      
     } else {
       globalSelector.classList.add("hidden");
       globalSelect.innerHTML = "";
