@@ -1437,7 +1437,18 @@ return {
 
     });
 
-  if (
+  const loggedInInstructor =
+    state.user?.id
+      ? state.instructors.find(
+          instructor =>
+            instructor.user_id === state.user.id
+        )
+      : null;
+
+  if (loggedInInstructor) {
+    state.instructor =
+      loggedInInstructor;
+  } else if (
     state.instructor &&
     state.instructors.some(
       instructor =>
@@ -3203,38 +3214,48 @@ document.addEventListener("click", async function (event) {
     return;
   }
 
-  const name = prompt("User name:");
+  const nameInput =
+    $("newUserName");
 
-  if (!name?.trim()) {
+  const emailInput =
+    $("newUserEmail");
+
+  const roleInput =
+    $("newUserRole");
+
+  const name =
+    nameInput?.value.trim() || "";
+
+  const email =
+    emailInput?.value.trim().toLowerCase() || "";
+
+  const role =
+    roleInput?.value || "";
+
+  if (!email) {
+    alert(
+      "Please enter an email address."
+    );
     return;
   }
 
-  const email = prompt("User email address:");
-
-  if (!email?.trim()) {
+  if (![
+    "Administrator",
+    "Manager",
+    "Instructor"
+  ].includes(role)) {
+    alert(
+      "Please select a valid user role."
+    );
     return;
   }
-
-  const role = prompt(
-    "User role:\n\nAdministrator\nManager\nInstructor\n\nEnter the role:"
-  );
-
-  if (!role?.trim()) {
-    return;
-  }
-
-  const normalizedRole =
-    role.trim();
 
   if (
-    ![
-      "Administrator",
-      "Manager",
-      "Instructor"
-    ].includes(normalizedRole)
+    role === "Instructor" &&
+    !name
   ) {
     alert(
-      "Invalid role. Please enter Administrator, Manager, or Instructor."
+      "Please enter the instructor name."
     );
     return;
   }
@@ -3245,7 +3266,7 @@ document.addEventListener("click", async function (event) {
     button.textContent;
 
   button.textContent =
-    "Adding...";
+    "Sending...";
 
   try {
 
@@ -3260,8 +3281,11 @@ document.addEventListener("click", async function (event) {
           headers: authHeaders,
           body: JSON.stringify({
             action: "invite",
-            email: email.trim().toLowerCase(),
-            role: normalizedRole
+            name,
+            email,
+            role,
+            location_id:
+              state.location?.id || null
           })
         }
       );
@@ -3277,6 +3301,14 @@ document.addEventListener("click", async function (event) {
         result.error ||
         "Unable to add user."
       );
+    }
+
+    if (nameInput) {
+      nameInput.value = "";
+    }
+
+    if (emailInput) {
+      emailInput.value = "";
     }
 
     await loadAllInstructors();
@@ -3303,9 +3335,9 @@ document.addEventListener("click", async function (event) {
   } finally {
 
     button.disabled = false;
+
     button.textContent =
       originalText;
-
   }
 
 });
