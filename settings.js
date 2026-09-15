@@ -1324,7 +1324,13 @@ async function loadAllInstructors() {
         user_id,
         name,
         email,
-        slug
+        slug,
+        appointment_length_minutes,
+        max_students_per_slot,
+        booking_horizon_days,
+        minimum_booking_notice_hours,
+        cancellation_hours,
+        reschedule_hours
       `)
       .order("name");
 
