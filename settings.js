@@ -2757,6 +2757,172 @@ document.addEventListener("click", async function (event) {
 
 });
 
+});
+
+
+// ------------------------------------------------------
+// DELETE USER
+// ------------------------------------------------------
+
+document.addEventListener("click", async function (event) {
+
+  const button =
+    event.target.closest("[data-delete-user]");
+
+  if (!button) return;
+
+  const userId =
+    button.getAttribute("data-delete-user");
+
+  if (!userId) {
+    alert(
+      "This user does not have a Booking Settings account."
+    );
+    return;
+  }
+
+
+  const instructor =
+    state.instructors.find(
+      item =>
+        item.user_id === userId
+    );
+
+
+  const userName =
+    instructor?.name ||
+    "this user";
+
+
+  const confirmed =
+    confirm(
+      `Are you sure you want to permanently delete ${userName}?\n\n` +
+      `This will permanently remove their user account, instructor record, ` +
+      `bookings, and other associated data.\n\n` +
+      `This cannot be undone.`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  const originalText =
+    button.textContent;
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "Deleting...";
+
+
+  try {
+
+    const authHeaders =
+      await getAuthHeaders();
+
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/manage-settings-users`,
+        {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify({
+            action: "delete",
+            user_id: userId
+          })
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (!response.ok || result.error) {
+
+      throw new Error(
+        result.error ||
+        "Unable to delete user."
+      );
+
+    }
+
+
+    /*
+     * Remove the deleted instructor from the
+     * current page state immediately.
+     */
+    state.instructors =
+      state.instructors.filter(
+        item =>
+          item.user_id !== userId
+      );
+
+
+    /*
+     * If the deleted instructor was currently
+     * selected, clear the selection.
+     */
+    if (
+      state.instructor?.user_id ===
+      userId
+    ) {
+
+      state.instructor =
+        null;
+
+    }
+
+
+    renderInstructorList();
+
+
+    /*
+     * Reload the instructors so the User
+     * Management list and global instructor
+     * selector are rebuilt from the database.
+     */
+    await loadAllInstructors();
+
+
+    alert(
+      `${userName} has been permanently deleted.`
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "DELETE USER ERROR:",
+      error
+    );
+
+
+    alert(
+      error.message ||
+      "Unable to delete user."
+    );
+
+
+    button.disabled = false;
+
+    button.textContent =
+      originalText;
+
+  }
+
+});
+
+
+// EXISTING ROLE CHANGE HANDLER
+// Leave this line exactly where it is.
+
+document.addEventListener("change", async function (event) {
+
 document.addEventListener("change", async function (event) {
 
   const globalSelect =
