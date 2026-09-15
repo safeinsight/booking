@@ -1807,7 +1807,10 @@ async function saveAvailabilitySettings(button) {
       );
     }
 
-    const { error: settingsError } =
+    const {
+      data: updatedInstructor,
+      error: settingsError
+    } =
       await db
         .from("instructors")
         .update({
@@ -1829,7 +1832,27 @@ async function saveAvailabilitySettings(button) {
           reschedule_hours:
             Number($("rescheduleHoursInput").value)
         })
-        .eq("id", state.instructor.id);
+        .eq("id", state.instructor.id)
+        .select(`
+          id,
+          appointment_length_minutes,
+          max_students_per_slot,
+          booking_horizon_days,
+          minimum_booking_notice_hours,
+          cancellation_hours,
+          reschedule_hours
+        `)
+        .single();
+
+    if (settingsError) {
+      throw settingsError;
+    }
+
+    if (!updatedInstructor) {
+      throw new Error(
+        "The instructor Booking Rules were not updated."
+      );
+    }
 
     if (settingsError) {
       throw settingsError;
