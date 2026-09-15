@@ -2124,6 +2124,117 @@ const specialDaysResponse =
 
 }
 
+async function saveBookingRulesSettings(button) {
+
+  button.disabled = true;
+
+  const originalText =
+    button.textContent;
+
+  button.textContent =
+    "Saving...";
+
+  try {
+
+    if (!state.instructor?.id) {
+      throw new Error(
+        "Please select an instructor before saving Booking Rules."
+      );
+    }
+
+    const { error: settingsError } =
+      await db
+        .from("instructors")
+        .update({
+          appointment_length_minutes:
+            Number($("appointmentLengthInput").value),
+
+          max_students_per_slot:
+            Number($("maxStudentsInput").value),
+
+          booking_horizon_days:
+            Number($("bookingHorizonInput").value),
+
+          minimum_booking_notice_hours:
+            Number($("minimumNoticeInput").value),
+
+          cancellation_hours:
+            Number($("cancellationHoursInput").value),
+
+          reschedule_hours:
+            Number($("rescheduleHoursInput").value)
+        })
+        .eq(
+          "id",
+          state.instructor.id
+        );
+
+    if (settingsError) {
+      throw settingsError;
+    }
+
+    state.instructor = {
+      ...state.instructor,
+
+      appointment_length_minutes:
+        Number($("appointmentLengthInput").value),
+
+      max_students_per_slot:
+        Number($("maxStudentsInput").value),
+
+      booking_horizon_days:
+        Number($("bookingHorizonInput").value),
+
+      minimum_booking_notice_hours:
+        Number($("minimumNoticeInput").value),
+
+      cancellation_hours:
+        Number($("cancellationHoursInput").value),
+
+      reschedule_hours:
+        Number($("rescheduleHoursInput").value)
+    };
+
+    renderInstructorList();
+
+    button.textContent =
+      "Saved";
+
+    setTimeout(() => {
+      button.textContent =
+        originalText;
+    }, 1500);
+
+  } catch (error) {
+
+    console.error(
+      "SAVE BOOKING RULES ERROR:",
+      error
+    );
+
+    button.textContent =
+      "Save Failed";
+
+    setTimeout(() => {
+      button.textContent =
+        originalText;
+    }, 2000);
+
+  } finally {
+
+    button.disabled = false;
+  }
+}
+
+$("saveBookingRulesBtn").addEventListener(
+  "click",
+  async () => {
+    await saveBookingRulesSettings(
+      $("saveBookingRulesBtn")
+    );
+  }
+);
+
 
 async function saveEmailSettings(button) {
 
