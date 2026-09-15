@@ -2723,7 +2723,57 @@ document.addEventListener("change", async function (event) {
     const instructorId =
       globalSelect.value;
 
-    if (!instructorId) return;
+    if (!instructorId) {
+      state.instructor = null;
+
+      const selectedLocationInstructor =
+        $("selectedLocationInstructor");
+
+      if (selectedLocationInstructor) {
+        selectedLocationInstructor.textContent =
+          "None Selected";
+      }
+
+      const selectedCalendarName =
+        $("selectedCalendarName");
+
+      if (selectedCalendarName) {
+        selectedCalendarName.textContent =
+          "Default";
+      }
+
+      const calendarSelectedName =
+        $("calendarSelectedName");
+
+      if (calendarSelectedName) {
+        calendarSelectedName.textContent =
+          "Default";
+      }
+
+      const availabilityInstructorName =
+        $("availabilityInstructorName");
+
+      if (availabilityInstructorName) {
+        availabilityInstructorName.textContent =
+          "Default";
+      }
+
+      const emailsInstructorName =
+        $("emailsInstructorName");
+
+      if (emailsInstructorName) {
+        emailsInstructorName.textContent =
+          "Default";
+      }
+
+      renderInstructorList();
+
+      await loadLocationIntoForm(
+        state.location
+      );
+
+      return;
+    }
 
     const selectedInstructor =
       state.instructors.find(
