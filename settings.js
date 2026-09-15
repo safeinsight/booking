@@ -286,35 +286,38 @@ if (selectedLocationName) {
     loc.accent_color || "#FF0000"
   );
 
+  const bookingRules =
+    state.instructor || loc;
+
   $("appointmentLength").textContent =
-    `${loc.appointment_length_minutes || 60} minutes`;
+    `${bookingRules.appointment_length_minutes || 60} minutes`;
 
   $("maxStudents").textContent =
-    `${loc.max_students_per_slot || 8} students`;
+    `${bookingRules.max_students_per_slot || 8} students`;
 
   $("bookingHorizon").textContent =
-    `${loc.booking_horizon_days || 14} days`;
+    `${bookingRules.booking_horizon_days || 14} days`;
 
   $("minimumNotice").textContent =
-    `${loc.minimum_booking_notice_hours || 24} hours`;
+    `${bookingRules.minimum_booking_notice_hours || 24} hours`;
 
   $("appointmentLengthInput").value =
-    loc.appointment_length_minutes || 60;
+    bookingRules.appointment_length_minutes || 60;
 
   $("maxStudentsInput").value =
-    loc.max_students_per_slot || 8;
+    bookingRules.max_students_per_slot || 8;
 
   $("bookingHorizonInput").value =
-    loc.booking_horizon_days || 14;
+    bookingRules.booking_horizon_days || 14;
 
   $("minimumNoticeInput").value =
-    loc.minimum_booking_notice_hours ?? 24;
+    bookingRules.minimum_booking_notice_hours ?? 24;
 
   $("cancellationHoursInput").value =
-    loc.cancellation_hours ?? 24;
+    bookingRules.cancellation_hours ?? 24;
 
   $("rescheduleHoursInput").value =
-    loc.reschedule_hours ?? 12;
+    bookingRules.reschedule_hours ?? 12;
 
     $("emailSubject").value =
     loc.confirmation_email_subject ||
