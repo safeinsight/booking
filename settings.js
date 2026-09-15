@@ -2757,8 +2757,6 @@ document.addEventListener("click", async function (event) {
 
 });
 
-});
-
 
 // ------------------------------------------------------
 // DELETE USER
@@ -2921,7 +2919,6 @@ document.addEventListener("click", async function (event) {
 // EXISTING ROLE CHANGE HANDLER
 // Leave this line exactly where it is.
 
-document.addEventListener("change", async function (event) {
 
 document.addEventListener("change", async function (event) {
 
