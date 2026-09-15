@@ -2027,6 +2027,9 @@ const specialDaysResponse =
         location_id:
           state.location.id,
 
+        instructor_id:
+          state.instructor.id,
+
         days:
           specialDays
       })
