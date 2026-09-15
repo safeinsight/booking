@@ -3196,94 +3196,187 @@ function makeSlug(value) {
 
 $("addInstructorBtn").addEventListener("click", async () => {
 
-  if (!state.location?.id) {
-    alert("Please select a location first.");
-    return;
-  }
-
-  const name = prompt("Instructor name:");
-
+  const name = prompt("User name:");
   if (!name?.trim()) {
     return;
   }
 
-  const email = prompt("Instructor email address:");
-
+  const email = prompt("User email address:");
   if (!email?.trim()) {
     return;
   }
 
-  const slug = makeSlug(name);
+  const role = prompt(
+    "User role:\n\nAdministrator\nManager\nInstructor\n\nEnter the role:"
+  );
 
-  if (!slug) {
-    alert("Unable to generate an instructor URL slug.");
+  if (!role?.trim()) {
     return;
   }
 
-  const duplicate = state.instructors.some(
-    instructor =>
-      instructor.slug?.toLowerCase() === slug.toLowerCase()
-  );
+  const normalizedRole =
+    role.trim();
 
-  if (duplicate) {
+  if (
+    ![
+      "Administrator",
+      "Manager",
+      "Instructor"
+    ].includes(normalizedRole)
+  ) {
     alert(
-      `An instructor with the slug "${slug}" already exists at this location.`
+      "Invalid role. Please enter Administrator, Manager, or Instructor."
     );
     return;
   }
 
-  const button = $("addInstructorBtn");
+  const button =
+    $("addInstructorBtn");
 
   button.disabled = true;
-  const originalText = button.textContent;
-  button.textContent = "Adding...";
+
+  const originalText =
+    button.textContent;
+
+  button.textContent =
+    "Adding...";
 
   try {
 
-    const { data, error } =
-      await db
-        .from("instructors")
-        .insert({
-          location_id: state.location.id,
-          name: name.trim(),
-          email: email.trim(),
-          slug
-        })
-        .select()
-        .single();
+    const authHeaders =
+      await getAuthHeaders();
 
-    if (error) {
-      throw error;
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/manage-settings-users`,
+        {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify({
+            action: "invite",
+            email: email.trim().toLowerCase(),
+            role: normalizedRole
+          })
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if (
+      !response.ok ||
+      result.error
+    ) {
+      throw new Error(
+        result.error ||
+        "Unable to add user."
+      );
     }
 
-    state.instructors = [
-      ...state.instructors,
-      data
-    ].sort((a, b) =>
-      String(a.name || "")
-        .localeCompare(String(b.name || ""))
-    );
+    /*
+     * Create the instructor record using
+     * the same Supabase user ID returned
+     * by the invitation.
+     */
+    if (
+      state.location?.id &&
+      result.user_id
+    ) {
 
-    state.instructor = data;
+      const slug =
+        makeSlug(name);
+
+      if (!slug) {
+        throw new Error(
+          "Unable to generate an instructor URL slug."
+        );
+      }
+
+      const duplicate =
+        state.instructors.some(
+          instructor =>
+            instructor.slug?.toLowerCase() ===
+            slug.toLowerCase()
+        );
+
+      if (duplicate) {
+        throw new Error(
+          `An instructor with the slug "${slug}" already exists at this location.`
+        );
+      }
+
+      const {
+        data: instructor,
+        error: instructorError
+      } =
+        await db
+          .from("instructors")
+          .insert({
+            location_id:
+              state.location.id,
+            user_id:
+              result.user_id,
+            name:
+              name.trim(),
+            email:
+              email.trim().toLowerCase(),
+            slug
+          })
+          .select()
+          .single();
+
+      if (instructorError) {
+        throw instructorError;
+      }
+
+      state.instructors = [
+        ...state.instructors,
+        {
+          ...instructor,
+          role:
+            normalizedRole,
+          active:
+            true,
+          email_confirmed:
+            false
+        }
+      ].sort((a, b) =>
+        String(a.name || "")
+          .localeCompare(
+            String(b.name || "")
+          )
+      );
+
+    }
+
+    await loadAllInstructors();
 
     renderInstructorList();
+
+    alert(
+      result.message ||
+      "Invitation sent successfully."
+    );
 
   } catch (error) {
 
     console.error(
-      "ADD INSTRUCTOR ERROR:",
+      "ADD USER ERROR:",
       error
     );
 
     alert(
       error.message ||
-      "Unable to add instructor."
+      "Unable to add user."
     );
 
   } finally {
 
-    button.disabled = false;
-    button.textContent = originalText;
+    button.disabled =
+      false;
+
+    button.textContent =
+      originalText;
 
   }
 
