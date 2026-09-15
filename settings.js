@@ -2578,7 +2578,7 @@ function renderInstructorList() {
               <select
                 data-role-instructor="${escapeAttr(instructor.id)}"
                 style="
-                  width:280px;
+                  width:160px;
                   margin-left:8px;
                 "
               >
@@ -3050,47 +3050,7 @@ document.addEventListener("change", async function (event) {
 
     renderInstructorList();
 
-    const selectedUserPanel =
-      $("selectedUserPanel");
 
-    const selectedUserInfo =
-      $("selectedUserInfo");
-
-    if (
-      selectedUserPanel &&
-      selectedUserInfo
-    ) {
-
-      const bookingUrl =
-        selectedInstructor.slug
-          ? `${window.location.origin}/booking/book/${state.location.slug}/${selectedInstructor.slug}`
-          : "";
-
-      selectedUserInfo.innerHTML = `
-        <strong>
-          ${escapeHtml(selectedInstructor.name)}
-        </strong>
-
-        <br>
-
-        <span>
-          ${escapeHtml(selectedInstructor.email || "")}
-        </span>
-
-        ${
-          bookingUrl
-            ? `
-              <br><br>
-              <strong>Booking URL:</strong>
-              <br>
-              <code>${escapeHtml(bookingUrl)}</code>
-            `
-            : ""
-        }
-      `;
-
-      selectedUserPanel.classList.remove("hidden");
-    }
 
     return;
   }
