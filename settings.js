@@ -1792,11 +1792,45 @@ async function saveAvailabilitySettings(button) {
   try {
 
     // --------------------------------------------------------
-    // Save booking rules
+    // Save booking rules for each instructor
     // --------------------------------------------------------
 
-    const settingsPayload = {
-      location_id: state.location.id,
+    if (!state.instructor?.id) {
+      throw new Error(
+        "Please select an instructor before saving Booking Rules."
+      );
+    }
+
+    const { error: settingsError } =
+      await db
+        .from("instructors")
+        .update({
+          appointment_length_minutes:
+            Number($("appointmentLengthInput").value),
+
+          max_students_per_slot:
+            Number($("maxStudentsInput").value),
+
+          booking_horizon_days:
+            Number($("bookingHorizonInput").value),
+
+          minimum_booking_notice_hours:
+            Number($("minimumNoticeInput").value),
+
+          cancellation_hours:
+            Number($("cancellationHoursInput").value),
+
+          reschedule_hours:
+            Number($("rescheduleHoursInput").value)
+        })
+        .eq("id", state.instructor.id);
+
+    if (settingsError) {
+      throw settingsError;
+    }
+
+    state.instructor = {
+      ...state.instructor,
 
       appointment_length_minutes:
         Number($("appointmentLengthInput").value),
@@ -1816,32 +1850,6 @@ async function saveAvailabilitySettings(button) {
       reschedule_hours:
         Number($("rescheduleHoursInput").value)
     };
-
-    const settingsResponse = await fetch(
-      `${cfg.functionsBaseUrl}/save-location-settings`,
-      {
-        method: "POST",
-        headers: await getAuthHeaders(),
-                body: JSON.stringify(settingsPayload)
-      }
-    );
-
-    const settingsResult =
-      await settingsResponse.json();
-
-    if (
-      !settingsResponse.ok ||
-      settingsResult.error
-    ) {
-      throw new Error(
-        typeof settingsResult.error === "string"
-          ? settingsResult.error
-          : JSON.stringify(
-              settingsResult.error ||
-              settingsResult
-            )
-      );
-    }
 
 
     // --------------------------------------------------------
