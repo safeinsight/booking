@@ -1119,7 +1119,7 @@ Location: {{LOCATION}}
 }
 // Add Special Day
 
-$("addSpecialDayBtn").addEventListener("click", () => {
+$("addSpecialDayBtn").onclick = () => {
 
   const container =
     $("specialDays");
@@ -1226,7 +1226,7 @@ $("addSpecialDayBtn").addEventListener("click", () => {
 
     });
 
-});
+};
 
   $("brandName").textContent =
     loc.name || "Location Settings";
