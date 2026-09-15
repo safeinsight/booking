@@ -3054,16 +3054,38 @@ document.addEventListener("change", async function (event) {
       return;
     }
 
-    const selectedInstructor =
-      state.instructors.find(
-        instructor =>
-          instructor.id === instructorId
-      );
+const { data: selectedInstructor, error: instructorError } =
+  await db
+    .from("instructors")
+    .select(`
+      id,
+      location_id,
+      user_id,
+      name,
+      email,
+      slug,
+      appointment_length_minutes,
+      max_students_per_slot,
+      booking_horizon_days,
+      minimum_booking_notice_hours,
+      cancellation_hours,
+      reschedule_hours
+    `)
+    .eq("id", instructorId)
+    .single();
 
-    if (!selectedInstructor) return;
+if (instructorError) {
+  console.error(
+    "INSTRUCTOR LOAD ERROR:",
+    instructorError
+  );
+  return;
+}
 
-    state.instructor =
-      selectedInstructor;
+if (!selectedInstructor) return;
+
+state.instructor =
+  selectedInstructor;
 
     const selectedLocationInstructor =
       $("selectedLocationInstructor");
