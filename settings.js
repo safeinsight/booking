@@ -3083,6 +3083,107 @@ document.addEventListener("click", async function (event) {
 
 });
 
+// ------------------------------------------------------
+// RESEND INVITE
+// ------------------------------------------------------
+
+document.addEventListener("click", async function (event) {
+
+  const button =
+    event.target.closest("[data-resend-invite]");
+
+  if (!button) return;
+
+  const userId =
+    button.getAttribute("data-resend-invite");
+
+  if (!userId) {
+    alert(
+      "This user does not have a Booking Settings account."
+    );
+    return;
+  }
+
+  const instructor =
+    state.instructors.find(
+      item =>
+        item.user_id === userId
+    );
+
+  const userName =
+    instructor?.name ||
+    "this user";
+
+  const originalText =
+    button.textContent;
+
+  button.disabled = true;
+  button.textContent =
+    "Sending...";
+
+  try {
+
+    const authHeaders =
+      await getAuthHeaders();
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/manage-settings-users`,
+        {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify({
+            action: "resend_invite",
+            user_id: userId
+          })
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if (
+      !response.ok ||
+      result.error
+    ) {
+      throw new Error(
+        result.error ||
+        "Unable to resend invitation."
+      );
+    }
+
+    button.textContent =
+      "Sent";
+
+    alert(
+      `The invitation has been resent to ${userName}.`
+    );
+
+    setTimeout(() => {
+      button.disabled = false;
+      button.textContent =
+        originalText;
+    }, 1500);
+
+  } catch (error) {
+
+    console.error(
+      "RESEND INVITE ERROR:",
+      error
+    );
+
+    button.disabled = false;
+    button.textContent =
+      originalText;
+
+    alert(
+      error.message ||
+      "Unable to resend invitation."
+    );
+  }
+
+});
+
 // EXISTING ROLE CHANGE HANDLER
 // Leave this line exactly where it is.
 
