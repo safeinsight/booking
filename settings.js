@@ -899,12 +899,13 @@ return `
       .from("special_days")
       .select(`
         id,
+        instructor_id,
         service_date,
         is_closed,
         start_time,
         end_time
       `)
-      .eq("location_id", loc.id)
+      .eq("instructor_id", state.instructor.id)
       .order("service_date");
 
   if (specialDaysError) {
