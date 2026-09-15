@@ -203,6 +203,19 @@ if (
   calendarTab?.classList.remove("hidden");
 }
 
+if (isInstructor()) {
+  document.querySelectorAll(".settings-tab-panel").forEach(panel => {
+    panel.classList.remove("active");
+  });
+
+  document.querySelectorAll(".settings-tab").forEach(tab => {
+    tab.classList.remove("active");
+  });
+
+  calendarTab?.classList.add("active");
+  calendarTabButton?.classList.add("active");
+}
+
 if (canEditEmails()) {
   emailsTabButton?.classList.remove("hidden");
   emailsTab?.classList.remove("hidden");
