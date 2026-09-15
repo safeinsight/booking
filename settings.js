@@ -2555,6 +2555,118 @@ if (emailsInstructorName) {
 
 document.addEventListener("change", async function (event) {
 
+  const globalSelect =
+    event.target.closest("#globalInstructorSelect");
+
+  if (globalSelect) {
+
+    const instructorId =
+      globalSelect.value;
+
+    if (!instructorId) return;
+
+    const selectedInstructor =
+      state.instructors.find(
+        instructor =>
+          instructor.id === instructorId
+      );
+
+    if (!selectedInstructor) return;
+
+    state.instructor =
+      selectedInstructor;
+
+    const selectedLocationInstructor =
+      $("selectedLocationInstructor");
+
+    if (selectedLocationInstructor) {
+      selectedLocationInstructor.textContent =
+        selectedInstructor.name;
+    }
+
+    const selectedCalendarName =
+      $("selectedCalendarName");
+
+    if (selectedCalendarName) {
+      selectedCalendarName.textContent =
+        selectedInstructor.name;
+    }
+
+    const calendarSelectedName =
+      $("calendarSelectedName");
+
+    if (calendarSelectedName) {
+      calendarSelectedName.textContent =
+        selectedInstructor.name;
+    }
+
+    const availabilityInstructorName =
+      $("availabilityInstructorName");
+
+    if (availabilityInstructorName) {
+      availabilityInstructorName.textContent =
+        selectedInstructor.name;
+    }
+
+    const emailsInstructorName =
+      $("emailsInstructorName");
+
+    if (emailsInstructorName) {
+      emailsInstructorName.textContent =
+        selectedInstructor.name;
+    }
+
+    await loadLocationIntoForm(
+      state.location
+    );
+
+    renderInstructorList();
+
+    const selectedUserPanel =
+      $("selectedUserPanel");
+
+    const selectedUserInfo =
+      $("selectedUserInfo");
+
+    if (
+      selectedUserPanel &&
+      selectedUserInfo
+    ) {
+
+      const bookingUrl =
+        selectedInstructor.slug
+          ? `${window.location.origin}/booking/book/${state.location.slug}/${selectedInstructor.slug}`
+          : "";
+
+      selectedUserInfo.innerHTML = `
+        <strong>
+          ${escapeHtml(selectedInstructor.name)}
+        </strong>
+
+        <br>
+
+        <span>
+          ${escapeHtml(selectedInstructor.email || "")}
+        </span>
+
+        ${
+          bookingUrl
+            ? `
+              <br><br>
+              <strong>Booking URL:</strong>
+              <br>
+              <code>${escapeHtml(bookingUrl)}</code>
+            `
+            : ""
+        }
+      `;
+
+      selectedUserPanel.classList.remove("hidden");
+    }
+
+    return;
+  }
+
   const select =
     event.target.closest("[data-role-instructor]");
 
