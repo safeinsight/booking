@@ -1444,17 +1444,14 @@ return {
         instructor.id === state.instructor.id
     )
   ) {
-
     state.instructor =
       state.instructors.find(
         instructor =>
           instructor.id === state.instructor.id
       );
-
   } else {
-
-    state.instructor = null;
-
+    state.instructor =
+      state.instructors[0] || null;
   }
 
   renderInstructorList();
