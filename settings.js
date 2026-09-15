@@ -2519,7 +2519,7 @@ if (instructor.user_id) {
           data-select-instructor="${escapeAttr(instructor.id)}"
           style="
             padding:24px;
-            border:1px solid ${isSelected ? "#333" : "#ddd"};
+            border:3px solid ${isSelected ? "#333" : "#ddd"};
             margin-top:15px;
             border-radius:10px;
             cursor:pointer;
