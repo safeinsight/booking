@@ -2504,15 +2504,15 @@ function renderInstructorList() {
         state.instructor &&
         state.instructor.id === instructor.id;
 
-      let status = "Removed";
+let status = "Removed";
 
-      if (instructor.user_id) {
-        if (instructor.active && instructor.email_confirmed) {
-          status = "Active";
-        } else if (instructor.active && !instructor.email_confirmed) {
-          status = "Invited — Awaiting Confirmation";
-        }
-      }
+if (instructor.user_id) {
+  if (instructor.active && instructor.email_confirmed) {
+    status = "Active";
+  } else if (instructor.active && !instructor.email_confirmed) {
+    status = "Invited - Awaiting Confirmation";
+  }
+}
 
       return `
         <div
