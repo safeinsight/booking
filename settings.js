@@ -2475,7 +2475,7 @@ function renderInstructorList() {
   if (!state.instructors.length) {
     container.innerHTML =
       `<div class="muted">
-        No instructors assigned.
+        No users assigned.
       </div>`;
     return;
   }
@@ -2493,99 +2493,172 @@ function renderInstructorList() {
         state.instructor &&
         state.instructor.id === instructor.id;
 
+      let status = "Removed";
+
+      if (instructor.user_id) {
+        if (instructor.active && instructor.email_confirmed) {
+          status = "Active";
+        } else if (instructor.active && !instructor.email_confirmed) {
+          status = "Invited — Awaiting Confirmation";
+        }
+      }
+
       return `
         <div
+          data-select-instructor="${escapeAttr(instructor.id)}"
           style="
-            padding:15px;
+            padding:24px;
             border:1px solid ${isSelected ? "#333" : "#ddd"};
-            margin-top:10px;
-            border-radius:8px;
+            margin-top:15px;
+            border-radius:10px;
+            cursor:pointer;
           "
         >
 
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:15px; flex-wrap:wrap;">
+          <!-- USER NAME -->
 
-            <div>
+          <div
+            style="
+              font-size:21px;
+              font-weight:700;
+              line-height:1.3;
+            "
+          >
+            ${escapeHtml(instructor.name)}
+          </div>
 
-              <strong>
-                ${escapeHtml(instructor.name)}
-              </strong>
 
-              <br>
+          <!-- USER EMAIL -->
 
-<small>
-  ${escapeHtml(instructor.email || "")}
-</small>
+          <div
+            style="
+              font-size:17px;
+              margin-top:3px;
+            "
+          >
+            ${escapeHtml(instructor.email || "")}
+          </div>
 
-<br>
 
-<small style="display:block; margin-top:8px;">
-  <strong>Account:</strong>
-  ${
-    instructor.user_id
-      ? (
-          instructor.email_confirmed
-            ? "Active"
-            : "Invited — awaiting confirmation"
-        )
-      : "No Booking Settings account"
-  }
-</small>
+          <!-- STATUS -->
 
-<label style="display:block; margin-top:10px;">
-  <strong>Role:</strong>
-  <select
-    data-role-instructor="${escapeHtml(instructor.id)}"
-    style="margin-left:8px;"
-  >
-<option
-  value="Administrator"
-  ${instructor.role === "Administrator" ? "selected" : ""}
->
-  Administrator
-</option>
+          <div
+            style="
+              font-size:16px;
+              margin-top:14px;
+            "
+          >
+            <strong>Status:</strong>
+            ${escapeHtml(status)}
+          </div>
 
-<option
-  value="Manager"
-  ${instructor.role === "Manager" ? "selected" : ""}
->
-  Manager
-</option>
 
-<option
-  value="Instructor"
-  ${instructor.role === "Instructor" ? "selected" : ""}
->
-  Instructor
-</option>
-  </select>
-</label>
+          <!-- ROLE -->
 
-              ${
-                bookingUrl
-                  ? `
-                    <br>
-                    <small>
-                      Booking URL:
-                      <code>${escapeHtml(bookingUrl)}</code>
-                    </small>
-                  `
-                  : `
-                    <br>
-                    <small class="muted">
-                      No booking URL configured.
-                    </small>
-                  `
-              }
+          <div
+            style="
+              margin-top:12px;
+            "
+          >
 
-            </div>
+            <label>
+              <strong>Role:</strong>
+
+              <select
+                data-role-instructor="${escapeAttr(instructor.id)}"
+                style="
+                  width:280px;
+                  margin-left:8px;
+                "
+              >
+
+                <option
+                  value="Administrator"
+                  ${instructor.role === "Administrator" ? "selected" : ""}
+                >
+                  Administrator
+                </option>
+
+                <option
+                  value="Manager"
+                  ${instructor.role === "Manager" ? "selected" : ""}
+                >
+                  Manager
+                </option>
+
+                <option
+                  value="Instructor"
+                  ${instructor.role === "Instructor" ? "selected" : ""}
+                >
+                  Instructor
+                </option>
+
+              </select>
+
+            </label>
+
+          </div>
+
+
+          <!-- BOOKING URL -->
+
+          ${
+            bookingUrl
+              ? `
+                <div
+                  style="
+                    margin-top:18px;
+                    font-size:15px;
+                  "
+                >
+                  Booking URL:
+                  <code>${escapeHtml(bookingUrl)}</code>
+                </div>
+              `
+              : `
+                <div
+                  class="muted"
+                  style="margin-top:18px;"
+                >
+                  No booking URL configured.
+                </div>
+              `
+          }
+
+
+          <!-- USER ACTIONS -->
+
+          <div
+            style="
+              display:flex;
+              gap:10px;
+              flex-wrap:wrap;
+              margin-top:24px;
+            "
+          >
 
             <button
               type="button"
-              class="${isSelected ? "primary" : "secondary"}"
-              data-select-instructor="${escapeHtml(instructor.id)}"
+              class="secondary"
+              data-deactivate-user="${escapeAttr(instructor.user_id || "")}"
             >
-              ${isSelected ? "Selected" : "Select"}
+              Deactivate
+            </button>
+
+            <button
+              type="button"
+              class="secondary"
+              data-delete-user="${escapeAttr(instructor.user_id || "")}"
+            >
+              Delete
+            </button>
+
+            <button
+              type="button"
+              class="secondary"
+              data-resend-invite="${escapeAttr(instructor.user_id || "")}"
+            >
+              Resend Invite
             </button>
 
           </div>
