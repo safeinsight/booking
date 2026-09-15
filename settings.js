@@ -1459,6 +1459,29 @@ return {
 
   renderInstructorList();
 
+  const globalSelector = $("globalInstructorSelector");
+  const globalSelect = $("globalInstructorSelect");
+
+  if (globalSelector && globalSelect) {
+    if (isAdministrator() || isManager()) {
+      globalSelector.classList.remove("hidden");
+
+      globalSelect.innerHTML =
+        state.instructors.map(instructor => `
+          <option value="${escapeAttr(instructor.id)}">
+            ${escapeHtml(instructor.name)}
+          </option>
+        `).join("");
+
+      globalSelect.value =
+        state.instructor?.id ||
+        state.instructors[0]?.id ||
+        "";
+    } else {
+      globalSelector.classList.add("hidden");
+      globalSelect.innerHTML = "";
+    }
+  }
 }
 
 $("locationSelect").addEventListener("change", async event => {
