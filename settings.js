@@ -2987,6 +2987,101 @@ document.addEventListener("click", async function (event) {
 
 });
 
+// ------------------------------------------------------
+// DEACTIVATE USER
+// ------------------------------------------------------
+
+document.addEventListener("click", async function (event) {
+
+  const button =
+    event.target.closest("[data-deactivate-user]");
+
+  if (!button) return;
+
+  const userId =
+    button.getAttribute("data-deactivate-user");
+
+  if (!userId) {
+    alert(
+      "This user does not have a Booking Settings account."
+    );
+    return;
+  }
+
+  const confirmed =
+    confirm(
+      "Are you sure you want to deactivate this user?"
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  const originalText =
+    button.textContent;
+
+  button.disabled = true;
+  button.textContent =
+    "Deactivating...";
+
+  try {
+
+    const authHeaders =
+      await getAuthHeaders();
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/manage-settings-users`,
+        {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify({
+            action: "update_active",
+            user_id: userId,
+            active: false
+          })
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if (!response.ok || result.error) {
+      throw new Error(
+        result.error ||
+        "Unable to deactivate user."
+      );
+    }
+
+    await loadAllInstructors();
+
+    renderInstructorList();
+
+    alert(
+      "User deactivated successfully."
+    );
+
+  } catch (error) {
+
+    console.error(
+      "DEACTIVATE USER ERROR:",
+      error
+    );
+
+    alert(
+      error.message ||
+      "Unable to deactivate user."
+    );
+
+  } finally {
+
+    button.disabled = false;
+    button.textContent =
+      originalText;
+
+  }
+
+});
 
 // EXISTING ROLE CHANGE HANDLER
 // Leave this line exactly where it is.
