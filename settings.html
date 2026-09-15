@@ -430,26 +430,84 @@
   class="settings-tab-panel"
 >
 
-  <!-- ADD USER -->
+<!-- ADD USER -->
+<div class="settings-section">
+  <h2>Add User</h2>
+  <p class="muted">
+    Add a user and give them access to Booking Settings.
+  </p>
 
-  <div class="settings-section">
+  <div
+    style="
+      display:flex;
+      align-items:flex-end;
+      gap:24px;
+      margin-top:20px;
+      flex-wrap:wrap;
+    "
+  >
 
-    <h2>Add User</h2>
+    <!-- EMAIL ADDRESS -->
+    <div>
+      <label
+        for="newUserEmail"
+        style="
+          display:block;
+          font-weight:700;
+          margin-bottom:8px;
+        "
+      >
+        Email Address
+      </label>
 
-    <p class="muted">
-      Add a user and give them access to Booking Settings.
-    </p>
+      <input
+        type="email"
+        id="newUserEmail"
+        placeholder="user@example.com"
+        style="
+          width:280px;
+        "
+      >
+    </div>
 
-    <button
-      type="button"
-      id="addInstructorBtn"
-      class="secondary"
-      style="margin-top:15px;"
-    >
-      Add User
-    </button>
+<!-- ROLE -->
+<div>
+  <label
+    for="newUserRole"
+    style="
+      display:block;
+      font-weight:700;
+      margin-bottom:8px;
+    "
+  >
+    Role
+  </label>
+
+  <select
+    id="newUserRole"
+    style="
+      width:220px;
+    "
+  >
+    <option value="Administrator">Administrator</option>
+    <option value="Manager">Manager</option>
+    <option value="Instructor" selected>Instructor</option>
+  </select>
+</div>
+
+    <!-- SEND INVITE -->
+    <div>
+      <button
+        type="button"
+        id="addInstructorBtn"
+        class="secondary"
+      >
+        Send Invite
+      </button>
+    </div>
 
   </div>
+</div>
 
 
   <!-- USER MANAGEMENT -->
