@@ -2739,7 +2739,7 @@ document.addEventListener("change", async function (event) {
 
       if (selectedCalendarName) {
         selectedCalendarName.textContent =
-          "Default";
+          "NONE SELECTED";
       }
 
       const calendarSelectedName =
@@ -2747,7 +2747,7 @@ document.addEventListener("change", async function (event) {
 
       if (calendarSelectedName) {
         calendarSelectedName.textContent =
-          "Default";
+          "NONE SELECTED";
       }
 
       const availabilityInstructorName =
@@ -2755,7 +2755,7 @@ document.addEventListener("change", async function (event) {
 
       if (availabilityInstructorName) {
         availabilityInstructorName.textContent =
-          "Default";
+          "NONE SELECTED";
       }
 
       const emailsInstructorName =
@@ -2763,7 +2763,7 @@ document.addEventListener("change", async function (event) {
 
       if (emailsInstructorName) {
         emailsInstructorName.textContent =
-          "Default";
+          "NONE SELECTED";
       }
 
       renderInstructorList();
