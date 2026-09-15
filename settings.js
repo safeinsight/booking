@@ -2225,6 +2225,11 @@ async function saveBookingRulesSettings(button) {
       );
     }
 
+    console.log(
+  "BOOKING RULES SAVE TARGET:",
+  state.instructor
+);
+
     const {
       data: updatedInstructor,
       error: settingsError
