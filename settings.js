@@ -1890,9 +1890,7 @@ async function saveAvailabilitySettings(button) {
       throw settingsError;
     }
 
-    state.instructor = {
-      ...state.instructor,
-
+    const updatedBookingRules = {
       appointment_length_minutes:
         Number($("appointmentLengthInput").value),
 
@@ -1911,6 +1909,21 @@ async function saveAvailabilitySettings(button) {
       reschedule_hours:
         Number($("rescheduleHoursInput").value)
     };
+
+    state.instructor = {
+      ...state.instructor,
+      ...updatedBookingRules
+    };
+
+    state.instructors =
+      state.instructors.map(instructor =>
+        instructor.id === state.instructor.id
+          ? {
+              ...instructor,
+              ...updatedBookingRules
+            }
+          : instructor
+      );
 
 
     // --------------------------------------------------------
