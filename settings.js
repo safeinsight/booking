@@ -3194,14 +3194,23 @@ function makeSlug(value) {
 }
 
 
-$("addInstructorBtn").addEventListener("click", async () => {
+document.addEventListener("click", async function (event) {
+
+  const button =
+    event.target.closest("#addInstructorBtn");
+
+  if (!button) {
+    return;
+  }
 
   const name = prompt("User name:");
+
   if (!name?.trim()) {
     return;
   }
 
   const email = prompt("User email address:");
+
   if (!email?.trim()) {
     return;
   }
@@ -3229,9 +3238,6 @@ $("addInstructorBtn").addEventListener("click", async () => {
     );
     return;
   }
-
-  const button =
-    $("addInstructorBtn");
 
   button.disabled = true;
 
@@ -3273,82 +3279,6 @@ $("addInstructorBtn").addEventListener("click", async () => {
       );
     }
 
-    /*
-     * Create the instructor record using
-     * the same Supabase user ID returned
-     * by the invitation.
-     */
-    if (
-      state.location?.id &&
-      result.user_id
-    ) {
-
-      const slug =
-        makeSlug(name);
-
-      if (!slug) {
-        throw new Error(
-          "Unable to generate an instructor URL slug."
-        );
-      }
-
-      const duplicate =
-        state.instructors.some(
-          instructor =>
-            instructor.slug?.toLowerCase() ===
-            slug.toLowerCase()
-        );
-
-      if (duplicate) {
-        throw new Error(
-          `An instructor with the slug "${slug}" already exists at this location.`
-        );
-      }
-
-      const {
-        data: instructor,
-        error: instructorError
-      } =
-        await db
-          .from("instructors")
-          .insert({
-            location_id:
-              state.location.id,
-            user_id:
-              result.user_id,
-            name:
-              name.trim(),
-            email:
-              email.trim().toLowerCase(),
-            slug
-          })
-          .select()
-          .single();
-
-      if (instructorError) {
-        throw instructorError;
-      }
-
-      state.instructors = [
-        ...state.instructors,
-        {
-          ...instructor,
-          role:
-            normalizedRole,
-          active:
-            true,
-          email_confirmed:
-            false
-        }
-      ].sort((a, b) =>
-        String(a.name || "")
-          .localeCompare(
-            String(b.name || "")
-          )
-      );
-
-    }
-
     await loadAllInstructors();
 
     renderInstructorList();
@@ -3372,9 +3302,7 @@ $("addInstructorBtn").addEventListener("click", async () => {
 
   } finally {
 
-    button.disabled =
-      false;
-
+    button.disabled = false;
     button.textContent =
       originalText;
 
