@@ -3347,9 +3347,16 @@ $("connectCalendarBtn").addEventListener("click", () => {
     return;
   }
 
+  if (!state.instructor?.id) {
+    $("calendarStatus").textContent =
+      "Please select an instructor first.";
+    return;
+  }
+
   const oauthUrl =
     `${cfg.functionsBaseUrl}/google-oauth-start` +
-    `?location_id=${encodeURIComponent(state.location.id)}`;
+    `?location_id=${encodeURIComponent(state.location.id)}` +
+    `&instructor_id=${encodeURIComponent(state.instructor.id)}`;
 
   window.open(
     oauthUrl,
