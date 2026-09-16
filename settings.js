@@ -3599,6 +3599,126 @@ $("connectCalendarBtn").addEventListener("click", () => {
   );
 });
 
+function isInvitationFlow() {
+  const hashParams = new URLSearchParams(
+    window.location.hash.replace(/^#/, "")
+  );
+
+  const queryParams = new URLSearchParams(
+    window.location.search
+  );
+
+  const hashType = hashParams.get("type");
+  const queryType = queryParams.get("type");
+
+  return (
+    hashType === "invite" ||
+    hashType === "recovery" ||
+    queryType === "invite" ||
+    queryType === "recovery"
+  );
+}
+
+
+async function handleCreatePassword() {
+  const password =
+    $("newPassword").value;
+
+  const confirmPassword =
+    $("confirmNewPassword").value;
+
+  const error =
+    $("createPasswordError");
+
+  error.classList.add("hidden");
+  error.textContent = "";
+
+  if (!password || !confirmPassword) {
+    error.textContent =
+      "Please enter and confirm your password.";
+    error.classList.remove("hidden");
+    return;
+  }
+
+  if (password.length < 8) {
+    error.textContent =
+      "Password must be at least 8 characters.";
+    error.classList.remove("hidden");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    error.textContent =
+      "The passwords do not match.";
+    error.classList.remove("hidden");
+    return;
+  }
+
+  const button =
+    $("createPasswordBtn");
+
+  const originalText =
+    button.textContent;
+
+  button.disabled = true;
+  button.textContent =
+    "Creating Password...";
+
+  try {
+    const {
+      data,
+      error: updateError
+    } = await db.auth.updateUser({
+      password
+    });
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    if (!data?.user) {
+      throw new Error(
+        "Unable to update your password."
+      );
+    }
+
+    /*
+     * The invitation/recovery URL is no longer
+     * needed after the password has been created.
+     *
+     * Remove the auth parameters from the browser
+     * address before continuing.
+     */
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname
+    );
+
+    window.location.reload();
+
+  } catch (error) {
+
+    console.error(
+      "CREATE PASSWORD ERROR:",
+      error
+    );
+
+    $("createPasswordError").textContent =
+      error.message ||
+      "Unable to create your password.";
+
+    $("createPasswordError")
+      .classList.remove("hidden");
+
+  } finally {
+
+    button.disabled = false;
+    button.textContent =
+      originalText;
+  }
+}
+
 async function handleSettingsLogin() {
   const email = $("loginEmail").value.trim();
   const password = $("loginPassword").value;
@@ -3633,6 +3753,11 @@ $("loginBtn").addEventListener(
   handleSettingsLogin
 );
 
+$("createPasswordBtn").addEventListener(
+  "click",
+  handleCreatePassword
+);
+
 $("loginPassword").addEventListener(
   "keydown",
   event => {
@@ -3653,34 +3778,93 @@ $("logoutBtn").addEventListener(
 
 (async function init() {
   try {
-    const authenticated =
-      await authenticateSettingsUser();
+
+    const invitationFlow =
+      isInvitationFlow();
+
+    /*
+     * Supabase processes the invitation URL and
+     * establishes the temporary authenticated session.
+     */
+    const {
+      data: {
+        session
+      }
+    } = await db.auth.getSession();
 
     $("loading").classList.add("hidden");
 
-    if (!authenticated) {
-      $("loginPanel").classList.remove("hidden");
-      $("settingsApp").classList.add("hidden");
+    /*
+     * Invitation link:
+     *
+     * A valid invitation should already have
+     * produced an authenticated session.
+     *
+     * Show the password creation screen instead
+     * of the normal login screen.
+     */
+    if (
+      invitationFlow &&
+      session
+    ) {
+      $("loginPanel")
+        .classList.add("hidden");
+
+      $("settingsApp")
+        .classList.add("hidden");
+
+      $("createPasswordPanel")
+        .classList.remove("hidden");
+
       return;
     }
 
-$("loginPanel").classList.add("hidden");
+    /*
+     * Normal Settings login.
+     */
+    const authenticated =
+      await authenticateSettingsUser();
 
-$("settingsUserEmail").textContent =
-  state.user.email;
+    if (!authenticated) {
 
-$("settingsUserRole").textContent =
-  state.role;
+      $("loginPanel")
+        .classList.remove("hidden");
 
-applyRolePermissions();
+      $("createPasswordPanel")
+        .classList.add("hidden");
 
-  await loadAllInstructors();
+      $("settingsApp")
+        .classList.add("hidden");
 
-  await loadLocations();
+      return;
+    }
 
-  $("settingsApp").classList.remove("hidden");
-    
+    /*
+     * Normal authenticated Settings user.
+     */
+    $("loginPanel")
+      .classList.add("hidden");
+
+    $("createPasswordPanel")
+      .classList.add("hidden");
+
+    $("settingsUserEmail").textContent =
+      state.user.email;
+
+    $("settingsUserRole").textContent =
+      state.role;
+
+    applyRolePermissions();
+
+    await loadAllInstructors();
+
+    await loadLocations();
+
+    $("settingsApp")
+      .classList.remove("hidden");
+
   } catch (err) {
+
     showError(err.message);
   }
 })();
