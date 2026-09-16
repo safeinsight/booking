@@ -1241,16 +1241,16 @@ $("addSpecialDayBtn").onclick = () => {
 
 };
 
-  $("brandName").textContent =
-    loc.name || "Location Settings";
+$("brandName").textContent =
+  "Safe Insight";
 
-  $("brandSubtitle").textContent =
-    loc.instructor_name
-      ? `with ${loc.instructor_name}`
-      : "Administration";
+$("brandSubtitle").textContent =
+  state.instructor?.name
+    ? `with ${state.instructor.name}`
+    : "Administration";
 
-  $("brandLogo").src =
-    loc.logo_url || "safe-insight-logo.png";
+$("brandLogo").src =
+  loc.logo_url || "safe-insight-logo.png";
 
   $("footerText").textContent =
     loc.footer_text ||
