@@ -162,6 +162,7 @@ async function loadLocations() {
 async function loadInstructor() {
   if (!state.instructorSlug) {
     state.instructor = null;
+    $("brandSubtitle").textContent = "";
     return;
   }
 
@@ -169,20 +170,22 @@ async function loadInstructor() {
     .from("instructors")
     .select("id, location_id, user_id, name, email, slug")
     .eq("slug", state.instructorSlug)
-    .eq("location_id", state.location.id)
-    .single();
+    .eq("location_id", state.location.id);
 
   if (error) {
     throw error;
   }
 
-  if (!data) {
+  if (!data || data.length !== 1) {
     throw new Error(
       `Instructor "${state.instructorSlug}" was not found for this location.`
     );
   }
 
-  state.instructor = data;
+  state.instructor = data[0];
+
+  $("brandName").textContent =
+    "Safe Insight";
 
   $("brandSubtitle").textContent =
     `with ${state.instructor.name}`;
