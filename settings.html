@@ -362,37 +362,6 @@
 </div>
 
 
-          <!-- CALENDAR -->
-
-          <div class="settings-section">
-
-            <h2>Calendar</h2>
-
-            <div class="settings-status">
-              <strong>Google Calendar</strong>
-              <span id="calendarStatus">Checking connection…</span>
-            </div>
-
-            <p class="muted">
-              Connect your Google Calendar and choose which calendars
-              should block appointment availability.
-            </p>
-
-            <div id="calendarInfo" class="summary"></div>
-
-            <div id="blockingCalendarControls"></div>
-
-            <button
-              type="button"
-              id="connectCalendarBtn"
-              class="secondary"
-            >
-              Connect Google Calendar
-            </button>
-
-          </div>
-
-
           <!-- LOCATION INFORMATION -->
 
           <div class="settings-section">
@@ -846,23 +815,15 @@
         </div>
 
 
-<!-- CALENDAR TAB -->
-
-<div
-  id="calendarTab"
-  class="settings-tab-panel"
->
-
   <div class="settings-section">
-
     <h2>Calendar</h2>
 
     <p class="muted">
-      Manage the calendar connection and booking rules for the selected instructor.
+      Manage the Google Calendar connection and blocking calendars
+      for the selected instructor.
     </p>
 
     <div class="summary" style="margin-top:20px;">
-
       <div>
         <strong>Calendar Selected:</strong>
         <span id="calendarSelectedName">NONE SELECTED</span>
@@ -874,6 +835,29 @@
           Not connected
         </span>
       </div>
+    </div>
+
+    <div
+      class="settings-section"
+      style="margin-top:20px;"
+    >
+
+      <div class="settings-status">
+        <strong>Google Calendar</strong>
+        <span id="calendarStatus">Checking connection…</span>
+      </div>
+
+      <div id="calendarInfo" class="summary"></div>
+
+      <div id="blockingCalendarControls"></div>
+
+      <button
+        type="button"
+        id="connectCalendarBtn"
+        class="secondary"
+      >
+        Connect Google Calendar
+      </button>
 
     </div>
 
