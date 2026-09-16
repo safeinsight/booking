@@ -672,7 +672,7 @@ const calendarResponse = await fetch(
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      instructor_id: state.instructor?.id
+      location_id: state.location?.id
     })
   }
 );
@@ -819,11 +819,11 @@ return `
               headers: {
                 "Content-Type": "application/json"
               },
-              body: JSON.stringify({
-                instructor_id: state.instructor.id,
-                google_calendar_id: calendarId,
-                enabled: newEnabled
-              })
+                body: JSON.stringify({
+                  location_id: state.location.id,
+                  google_calendar_id: calendarId,
+                  enabled: newEnabled
+                })
             }
           );
 
@@ -3582,15 +3582,15 @@ document.addEventListener("click", async function (event) {
 });
 
 $("connectCalendarBtn").addEventListener("click", () => {
-  if (!state.instructor?.id) {
+  if (!state.location?.id) {
     $("calendarStatus").textContent =
-      "Please select an instructor first.";
+      "Please select a location first.";
     return;
   }
 
   const oauthUrl =
     `${cfg.functionsBaseUrl}/google-oauth-start` +
-    `?instructor_id=${encodeURIComponent(state.instructor.id)}`;
+    `?location_id=${encodeURIComponent(state.location.id)}`;
 
   window.open(
     oauthUrl,
