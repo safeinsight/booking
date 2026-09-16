@@ -4,13 +4,12 @@ const db = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
 const state = {
   locations: [],
   location: null,
-  instructor: null,
-  instructorSlug: null,
   date: null,
   availability: null,
   selectedStart: null,
   selectedEnd: null,
-  student: null
+  student: null,
+  calendarMonth: null
 };
 
 const $ = id => document.getElementById(id);
@@ -176,14 +175,178 @@ async function loadDates() {
   if (!res.ok) throw new Error(json.error || "Unable to load availability.");
 
   state.availability = json;
-  const dateSelect = $("dateSelect");
-  dateSelect.innerHTML = json.days.map(d =>
-    `<option value="${d.date}">${escapeHtml(d.label)}${d.has_available ? "" : " — No availability"}</option>`
-  ).join("");
+const firstAvailable = json.days.find(d => d.has_available);
 
-  state.date = json.days.find(d => d.has_available)?.date || json.days[0]?.date;
-  if (state.date) dateSelect.value = state.date;
+state.date = firstAvailable?.date || json.days[0]?.date || null;
+state.calendarMonth = state.date ? state.date.slice(0, 7) : null;
+
+renderCalendar();
+renderSelectedDate();
+renderSlots();
+}
+
+function renderSelectedDate() {
+  const day = state.availability?.days.find(
+    d => d.date === state.date
+  );
+
+  $("dateDisplay").value = day ? day.label : "";
+}
+
+
+function renderCalendar() {
+  const container = $("calendarDays");
+  const monthLabel = $("calendarMonth");
+  const prev = $("calendarPrev");
+  const next = $("calendarNext");
+
+  if (
+    !container ||
+    !monthLabel ||
+    !state.availability?.days?.length ||
+    !state.calendarMonth
+  ) {
+    return;
+  }
+
+  const [year, month] = state.calendarMonth.split("-").map(Number);
+
+  const monthStart = new Date(year, month - 1, 1);
+  const firstWeekday = monthStart.getDay();
+  const daysInMonth = new Date(year, month, 0).getDate();
+
+  const availabilityByDate = new Map(
+    state.availability.days.map(d => [d.date, d])
+  );
+
+  const minDate = state.availability.days[0].date;
+  const maxDate =
+    state.availability.days[state.availability.days.length - 1].date;
+
+  monthLabel.textContent = monthStart.toLocaleDateString(
+    "en-US",
+    {
+      month: "long",
+      year: "numeric"
+    }
+  );
+
+  container.innerHTML = "";
+
+  // Empty cells before the first day of the month
+  for (let i = 0; i < firstWeekday; i++) {
+    const blank = document.createElement("span");
+
+    blank.className = "calendar-day blank";
+    blank.setAttribute("aria-hidden", "true");
+
+    container.appendChild(blank);
+  }
+
+  // Actual calendar dates
+  for (let dayNumber = 1; dayNumber <= daysInMonth; dayNumber++) {
+    const date =
+      `${year}-${String(month).padStart(2, "0")}-${String(dayNumber).padStart(2, "0")}`;
+
+    const day = availabilityByDate.get(date);
+
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.className = "calendar-day";
+    button.textContent = dayNumber;
+    button.dataset.date = date;
+
+    // Date isn't within the availability range
+    if (date < minDate || date > maxDate || !day) {
+      button.disabled = true;
+      button.classList.add("outside-range");
+      button.setAttribute(
+        "aria-label",
+        `${date}, unavailable`
+      );
+    }
+
+    // Date exists but has no available slots
+    else if (!day.has_available) {
+      button.disabled = true;
+      button.classList.add("unavailable");
+      button.setAttribute(
+        "aria-label",
+        `${day.label}, no availability`
+      );
+    }
+
+    // Date can be selected
+    else {
+      button.classList.add("available");
+
+      button.setAttribute(
+        "aria-label",
+        day.label
+      );
+
+      button.addEventListener(
+        "click",
+        () => selectDate(date)
+      );
+    }
+
+    // Currently selected date
+    if (date === state.date) {
+      button.classList.add("selected");
+    }
+
+    container.appendChild(button);
+  }
+
+  const minMonth = minDate.slice(0, 7);
+  const maxMonth = maxDate.slice(0, 7);
+
+  prev.disabled = state.calendarMonth <= minMonth;
+  next.disabled = state.calendarMonth >= maxMonth;
+}
+
+
+function selectDate(date) {
+  const day = state.availability?.days.find(
+    d => d.date === date
+  );
+
+  if (!day || !day.has_available) {
+    return;
+  }
+
+  state.date = date;
+  state.calendarMonth = date.slice(0, 7);
+
+  // Reset any previously selected time range
+  state.selectedStart = null;
+  state.selectedEnd = null;
+
+  renderCalendar();
+  renderSelectedDate();
   renderSlots();
+}
+
+
+function changeCalendarMonth(delta) {
+  if (!state.calendarMonth) {
+    return;
+  }
+
+  const [year, month] =
+    state.calendarMonth.split("-").map(Number);
+
+  const nextMonth =
+    new Date(year, month - 1 + delta, 1);
+
+  state.calendarMonth =
+    `${nextMonth.getFullYear()}-${String(
+      nextMonth.getMonth() + 1
+    ).padStart(2, "0")}`;
+
+  renderCalendar();
 }
 
 function renderSlots() {
@@ -300,10 +463,15 @@ $("toDateBtn").addEventListener("click", async () => {
   try { await loadDates(); showStep(2); }
   catch (err) { showError(err.message); }
 });
-$("dateSelect").addEventListener("change", e => {
-  state.date = e.target.value;
-  renderSlots();
-});
+$("calendarPrev").addEventListener(
+  "click",
+  () => changeCalendarMonth(-1)
+);
+
+$("calendarNext").addEventListener(
+  "click",
+  () => changeCalendarMonth(1)
+);
 $("toInfoBtn").addEventListener("click", () => showStep(3));
 $("studentForm").addEventListener("submit", e => {
   e.preventDefault();
