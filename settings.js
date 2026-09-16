@@ -1496,19 +1496,14 @@ return {
     if (isAdministrator() || isManager()) {
       globalSelector.classList.remove("hidden");
 
-      globalSelect.innerHTML =
-        `
-          <option value="">
-            CHOOSE ONE
-          </option>
-        ` +
-        state.instructors.map(instructor => `
+   globalSelect.innerHTML =
+  state.instructors.map(instructor => `
           <option value="${escapeAttr(instructor.id)}">
             ${escapeHtml(instructor.name)}
           </option>
         `).join("");
 
-      globalSelect.value = "";
+      globalSelect.value = state.instructor?.id || "";
       
     } else {
       globalSelector.classList.add("hidden");
