@@ -672,7 +672,7 @@ const calendarResponse = await fetch(
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      location_id: loc.id
+      instructor_id: state.instructor?.id
     })
   }
 );
@@ -820,7 +820,7 @@ return `
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                location_id: loc.id,
+                instructor_id: state.instructor.id,
                 google_calendar_id: calendarId,
                 enabled: newEnabled
               })
@@ -872,7 +872,7 @@ return `
 
           // Reload the calendar information so the
           // displayed status matches Supabase.
-          await loadLocationIntoForm(loc);
+          await loadLocationIntoForm(state.location);
 
         } catch (error) {
 
@@ -3582,15 +3582,15 @@ document.addEventListener("click", async function (event) {
 });
 
 $("connectCalendarBtn").addEventListener("click", () => {
-  if (!state.location?.id) {
+  if (!state.instructor?.id) {
     $("calendarStatus").textContent =
-      "Please select a location first.";
+      "Please select an instructor first.";
     return;
   }
 
   const oauthUrl =
     `${cfg.functionsBaseUrl}/google-oauth-start` +
-    `?location_id=${encodeURIComponent(state.location.id)}`;
+    `?instructor_id=${encodeURIComponent(state.instructor.id)}`;
 
   window.open(
     oauthUrl,
