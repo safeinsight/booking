@@ -1865,101 +1865,7 @@ async function saveAvailabilitySettings(button) {
 
   try {
 
-    // --------------------------------------------------------
-    // Save booking rules for each instructor
-    // --------------------------------------------------------
 
-    if (!state.instructor?.id) {
-      throw new Error(
-        "Please select an instructor before saving Booking Rules."
-      );
-    }
-
-    const {
-      data: updatedInstructor,
-      error: settingsError
-    } =
-      await db
-        .from("instructors")
-        .update({
-          appointment_length_minutes:
-            Number($("appointmentLengthInput").value),
-
-          max_students_per_slot:
-            Number($("maxStudentsInput").value),
-
-          booking_horizon_days:
-            Number($("bookingHorizonInput").value),
-
-          minimum_booking_notice_hours:
-            Number($("minimumNoticeInput").value),
-
-          cancellation_hours:
-            Number($("cancellationHoursInput").value),
-
-          reschedule_hours:
-            Number($("rescheduleHoursInput").value)
-        })
-        .eq("id", state.instructor.id)
-        .select(`
-          id,
-          appointment_length_minutes,
-          max_students_per_slot,
-          booking_horizon_days,
-          minimum_booking_notice_hours,
-          cancellation_hours,
-          reschedule_hours
-        `)
-        .single();
-
-    if (settingsError) {
-      throw settingsError;
-    }
-
-    if (!updatedInstructor) {
-      throw new Error(
-        "The instructor Booking Rules were not updated."
-      );
-    }
-
-    if (settingsError) {
-      throw settingsError;
-    }
-
-    const updatedBookingRules = {
-      appointment_length_minutes:
-        Number($("appointmentLengthInput").value),
-
-      max_students_per_slot:
-        Number($("maxStudentsInput").value),
-
-      booking_horizon_days:
-        Number($("bookingHorizonInput").value),
-
-      minimum_booking_notice_hours:
-        Number($("minimumNoticeInput").value),
-
-      cancellation_hours:
-        Number($("cancellationHoursInput").value),
-
-      reschedule_hours:
-        Number($("rescheduleHoursInput").value)
-    };
-
-    state.instructor = {
-      ...state.instructor,
-      ...updatedBookingRules
-    };
-
-    state.instructors =
-      state.instructors.map(instructor =>
-        instructor.id === state.instructor.id
-          ? {
-              ...instructor,
-              ...updatedBookingRules
-            }
-          : instructor
-      );
 
 
     // --------------------------------------------------------
@@ -2121,29 +2027,7 @@ const specialDaysResponse =
     }
 
 
-    // Update local instructor state
 
-    state.instructor = {
-      ...state.instructor,
-
-      appointment_length_minutes:
-        Number($("appointmentLengthInput").value),
-
-      max_students_per_slot:
-        Number($("maxStudentsInput").value),
-
-      booking_horizon_days:
-        Number($("bookingHorizonInput").value),
-
-      minimum_booking_notice_hours:
-        Number($("minimumNoticeInput").value),
-
-      cancellation_hours:
-        Number($("cancellationHoursInput").value),
-
-      reschedule_hours:
-        Number($("rescheduleHoursInput").value)
-    };
 
 
     button.textContent = "Saved";
@@ -2191,10 +2075,6 @@ async function saveBookingRulesSettings(button) {
       );
     }
 
-    console.log(
-  "BOOKING RULES SAVE TARGET:",
-  state.instructor
-);
 
     const {
       data: updatedInstructor,
@@ -2246,9 +2126,6 @@ async function saveBookingRulesSettings(button) {
       );
     }
 
-    if (settingsError) {
-      throw settingsError;
-    }
 
     const updatedBookingRules = {
       appointment_length_minutes:
