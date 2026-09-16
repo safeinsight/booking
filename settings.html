@@ -1276,6 +1276,66 @@
 
         </div>
 
+<!-- MISSED APPOINTMENT EMAIL -->
+
+          <div class="settings-section">
+
+            <h2>Missed Appointment</h2>
+
+            <p class="muted">
+              Configure missed appointment email.
+            </p>
+
+
+            <label for="studentMissedSubject">
+              Student Missed Appointment Email Subject
+            </label>
+
+            <input
+              id="studentMissedSubject"
+              type="text"
+              maxlength="200"
+              placeholder="Your Appointment - Missed"
+            >
+
+            <label for="studentMissedMessage">
+              Student Missed Message
+            </label>
+
+            <textarea
+              id="studentMissedMessage"
+              rows="8"
+              maxlength="5000"
+              placeholder="This is a notification of a missed appointment"
+            ></textarea>
+
+
+            <p class="muted">
+              Available placeholders:
+              <code>{{DATE}}</code>,
+              <code>{{TIME}}</code>,
+              <code>{{LOCATION}}</code>,
+              <code>{{STUDENT_NAME}}</code>,
+              <code>{{INSTRUCTOR_NAME}}</code>,
+              <code>{{MANAGE_BUTTON}}</code>
+            </p>
+
+          </div>
+
+          <div class="tab-save">
+
+            <button
+              type="button"
+              class="primary tab-save-button"
+              data-save-tab="emails"
+            >
+              Save Email Settings
+            </button>
+
+          </div>
+
+        </div>
+      
 
         <!-- EXISTING SAVE -->
 
