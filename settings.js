@@ -1480,21 +1480,7 @@ return {
 
   if (state.instructor) {
 
-    const selectedLocationInstructor =
-      $("selectedLocationInstructor");
 
-    if (selectedLocationInstructor) {
-      selectedLocationInstructor.textContent =
-        state.instructor.name;
-    }
-
-    const selectedCalendarName =
-      $("selectedCalendarName");
-
-    if (selectedCalendarName) {
-      selectedCalendarName.textContent =
-        state.instructor.name;
-    }
 
     const calendarSelectedName =
       $("calendarSelectedName");
@@ -1504,21 +1490,7 @@ return {
         state.instructor.name;
     }
 
-    const availabilityInstructorName =
-      $("availabilityInstructorName");
 
-    if (availabilityInstructorName) {
-      availabilityInstructorName.textContent =
-        state.instructor.name;
-    }
-
-    const emailsInstructorName =
-      $("emailsInstructorName");
-
-    if (emailsInstructorName) {
-      emailsInstructorName.textContent =
-        state.instructor.name;
-    }
   }
 
   renderInstructorList();
