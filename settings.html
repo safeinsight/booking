@@ -1502,6 +1502,40 @@
         button.classList.remove("active");
       });
 
+    document.addEventListener("click", function (event) {
+  const tab = event.target.closest(".email-tab");
+
+  if (!tab) {
+    return;
+  }
+
+  const target = tab.getAttribute("data-email-tab");
+
+  if (!target) {
+    return;
+  }
+
+  document
+    .querySelectorAll(".email-tab")
+    .forEach(button => {
+      button.classList.remove("active");
+    });
+
+  document
+    .querySelectorAll(".email-tab-panel")
+    .forEach(panel => {
+      panel.classList.remove("active");
+    });
+
+  tab.classList.add("active");
+
+  const panel = document.getElementById(target);
+
+  if (panel) {
+    panel.classList.add("active");
+  }
+});
+
     document
       .querySelectorAll(".settings-tab-panel")
       .forEach(panel => {
