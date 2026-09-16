@@ -665,9 +665,10 @@ const calendarResponse = await fetch(
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      location_id: state.location?.id
-    })
+body: JSON.stringify({
+  location_id: state.location?.id,
+  instructor_id: state.instructor?.id
+})
   }
 );
 
@@ -712,39 +713,9 @@ if (connection?.google_calendar_id) {
 let calendarInfo = "";
 
 if (connection?.google_calendar_id) {
-
-  calendarInfo +=
+  calendarInfo =
     `<strong>Booking Calendar</strong><br>` +
-    `${escapeHtml(connection.google_calendar_id)}<br><br>`;
-
-}
-
-if (blockingCalendars.length) {
-
-  calendarInfo +=
-    "<strong>Calendars That Block Availability</strong><br>";
-
-  calendarInfo += blockingCalendars
-    .map(calendar => {
-
-      const primary =
-        calendar.is_primary
-          ? " — Primary"
-          : "";
-
-      const status =
-        calendar.enabled
-          ? " — Enabled"
-          : " — Disabled";
-
-      return (
-        `${escapeHtml(calendar.calendar_name)}` +
-        `${primary}${status}`
-      );
-
-    })
-    .join("<br>");
-
+    `${escapeHtml(connection.google_calendar_id)}`;
 }
 
 $("calendarInfo").innerHTML =
@@ -755,149 +726,8 @@ const controls =
   $("blockingCalendarControls");
 
 if (controls) {
-
-  controls.innerHTML =
-    blockingCalendars.length
-      ? blockingCalendars.map(calendar => {
-
-          const buttonText =
-            calendar.enabled
-              ? "Disable"
-              : "Enable";
-
-return `
-  <div style="margin-top:12px;">
-    <strong>
-      ${escapeHtml(calendar.calendar_name)}
-    </strong>
-
-    <button
-      type="button"
-      class="secondary blocking-calendar-toggle"
-      data-calendar-id="${escapeAttr(calendar.google_calendar_id)}"
-      data-calendar-enabled="${calendar.enabled}"
-      style="margin-left:10px;"
-    >
-      ${buttonText}
-    </button>
-  </div>
-`;
-
-        }).join("")
-      : "No blocking calendars configured.";
-
-  controls
-    .querySelectorAll(".blocking-calendar-toggle")
-    .forEach(button => {
-
-      button.addEventListener("click", async () => {
-
-        const calendarId =
-          button.dataset.calendarId;
-
-        const currentlyEnabled =
-          button.dataset.calendarEnabled === "true";
-
-        const newEnabled =
-          !currentlyEnabled;
-
-        button.disabled = true;
-        button.textContent = "Saving...";
-
-        try {
-
-          const response = await fetch(
-            `${cfg.functionsBaseUrl}/update-blocking-calendar`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-                body: JSON.stringify({
-                  location_id: state.location.id,
-                  google_calendar_id: calendarId,
-                  enabled: newEnabled
-                })
-            }
-          );
-
-          const result =
-            await response.json();
-
-          if (!response.ok || result.error) {
-            throw new Error(
-              result.error ||
-              "Unable to update blocking calendar."
-            );
-          }
-
-          button.dataset.calendarEnabled =
-            String(newEnabled);
-
-          button.textContent =
-            newEnabled
-              ? "Disable"
-              : "Enable";
-
-          const statusText =
-            newEnabled
-              ? " — Enabled"
-              : " — Disabled";
-
-          const calendarName =
-            result.calendar?.calendar_name ||
-            button
-              .parentElement
-              .querySelector("strong")
-              .textContent;
-
-          button
-            .parentElement
-            .querySelector("strong")
-            .textContent =
-              calendarName;
-
-          $("calendarInfo").innerHTML =
-            $("calendarInfo").innerHTML
-              .replace(
-                / — (Enabled|Disabled)/g,
-                ""
-              );
-
-          // Reload the calendar information so the
-          // displayed status matches Supabase.
-          await loadLocationIntoForm(state.location);
-
-        } catch (error) {
-
-          console.error(
-            "BLOCKING CALENDAR UPDATE ERROR:",
-            error
-          );
-
-          button.textContent =
-            currentlyEnabled
-              ? "Disable"
-              : "Enable";
-
-          alert(
-            error.message ||
-            "Unable to update blocking calendar."
-          );
-
-        } finally {
-
-          button.disabled = false;
-
-        }
-
-      });
-
-    });
-
+  controls.innerHTML = "";
 }
-
-  }
 
   // Load special days
 
