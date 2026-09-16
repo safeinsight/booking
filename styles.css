@@ -89,6 +89,88 @@ button, .button {
 }
 
 
+
+/* =========================================
+   BOOKING DATE CALENDAR
+   ========================================= */
+.calendar {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 18px;
+  background: #fff;
+}
+.calendar-header {
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.calendar-month {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+}
+.calendar-nav {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--secondary);
+  font-size: 28px;
+  line-height: 1;
+}
+.calendar-nav:hover:not(:disabled) { border-color: var(--accent); }
+.calendar-nav:disabled { opacity: .35; cursor: not-allowed; }
+.calendar-weekdays, .calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.calendar-weekdays span {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 6px 0;
+}
+.calendar-day {
+  min-height: 42px;
+  padding: 7px 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--secondary);
+  font-size: 15px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.calendar-day.available { cursor: pointer; }
+.calendar-day.available:hover { border-color: var(--accent); }
+.calendar-day.selected {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: var(--accent);
+}
+.calendar-day.unavailable, .calendar-day.outside-range {
+  background: #f1f1f1;
+  color: #aaa;
+  cursor: not-allowed;
+}
+.calendar-day.blank { visibility: hidden; border: 0; }
+#dateDisplay {
+  background: #f8f8f8;
+  cursor: default;
+}
+@media(max-width:450px) {
+  .calendar { padding: 10px; }
+  .calendar-weekdays, .calendar-days { gap: 3px; }
+  .calendar-day { min-height: 38px; font-size: 14px; }
+}
+
 /* =========================================
    LOCATION SETTINGS
    ========================================= */
