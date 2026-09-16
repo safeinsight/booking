@@ -54,12 +54,16 @@ function getBookingRoute() {
   );
 
   if (!match) {
+    const params =
+      new URLSearchParams(window.location.search);
+
     return {
       locationSlug:
-        new URLSearchParams(window.location.search).get("location") ||
+        params.get("location") ||
         cfg.defaultLocationSlug,
 
-      instructorSlug: null
+      instructorSlug:
+        params.get("instructor")
     };
   }
 
