@@ -33,7 +33,7 @@
       <div id="bookingApp" class="hidden">
         <div class="step-panel" data-panel="1">
           <h1>Book an appointment</h1>
-          <p class="muted">Select your appointment time.</p>
+          <p class="muted">Choose your location and instructor.</p>
           <label for="locationSelect">Location</label>
           <select id="locationSelect"></select>
           <div id="locationSummary" class="summary"></div>
@@ -45,8 +45,20 @@
           <h2>Select your time</h2>
           <p id="availabilityNote" class="muted"></p>
 
-          <label for="dateSelect">Date</label>
-          <select id="dateSelect"></select>
+          <div class="calendar" aria-label="Choose a booking date">
+            <div class="calendar-header">
+              <button type="button" id="calendarPrev" class="calendar-nav" aria-label="Previous month">‹</button>
+              <div id="calendarMonth" class="calendar-month"></div>
+              <button type="button" id="calendarNext" class="calendar-nav" aria-label="Next month">›</button>
+            </div>
+            <div class="calendar-weekdays" aria-hidden="true">
+              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div id="calendarDays" class="calendar-days"></div>
+          </div>
+
+          <label for="dateDisplay">Date</label>
+          <input id="dateDisplay" type="text" readonly aria-readonly="true" placeholder="Select a date from the calendar">
 
           <div class="calendar-note">
             <strong>Choose a starting time, then add consecutive slots.</strong>
