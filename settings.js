@@ -2761,22 +2761,9 @@ document.addEventListener("click", async function (event) {
   }
 
 
-  const availabilityInstructorName =
-    $("availabilityInstructorName");
-
-  if (availabilityInstructorName) {
-    availabilityInstructorName.textContent =
-      selectedInstructor.name;
-  }
 
 
-  const emailsInstructorName =
-    $("emailsInstructorName");
 
-  if (emailsInstructorName) {
-    emailsInstructorName.textContent =
-      selectedInstructor.name;
-  }
 
 
   renderInstructorList();
@@ -3209,21 +3196,9 @@ if (!selectedInstructor) return;
 state.instructor =
   selectedInstructor;
 
-    const selectedLocationInstructor =
-      $("selectedLocationInstructor");
 
-    if (selectedLocationInstructor) {
-      selectedLocationInstructor.textContent =
-        selectedInstructor.name;
-    }
 
-    const selectedCalendarName =
-      $("selectedCalendarName");
 
-    if (selectedCalendarName) {
-      selectedCalendarName.textContent =
-        selectedInstructor.name;
-    }
 
     const calendarSelectedName =
       $("calendarSelectedName");
@@ -3233,21 +3208,7 @@ state.instructor =
         selectedInstructor.name;
     }
 
-    const availabilityInstructorName =
-      $("availabilityInstructorName");
 
-    if (availabilityInstructorName) {
-      availabilityInstructorName.textContent =
-        selectedInstructor.name;
-    }
-
-    const emailsInstructorName =
-      $("emailsInstructorName");
-
-    if (emailsInstructorName) {
-      emailsInstructorName.textContent =
-        selectedInstructor.name;
-    }
 
     await loadLocationIntoForm(
       state.location
