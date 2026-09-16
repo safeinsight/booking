@@ -257,13 +257,7 @@ async function loadLocationIntoForm(loc) {
 
 state.location = loc;
 
-const selectedLocationName =
-  $("selectedLocationName");
 
-if (selectedLocationName) {
-  selectedLocationName.textContent =
-    loc.name || "Default";
-}
 
   if (!state.instructor) {
     console.warn(
@@ -2752,22 +2746,10 @@ document.addEventListener("click", async function (event) {
   );
 
 
-  const selectedLocationInstructor =
-    $("selectedLocationInstructor");
-
-  if (selectedLocationInstructor) {
-    selectedLocationInstructor.textContent =
-      selectedInstructor.name;
-  }
 
 
-  const selectedCalendarName =
-    $("selectedCalendarName");
 
-  if (selectedCalendarName) {
-    selectedCalendarName.textContent =
-      selectedInstructor.name;
-  }
+
 
 
   const calendarSelectedName =
