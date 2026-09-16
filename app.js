@@ -97,9 +97,7 @@ function applyBranding(loc) {
     "Safe Insight";
 
   $("brandSubtitle").textContent =
-    state.instructor?.name
-      ? `with ${state.instructor.name}`
-      : "";
+    "";
 
   $("footerText").textContent =
     loc.footer_text ||
