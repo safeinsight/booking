@@ -71,14 +71,39 @@ function getBookingRoute() {
 
 function applyBranding(loc) {
   const root = document.documentElement;
-  root.style.setProperty("--primary", loc.primary_color || "#FFFFFF");
-  root.style.setProperty("--secondary", loc.secondary_color || "#000000");
-  root.style.setProperty("--accent", loc.accent_color || "#FF0000");
-  $("brandLogo").src = loc.logo_url || "safe-insight-logo.png";
-  $("brandLogo").alt = loc.name || "Booking";
-  $("brandName").textContent = loc.name || "Booking";
-  $("brandSubtitle").textContent = state.instructor?.name ? `with ${state.instructor.name}` : "Booking";
-  $("footerText").textContent = loc.footer_text || `Booking powered by ${loc.name || "Safe Insight"}`;
+
+  root.style.setProperty(
+    "--primary",
+    loc.primary_color || "#FFFFFF"
+  );
+
+  root.style.setProperty(
+    "--secondary",
+    loc.secondary_color || "#000000"
+  );
+
+  root.style.setProperty(
+    "--accent",
+    loc.accent_color || "#FF0000"
+  );
+
+  $("brandLogo").src =
+    loc.logo_url || "safe-insight-logo.png";
+
+  $("brandLogo").alt =
+    "Safe Insight";
+
+  $("brandName").textContent =
+    "Safe Insight";
+
+  $("brandSubtitle").textContent =
+    state.instructor?.name
+      ? `with ${state.instructor.name}`
+      : "";
+
+  $("footerText").textContent =
+    loc.footer_text ||
+    "Booking powered by Safe Insight";
 }
 
 function renderLocationSummary() {
@@ -144,21 +169,24 @@ async function loadInstructor() {
     .from("instructors")
     .select("id, location_id, user_id, name, email, slug")
     .eq("slug", state.instructorSlug)
-    .eq("location_id", state.location.id);
+    .eq("location_id", state.location.id)
+    .single();
 
   if (error) {
     throw error;
   }
 
-  if (!data || data.length !== 1) {
+  if (!data) {
     throw new Error(
       `Instructor "${state.instructorSlug}" was not found for this location.`
     );
   }
 
-  state.instructor = data[0];
+  state.instructor = data;
 
-  $("brandSubtitle").textContent = `with ${state.instructor.name}`;
+  $("brandSubtitle").textContent =
+    `with ${state.instructor.name}`;
+
   renderLocationSummary();
 }
 
@@ -455,11 +483,21 @@ ${formatTime(first.start, state.location.timezone)} – ${formatTime(last.end, s
 
 $("locationSelect").addEventListener("change", async e => {
   try {
-    state.location = state.locations.find(l => l.slug === e.target.value);
+    state.location =
+      state.locations.find(
+        l => l.slug === e.target.value
+      );
+
+    state.instructor = null;
+
     applyBranding(state.location);
     renderLocationSummary();
+
+    await loadInstructor();
     await loadDates();
-  } catch (err) { showError(err.message); }
+  } catch (err) {
+    showError(err.message);
+  }
 });
 
 $("toDateBtn").addEventListener("click", async () => {
