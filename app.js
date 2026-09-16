@@ -166,11 +166,14 @@ async function loadDates() {
   $("availabilityNote").textContent =
     `Bookings are available for the next two weeks and must be made at least 24 hours in advance. ` +
     `Cancellation: ${state.location.cancellation_hours} hours. ` +
-    `Reschedule: ${state.location.reschedule_hours} hours.`;
+    `Reschedule: ${state.location.reschedule_hours}.`;
 
-  const res = await fetch(`${cfg.functionsBaseUrl}/get-availability?location=${encodeURIComponent(state.location.slug)}`, {
-    headers: { "Authorization": `Bearer ${cfg.supabaseAnonKey}` }
-  });
+  const res = await fetch(
+    `${cfg.functionsBaseUrl}/get-availability?location=${encodeURIComponent(state.location.slug)}&instructor=${encodeURIComponent(state.instructorSlug)}`,
+    {
+      headers: { "Authorization": `Bearer ${cfg.supabaseAnonKey}` }
+    }
+  );
   const json = await res.json();
   if (!res.ok) throw new Error(json.error || "Unable to load availability.");
 
