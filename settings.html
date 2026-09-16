@@ -154,6 +154,54 @@
   ></div>
 </div>
 
+<div
+  id="createPasswordPanel"
+  class="settings-section hidden"
+>
+  <h2>Create Your Booking Settings Password</h2>
+
+  <p class="muted">
+    Your invitation has been accepted. Create a password to finish setting up your Booking Settings account.
+  </p>
+
+  <label for="newPassword">
+    New Password
+  </label>
+
+  <input
+    id="newPassword"
+    type="password"
+    autocomplete="new-password"
+    placeholder="Enter a password"
+  >
+
+  <label for="confirmNewPassword">
+    Confirm Password
+  </label>
+
+  <input
+    id="confirmNewPassword"
+    type="password"
+    autocomplete="new-password"
+    placeholder="Re-enter your password"
+  >
+
+  <button
+    type="button"
+    id="createPasswordBtn"
+    class="primary"
+    style="margin-top:15px;"
+  >
+    Create Password
+  </button>
+
+  <div
+    id="createPasswordError"
+    class="state error hidden"
+    style="margin-top:15px;"
+  ></div>
+</div>
+
 <div id="settingsApp" class="hidden">
 
   <div
