@@ -3173,21 +3173,7 @@ document.addEventListener("change", async function (event) {
     if (!instructorId) {
       state.instructor = null;
 
-      const selectedLocationInstructor =
-        $("selectedLocationInstructor");
 
-      if (selectedLocationInstructor) {
-        selectedLocationInstructor.textContent =
-          "None Selected";
-      }
-
-      const selectedCalendarName =
-        $("selectedCalendarName");
-
-      if (selectedCalendarName) {
-        selectedCalendarName.textContent =
-          "NONE SELECTED";
-      }
 
       const calendarSelectedName =
         $("calendarSelectedName");
@@ -3197,21 +3183,7 @@ document.addEventListener("change", async function (event) {
           "NONE SELECTED";
       }
 
-      const availabilityInstructorName =
-        $("availabilityInstructorName");
 
-      if (availabilityInstructorName) {
-        availabilityInstructorName.textContent =
-          "NONE SELECTED";
-      }
-
-      const emailsInstructorName =
-        $("emailsInstructorName");
-
-      if (emailsInstructorName) {
-        emailsInstructorName.textContent =
-          "NONE SELECTED";
-      }
 
       renderInstructorList();
 
