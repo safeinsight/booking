@@ -50,6 +50,50 @@
       display: block;
     }
 
+    /* EMAIL SUB-TABS */
+
+.email-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 20px 0;
+  border-bottom: 1px solid #ddd;
+  flex-wrap: wrap;
+}
+
+.email-tab {
+  appearance: none;
+  border: 1px solid #000;
+  border-bottom: none;
+  background: #000000;
+  color: #FFFFFF;
+  padding: 10px 16px;
+  border-radius: 7px 7px 0 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.email-tab:hover {
+  background: #999999;
+  color: #FFFFFF;
+}
+
+.email-tab.active {
+  background: #FF0000;
+  border-color: #FF0000;
+  color: #FFFFFF;
+  position: relative;
+  bottom: -1px;
+}
+
+.email-tab-panel {
+  display: none;
+}
+
+.email-tab-panel.active {
+  display: block;
+}
+
     .tab-save {
       margin-top: 25px;
       padding-top: 20px;
@@ -947,9 +991,57 @@
   class="settings-tab-panel"
 >
 
+<!-- EMAIL SUB-TABS -->
 
-          <!-- CONFIRMATION EMAIL -->
+<div class="email-tabs" role="tablist">
+  <button
+    type="button"
+    class="email-tab active"
+    data-email-tab="confirmationEmailTab"
+  >
+    Confirmation
+  </button>
 
+  <button
+    type="button"
+    class="email-tab"
+    data-email-tab="reminderEmailTab"
+  >
+    Reminder
+  </button>
+
+  <button
+    type="button"
+    class="email-tab"
+    data-email-tab="cancelEmailTab"
+  >
+    Cancel
+  </button>
+
+  <button
+    type="button"
+    class="email-tab"
+    data-email-tab="missedEmailTab"
+  >
+    Missed
+  </button>
+
+  <button
+    type="button"
+    class="email-tab"
+    data-email-tab="followupEmailTab"
+  >
+    Follow-Up
+  </button>
+</div>
+
+
+<!-- CONFIRMATION EMAIL -->
+
+        <div
+        id="confirmationEmailTab"
+        class="email-tab-panel active"
+      >
           <div class="settings-section">
 
             <h2>Confirmation Email</h2>
@@ -1018,10 +1110,17 @@
 
           </div>
 
+          </div>
 
-          <!-- REMINDER EMAIL -->
 
-          <div class="settings-section">
+<!-- REMINDER EMAIL -->
+
+  <div
+  id="reminderEmailTab"
+  class="email-tab-panel"
+> 
+  
+  <div class="settings-section">
 
             <h2>Appointment Reminders</h2>
 
@@ -1118,11 +1217,16 @@
 
           </div>
 
-
+</div>
 
 
 <!-- CANCEL APPOINTMENT EMAIL -->
 
+  <div
+  id="cancelEmailTab"
+  class="email-tab-panel"
+>
+    
           <div class="settings-section">
 
             <h2>Cancel Appointment</h2>
@@ -1198,10 +1302,15 @@
             </p>
 
           </div>
-
+  </div>
 
 <!-- MISSED APPOINTMENT EMAIL -->
 
+        <div
+        id="missedEmailTab"
+        class="email-tab-panel"
+      >
+    
           <div class="settings-section">
 
             <h2>Missed Appointment</h2>
@@ -1246,8 +1355,14 @@
 
           </div>
 
+        </div>
+
 <!-- FOLLOW-UP EMAIL -->
 
+        <div
+        id="followupEmailTab"
+        class="email-tab-panel"
+      >
           <div class="settings-section">
 
             <h2>Post-Appointment Follow-Up Email</h2>
@@ -1310,6 +1425,8 @@
             </p>
 
           </div>
+
+        </div>
 
   <!-- SAVE EMAILS BUTTON -->
 
