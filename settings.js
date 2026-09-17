@@ -3046,7 +3046,7 @@ document.addEventListener("change", async function (event) {
     if (!instructorId) {
       state.instructor = null;
 
-
+    updateBookingUrlDisplay();
 
       const calendarSelectedName =
         $("calendarSelectedName");
@@ -3100,7 +3100,7 @@ if (!selectedInstructor) return;
 state.instructor =
   selectedInstructor;
 
-
+updateBookingUrlDisplay();
 
 
 
@@ -3666,3 +3666,44 @@ $("logoutBtn").addEventListener(
     showError(err.message);
   }
 })();
+
+
+
+
+
+
+$("copyBookingUrlBtn")?.addEventListener(
+  "click",
+  async () => {
+    const urlText = $("bookingUrlText");
+
+    if (!urlText) return;
+
+    const url = urlText.textContent.trim();
+
+    if (!url || url === "No booking URL configured.") {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+
+      const button = $("copyBookingUrlBtn");
+
+      if (button) {
+        const originalText = button.textContent;
+
+        button.textContent = "Copied!";
+
+        setTimeout(() => {
+          button.textContent = originalText;
+        }, 1500);
+      }
+    } catch (err) {
+      console.error(
+        "Unable to copy Booking URL:",
+        err
+      );
+    }
+  }
+);
