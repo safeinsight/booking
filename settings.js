@@ -1472,6 +1472,8 @@ return {
       state.instructors[0] || null;
   }
 
+  updateBookingUrlDisplay();
+  
   if (state.instructor) {
 
 
@@ -2375,6 +2377,36 @@ function escapeHtml(value) {
 function escapeAttr(value) {
   return escapeHtml(value);
 }
+
+function updateBookingUrlDisplay() {
+  const urlText = $("bookingUrlText");
+  const copyButton = $("copyBookingUrlBtn");
+
+  if (!urlText) return;
+
+  const bookingUrl =
+    state.instructor &&
+    state.location?.slug &&
+    state.instructor.slug
+      ? `${window.location.origin}/booking/book/${state.location.slug}/${state.instructor.slug}`
+      : "";
+
+  if (bookingUrl) {
+    urlText.textContent = bookingUrl;
+
+    if (copyButton) {
+      copyButton.classList.remove("hidden");
+    }
+  } else {
+    urlText.textContent = "No booking URL configured.";
+
+    if (copyButton) {
+      copyButton.classList.add("hidden");
+    }
+  }
+}
+
+
 
 function renderInstructorList() {
 
