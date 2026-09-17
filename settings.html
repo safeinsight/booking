@@ -379,7 +379,15 @@
             Availability
           </button>
 
-                    <button
+          <button
+            type="button"
+            class="settings-tab"
+            data-tab="bookingRulesTab"
+          >
+            Booking Rules
+          </button>
+
+          <button
             type="button"
             class="settings-tab"
             data-tab="calendarTab"
@@ -761,66 +769,12 @@
 
         </div>
 
+<!-- BOOKING RULES TAB -->
 
-
-<!-- CALENDAR TAB -->
-
-<div
-  id="calendarTab"
-  class="settings-tab-panel"
->
-
-  <div class="settings-section">
-    <h2>Calendar</h2>
-
-    <p class="muted">
-      Manage the Google Calendar connection and blocking calendars
-      for the selected instructor.
-    </p>
-
-    <div class="summary" style="margin-top:20px;">
-      <div>
-        <strong>Calendar Selected:</strong>
-        <span id="calendarSelectedName">NONE SELECTED</span>
-      </div>
-
-      <div style="margin-top:12px;">
-        <strong>Calendar Connection:</strong>
-        <span id="calendarConnectionName">
-          Not connected
-        </span>
-      </div>
-    </div>
-
-    <div
-      class="settings-section"
-      style="margin-top:20px;"
-    >
-
-      <div class="settings-status">
-        <strong>Google Calendar</strong>
-        <span id="calendarStatus">Checking connection…</span>
-      </div>
-
-      <div id="calendarInfo" class="summary"></div>
-
-      <div id="blockingCalendarControls"></div>
-
-      <br>
-
-      
-      <button
-        type="button"
-        id="connectCalendarBtn"
-        class="secondary"
-      >
-        Connect Google Calendar
-      </button>
-
-    </div>
-
-  </div>
-
+        <div
+          id="bookingRulesTab"
+          class="settings-tab-panel"
+        >
 
   <div class="settings-section">
 
@@ -906,6 +860,69 @@
       step="1"
       required
     >
+
+          
+
+<!-- CALENDAR TAB -->
+
+<div
+  id="calendarTab"
+  class="settings-tab-panel"
+>
+
+  <div class="settings-section">
+    <h2>Calendar</h2>
+
+    <p class="muted">
+      Manage the Google Calendar connection and blocking calendars
+      for the selected instructor.
+    </p>
+
+    <div class="summary" style="margin-top:20px;">
+      <div>
+        <strong>Calendar Selected:</strong>
+        <span id="calendarSelectedName">NONE SELECTED</span>
+      </div>
+
+      <div style="margin-top:12px;">
+        <strong>Calendar Connection:</strong>
+        <span id="calendarConnectionName">
+          Not connected
+        </span>
+      </div>
+    </div>
+
+    <div
+      class="settings-section"
+      style="margin-top:20px;"
+    >
+
+      <div class="settings-status">
+        <strong>Google Calendar</strong>
+        <span id="calendarStatus">Checking connection…</span>
+      </div>
+
+      <div id="calendarInfo" class="summary"></div>
+
+      <div id="blockingCalendarControls"></div>
+
+      <br>
+
+      
+      <button
+        type="button"
+        id="connectCalendarBtn"
+        class="secondary"
+      >
+        Connect Google Calendar
+      </button>
+
+    </div>
+
+  </div>
+
+
+
 
         <div class="tab-save" style="margin-top:20px;">
       <button
