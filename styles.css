@@ -317,4 +317,52 @@ button, .button {
     grid-template-columns: 1fr;
   }
 
+  /* =========================================
+     MOBILE TEXT WRAPPING
+     ========================================= */
+
+  /* Calendar information */
+  #calendarInfo {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  #calendarInfo code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* User cards */
+  #usersList > div {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  #usersList code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Availability time rows */
+  .availability-row {
+    grid-template-columns: 1fr !important;
+    width: 100%;
+  }
+
+  .availability-row input,
+  .availability-row select,
+  .availability-row button {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0 !important;
+  }
+
+  .availability-row label {
+    width: 100%;
+  }
+
 }
