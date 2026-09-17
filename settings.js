@@ -3648,8 +3648,9 @@ $("logoutBtn").addEventListener(
     applyRolePermissions();
 
     await loadAllInstructors();
-
     await loadLocations();
+
+    updateBookingUrlDisplay();
 
     $("settingsApp")
       .classList.remove("hidden");
