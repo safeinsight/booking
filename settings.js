@@ -681,9 +681,6 @@ if (!calendarResponse.ok || calendarResult.error) {
     calendarResult
   );
 
-  $("calendarStatus").textContent =
-    "Unable to load calendar configuration.";
-
   $("calendarInfo").textContent =
     calendarResult.error ||
     "Unable to load calendar configuration.";
@@ -696,25 +693,13 @@ if (!calendarResponse.ok || calendarResult.error) {
   const blockingCalendars =
     calendarResult.blocking_calendars || [];
 
-if (connection?.google_calendar_id) {
-  $("calendarStatus").textContent =
-    "Calendar connected.";
-
-  $("calendarConnectionName").textContent =
-    "Connected";
-
-  $("connectCalendarBtn").textContent =
-    "Reconnect Google Calendar";
-} else {
-  $("calendarStatus").textContent =
-    "Calendar not connected.";
-
-  $("calendarConnectionName").textContent =
-    "Not connected";
-
-  $("connectCalendarBtn").textContent =
-    "Connect Google Calendar";
-}
+  if (connection?.google_calendar_id) {
+    $("connectCalendarBtn").textContent =
+      "Reconnect Google Calendar";
+  } else {
+    $("connectCalendarBtn").textContent =
+      "Connect Google Calendar";
+  }
 
 let calendarInfo = "";
 
