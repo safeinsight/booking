@@ -545,12 +545,13 @@ const res = await fetch(`${cfg.functionsBaseUrl}/create-booking`, {
     "Content-Type": "application/json",
     "Authorization": `Bearer ${cfg.supabaseAnonKey}`
   },
-  body: JSON.stringify({
-    location_slug: state.location.slug,
-    start_time: first.start,
-    end_time: last.end,
-    student: state.student
-  })
+body: JSON.stringify({
+  location_slug: state.location.slug,
+  instructor_slug: state.instructorSlug,
+  start_time: first.start,
+  end_time: last.end,
+  student: state.student
+})
 });
 
 const responseText = await res.text();
