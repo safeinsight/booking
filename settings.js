@@ -2381,7 +2381,7 @@ function updateBookingUrlDisplay() {
     state.instructor &&
     state.location?.slug &&
     state.instructor.slug
-      ? `${window.location.origin}/booking/book/${state.location.slug}/${state.instructor.slug}`
+      ? `${window.location.origin}/booking/?location=${encodeURIComponent(state.location.slug)}&instructor=${encodeURIComponent(state.instructor.slug)}`
       : "";
 
   if (bookingUrl) {
@@ -2421,7 +2421,7 @@ function renderInstructorList() {
       const bookingUrl =
         instructor.slug &&
         state.location?.slug
-          ? `${window.location.origin}/booking/book/${state.location.slug}/${instructor.slug}`
+          ? `${window.location.origin}/booking/?location=${encodeURIComponent(state.location.slug)}&instructor=${encodeURIComponent(instructor.slug)}`
           : "";
 
       const isSelected =
