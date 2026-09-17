@@ -37,7 +37,10 @@ function isInstructor() {
 }
 
 function canEditLocation() {
-  return isAdministrator();
+  return (
+    isAdministrator() ||
+    isInstructor()
+  );
 }
 
 function canEditBranding() {
