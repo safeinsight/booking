@@ -698,13 +698,19 @@ if (!calendarResponse.ok || calendarResult.error) {
 
 if (connection?.google_calendar_id) {
   $("calendarStatus").textContent =
-    "Google Calendar connected.";
+    "Calendar connected.";
+
+  $("calendarConnectionName").textContent =
+    "Connected";
 
   $("connectCalendarBtn").textContent =
     "Reconnect Google Calendar";
 } else {
   $("calendarStatus").textContent =
-    "Google Calendar not connected.";
+    "Calendar not connected.";
+
+  $("calendarConnectionName").textContent =
+    "Not connected";
 
   $("connectCalendarBtn").textContent =
     "Connect Google Calendar";
