@@ -113,11 +113,24 @@ function renderLocationSummary() {
   const instructorName = state.instructor?.name || l.instructor_name;
 
   $("locationSummary").innerHTML = `
-    <strong>${escapeHtml(l.name)}</strong><br>
-    ${instructorName ? `Instructor: ${escapeHtml(instructorName)}<br>` : ""}
-    ${l.address ? escapeHtml(l.address) + "<br>" : ""}
-    ${l.appointment_length_minutes} minute slots<br>
-    Capacity: ${l.max_students_per_slot} student${l.max_students_per_slot === 1 ? "" : "s"} per slot
+    ${instructorName ? `
+      <div class="summary-section">
+        <strong>Instructor:</strong><br>
+        ${escapeHtml(instructorName)}
+      </div>
+    ` : ""}
+
+    <div class="summary-section">
+      <strong>Location:</strong><br>
+      ${escapeHtml(l.name)}<br>
+      ${l.address ? escapeHtml(l.address) : ""}
+    </div>
+
+    <div class="summary-section">
+      <strong>Booking:</strong><br>
+      Appointment Length: ${l.appointment_length_minutes} minutes<br>
+      Appointment Capacity: ${l.max_students_per_slot} student${l.max_students_per_slot === 1 ? "" : "s"}
+    </div>
   `;
 }
 
