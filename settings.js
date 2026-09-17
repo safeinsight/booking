@@ -2189,14 +2189,7 @@ async function saveBookingRulesSettings(button) {
   }
 }
 
-$("saveBookingRulesBtn").addEventListener(
-  "click",
-  async () => {
-    await saveBookingRulesSettings(
-      $("saveBookingRulesBtn")
-    );
-  }
-);
+
 
 
 async function saveEmailSettings(button) {
