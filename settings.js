@@ -720,8 +720,6 @@ if (connection?.google_calendar_id) {
 
 }
 
-LINE 723
-
 if (blockingCalendars.length) {
 
   calendarInfo +=
@@ -751,8 +749,9 @@ if (blockingCalendars.length) {
 }
 
 $("calendarInfo").innerHTML =
-  calendarInfo ||
-  "No calendar configuration found.";
+  connection?.google_calendar_id
+    ? calendarInfo
+    : "No calendar connection found.";
 
 const controls =
   $("blockingCalendarControls");
