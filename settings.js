@@ -2160,6 +2160,19 @@ async function saveBookingRulesSettings(button) {
 
     renderInstructorList();
 
+    // Update the Availability summary immediately
+    $("appointmentLength").textContent =
+      `${updatedBookingRules.appointment_length_minutes} minutes`;
+
+    $("maxStudents").textContent =
+      `${updatedBookingRules.max_students_per_slot} students`;
+
+    $("bookingHorizon").textContent =
+      `${updatedBookingRules.booking_horizon_days} days`;
+
+    $("minimumNotice").textContent =
+      `${updatedBookingRules.minimum_booking_notice_hours} hours`;
+
     button.textContent =
       "Saved";
 
