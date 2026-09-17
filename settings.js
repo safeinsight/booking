@@ -2341,6 +2341,10 @@ document
         await saveAvailabilitySettings(button);
       }
 
+      if (tab === "bookingRules") {
+        await saveBookingRulesSettings(button);
+      }
+
       if (tab === "emails") {
         await saveEmailSettings(button);
       }
