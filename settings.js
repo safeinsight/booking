@@ -665,9 +665,10 @@ const calendarResponse = await fetch(
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      location_id: state.location?.id
-    })
+body: JSON.stringify({
+  location_id: state.location?.id,
+  instructor_id: state.instructor?.id
+})
   }
 );
 
