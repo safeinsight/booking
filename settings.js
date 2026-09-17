@@ -762,26 +762,11 @@ if (controls) {
     blockingCalendars.length
       ? blockingCalendars.map(calendar => {
 
-          const buttonText =
-            calendar.enabled
-              ? "Disable"
-              : "Enable";
-
 return `
   <div style="margin-top:12px;">
     <strong>
       ${escapeHtml(calendar.calendar_name)}
     </strong>
-
-    <button
-      type="button"
-      class="secondary blocking-calendar-toggle"
-      data-calendar-id="${escapeAttr(calendar.google_calendar_id)}"
-      data-calendar-enabled="${calendar.enabled}"
-      style="margin-left:10px;"
-    >
-      ${buttonText}
-    </button>
   </div>
 `;
 
