@@ -108,6 +108,22 @@ function applyBranding(loc) {
     "Booking powered by Safe Insight";
 }
 
+function formatAddress(address) {
+  if (!address) return "";
+
+  const parts = address.split(",").map(part => part.trim());
+
+  if (parts.length >= 3) {
+    const street = parts[0];
+    const city = parts[parts.length - 2];
+    const stateZip = parts[parts.length - 1];
+
+    return `${escapeHtml(street)}<br>${escapeHtml(city)}, ${escapeHtml(stateZip)}`;
+  }
+
+  return escapeHtml(address);
+}
+
 function renderLocationSummary() {
   const l = state.location;
   const instructorName = state.instructor?.name || l.instructor_name;
@@ -122,8 +138,8 @@ function renderLocationSummary() {
 
     <div class="summary-section">
       <strong>Location:</strong><br>
-      ${escapeHtml(l.name)}<br>
-      ${l.address ? escapeHtml(l.address) : ""}
+${escapeHtml(l.name)}<br>
+${l.address ? formatAddress(l.address) : ""}
     </div>
 
     <div class="summary-section">
