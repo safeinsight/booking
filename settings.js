@@ -751,9 +751,8 @@ if (blockingCalendars.length) {
 }
 
 $("calendarInfo").innerHTML =
-  connection?.google_calendar_id
-    ? calendarInfo
-    : "No calendar connection found.";
+  calendarInfo ||
+  "No calendar configuration found.";
 
 const controls =
   $("blockingCalendarControls");
