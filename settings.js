@@ -2638,6 +2638,15 @@ document.addEventListener("click", async function (event) {
   state.instructor =
     selectedInstructor;
 
+  const globalSelect =
+    $("globalInstructorSelect");
+
+  if (globalSelect) {
+    globalSelect.value =
+      selectedInstructor.id;
+  }
+
+  updateBookingUrlDisplay();
 
   await loadLocationIntoForm(
     state.location
