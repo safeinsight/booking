@@ -205,13 +205,14 @@ if (canEditAvailability()) {
 if (
   isAdministrator() ||
   isManager() ||
-  isInstructor()
+  isInstructor() ||
+  isBasic()
 ) {
   calendarTabButton?.classList.remove("hidden");
   calendarTab?.classList.remove("hidden");
 }
 
-if (isInstructor()) {
+if (isInstructor() || isBasic()) {
   document.querySelectorAll(".settings-tab-panel").forEach(panel => {
     panel.classList.remove("active");
   });
@@ -220,8 +221,15 @@ if (isInstructor()) {
     tab.classList.remove("active");
   });
 
-  calendarTab?.classList.add("active");
-  calendarTabButton?.classList.add("active");
+  if (isInstructor()) {
+    calendarTab?.classList.add("active");
+    calendarTabButton?.classList.add("active");
+  }
+
+  if (isBasic()) {
+    availabilityTab?.classList.add("active");
+    availabilityTabButton?.classList.add("active");
+  }
 }
 
 if (canEditEmails()) {
@@ -250,7 +258,8 @@ if (!canEditAvailability()) {
 if (
   !isAdministrator() &&
   !isManager() &&
-  !isInstructor()
+  !isInstructor() &&
+  !isBasic()
 ) {
   calendarTabButton?.classList.add("hidden");
   calendarTab?.classList.add("hidden");
