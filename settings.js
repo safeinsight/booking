@@ -2943,18 +2943,17 @@ document.addEventListener("click", async function (event) {
     "this user";
 
 
-  const confirmed =
-    confirm(
-      `Are you sure you want to permanently delete ${userName}?\n\n` +
-      `This will permanently remove their user account, instructor record, ` +
-      `bookings, and other associated data.\n\n` +
-      `This cannot be undone.`
-    );
+const confirmed =
+  await showCustomConfirm(
+    `Are you sure you want to permanently delete ${userName}?\n\n` +
+    `This will permanently remove their user account, instructor record, ` +
+    `bookings, and other associated data.\n\n` +
+    `This cannot be undone.`
+  );
 
-
-  if (!confirmed) {
-    return;
-  }
+if (!confirmed) {
+  return;
+}
 
 
   const originalText =
@@ -3087,14 +3086,14 @@ document.addEventListener("click", async function (event) {
     return;
   }
 
-  const confirmed =
-    confirm(
-      "Are you sure you want to deactivate this user?"
-    );
+const confirmed =
+  await showCustomConfirm(
+    "Are you sure you want to deactivate this user?"
+  );
 
-  if (!confirmed) {
-    return;
-  }
+if (!confirmed) {
+  return;
+}
 
   const originalText =
     button.textContent;
