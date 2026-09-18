@@ -170,6 +170,7 @@ function isBasic() {
 function canEditLocation() {
   return (
     isAdministrator() ||
+    isManager() ||
     isInstructor()
   );
 }
