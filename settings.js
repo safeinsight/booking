@@ -3261,8 +3261,21 @@ updateBookingUrlDisplay();
       await response.json();
 
     if (!response.ok || result.error) {
+
+      console.error(
+        "MANAGE SETTINGS USERS RESPONSE:",
+        result
+      );
+
+      const errorMessage =
+        typeof result.error === "string"
+          ? result.error
+          : result.error?.message ||
+            result.message ||
+            JSON.stringify(result.error || result);
+
       throw new Error(
-        result.error ||
+        errorMessage ||
         "Unable to update instructor role."
       );
     }
