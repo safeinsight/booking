@@ -7,6 +7,133 @@ const db = window.supabase.createClient(
 
 const $ = id => document.getElementById(id);
 
+/* =========================================================
+   CUSTOM ALERT / CONFIRM
+   ========================================================= */
+
+const customAlertOverlay =
+  document.getElementById("customAlertOverlay");
+
+const customAlertMessage =
+  document.getElementById("customAlertMessage");
+
+const customAlertOk =
+  document.getElementById("customAlertOk");
+
+const customAlertCancel =
+  document.getElementById("customAlertCancel");
+
+
+function showCustomAlert(message) {
+
+  customAlertMessage.textContent = message;
+
+  customAlertCancel.style.display = "none";
+
+  customAlertOk.textContent = "OK";
+  customAlertOk.classList.remove("confirm");
+
+  customAlertOverlay.classList.add("show");
+  customAlertOverlay.setAttribute(
+    "aria-hidden",
+    "false"
+  );
+
+  customAlertOk.focus();
+}
+
+
+function showCustomConfirm(message) {
+
+  return new Promise(resolve => {
+
+    customAlertMessage.textContent = message;
+
+    customAlertCancel.style.display = "inline-block";
+
+    customAlertOk.textContent = "Continue";
+    customAlertOk.classList.add("confirm");
+
+    customAlertOverlay.classList.add("show");
+    customAlertOverlay.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    const finish = result => {
+
+      customAlertOverlay.classList.remove("show");
+
+      customAlertOverlay.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+      customAlertCancel.style.display = "none";
+
+      customAlertOk.textContent = "OK";
+      customAlertOk.classList.remove("confirm");
+
+      customAlertOk.removeEventListener(
+        "click",
+        onConfirm
+      );
+
+      customAlertCancel.removeEventListener(
+        "click",
+        onCancel
+      );
+
+      resolve(result);
+    };
+
+    const onConfirm = () => {
+      finish(true);
+    };
+
+    const onCancel = () => {
+      finish(false);
+    };
+
+    customAlertOk.addEventListener(
+      "click",
+      onConfirm
+    );
+
+    customAlertCancel.addEventListener(
+      "click",
+      onCancel
+    );
+
+    customAlertOk.focus();
+  });
+}
+
+
+customAlertOverlay.addEventListener(
+  "click",
+  event => {
+
+    if (event.target !== customAlertOverlay) {
+      return;
+    }
+
+    if (
+      customAlertCancel.style.display !==
+      "none"
+    ) {
+      return;
+    }
+
+    customAlertOverlay.classList.remove("show");
+
+    customAlertOverlay.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+  }
+);
+
 async function getAuthHeaders() {
   const {
     data: { session }
