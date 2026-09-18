@@ -368,7 +368,8 @@ button, .button {
 }
 
 .summary-section {
-  margin-bottom: 16px;
+  display: block;
+  margin-bottom: 18px;
 }
 
 .summary-section:last-child {
