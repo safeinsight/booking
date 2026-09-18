@@ -1722,47 +1722,72 @@ async function saveLocationSettings(button) {
 
   try {
 
-    const payload = {
-      location_id: state.location.id,
+    if (!state.instructor?.id) {
+      throw new Error(
+        "No instructor is currently selected."
+      );
+    }
 
-      name:
+    const payload = {
+      location_id:
+        state.location.id,
+
+      instructor_id:
+        state.instructor.id,
+
+      location_name:
         $("locationName").value.trim(),
 
       address:
         $("address").value.trim(),
 
       website:
-        $("website").value.trim()
+        $("website").value.trim(),
+
+      services:
+        $("services").value.trim()
     };
 
     const response = await fetch(
       `${cfg.functionsBaseUrl}/save-location-settings`,
       {
         method: "POST",
-headers: await getAuthHeaders(),
+        headers: await getAuthHeaders(),
         body: JSON.stringify(payload)
       }
     );
 
-    const result = await response.json();
+    const result =
+      await response.json();
 
     if (!response.ok || result.error) {
       throw new Error(
         typeof result.error === "string"
           ? result.error
-          : JSON.stringify(result.error || result)
+          : JSON.stringify(
+              result.error || result
+            )
       );
     }
 
-    state.location = {
-      ...state.location,
-      ...result.location
+    state.instructor = {
+      ...state.instructor,
+      ...(result.instructor || {}),
+      location_name:
+        payload.location_name,
+      address:
+        payload.address,
+      website:
+        payload.website,
+      services:
+        payload.services
     };
 
     button.textContent = "Saved";
 
     setTimeout(() => {
-      button.textContent = originalText;
+      button.textContent =
+        originalText;
     }, 1500);
 
   } catch (error) {
@@ -1772,10 +1797,12 @@ headers: await getAuthHeaders(),
       error
     );
 
-    button.textContent = "Save Failed";
+    button.textContent =
+      "Save Failed";
 
     setTimeout(() => {
-      button.textContent = originalText;
+      button.textContent =
+        originalText;
     }, 2000);
 
   } finally {
