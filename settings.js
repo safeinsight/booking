@@ -166,6 +166,7 @@ function applyRolePermissions() {
   const usersTab = $("usersTab");
   const brandingTab = $("brandingTab");
   const availabilityTab = $("availabilityTab");
+  const bookingRulesTab = $("bookingRulesTab");
   const calendarTab = $("calendarTab");
   const emailsTab = $("emailsTab");
 
@@ -186,6 +187,9 @@ const calendarTabButton =
 
 const emailsTabButton =
   document.querySelector('[data-tab="emailsTab"]');
+
+  const bookingRulesTabButton =
+  document.querySelector('[data-tab="bookingRulesTab"]');
 
   // Administrator: full access
   if (canEditLocation()) {
