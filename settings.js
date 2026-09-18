@@ -2595,6 +2595,13 @@ if (instructor.user_id) {
                   Instructor
                 </option>
 
+                <option
+                  value="Basic"
+                  ${instructor.role === "Basic" ? "selected" : ""}
+                >
+                  Basic
+                </option>
+
               </select>
 
             </label>
