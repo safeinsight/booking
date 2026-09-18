@@ -60,6 +60,14 @@ function canEditAvailability() {
   );
 }
 
+function canEditBookingRules() {
+  return (
+    isAdministrator() ||
+    isManager() ||
+    isInstructor()
+  );
+}
+
 function canEditEmails() {
   return (
     isAdministrator() ||
