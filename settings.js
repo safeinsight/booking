@@ -39,6 +39,27 @@ function showCustomAlert(message) {
     "false"
   );
 
+  const closeAlert = () => {
+
+    customAlertOverlay.classList.remove("show");
+
+    customAlertOverlay.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    customAlertOk.removeEventListener(
+      "click",
+      closeAlert
+    );
+
+  };
+
+  customAlertOk.addEventListener(
+    "click",
+    closeAlert
+  );
+
   customAlertOk.focus();
 }
 
