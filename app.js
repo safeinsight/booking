@@ -150,6 +150,12 @@ function renderLocationSummary() {
     i.max_students_per_slot ??
     l.max_students_per_slot;
 
+  const formattedAddress =
+    escapeHtml(address).replace(/\r?\n/g, "<br>");
+
+  const formattedServices =
+    escapeHtml(services).replace(/\r?\n/g, "<br>");
+
   $("locationSummary").innerHTML = `
     <strong>Instructor:</strong><br>
     ${i.name ? escapeHtml(i.name) : ""}
@@ -158,12 +164,12 @@ function renderLocationSummary() {
 
     <strong>Location:</strong><br>
     ${escapeHtml(locationName)}<br>
-    ${address ? escapeHtml(address) : ""}
+    ${address ? formattedAddress : ""}
 
     ${services ? `
       <br><br>
       <strong>Services:</strong><br>
-      ${escapeHtml(services)}
+      ${formattedServices}
     ` : ""}
 
     <br><br>
