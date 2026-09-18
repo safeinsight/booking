@@ -375,3 +375,126 @@ button, .button {
 .summary-section:last-child {
   margin-bottom: 0;
 }
+
+/* =========================================================
+   CUSTOM ALERT / CONFIRM
+   ========================================================= */
+
+#customAlertOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, .72);
+}
+
+#customAlertOverlay.show {
+    display: flex;
+}
+
+.customAlertBox {
+    width: min(92vw, 760px);
+    min-height: 360px;
+    padding: 34px 42px 30px;
+    background: #e6e6e6;
+    color: #000;
+    border: 6px solid #ed1c24;
+    border-radius: 64px;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, .55);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+}
+
+.customAlertLogo {
+    width: min(300px, 55%);
+    max-height: 100px;
+    object-fit: contain;
+    margin: 0 auto 18px;
+}
+
+#customAlertMessage {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 12px 24px;
+    font-size: clamp(22px, 3vw, 42px);
+    line-height: 1.2;
+    font-weight: bold;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.customAlertButtons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+}
+
+.customAlertButton {
+    min-width: 120px;
+    padding: 11px 24px;
+    border: 0;
+    border-radius: 7px;
+    background: #000;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.customAlertButton:hover {
+    background: #555;
+}
+
+.customAlertButton.confirm {
+    background: #168016;
+}
+
+.customAlertButton.cancel {
+    background: #8b0000;
+}
+
+@media (max-width: 600px) {
+
+    #customAlertOverlay {
+        padding: 14px;
+    }
+
+    .customAlertBox {
+        min-height: 280px;
+        padding: 25px 20px 22px;
+        border-width: 5px;
+        border-radius: 42px;
+    }
+
+    .customAlertLogo {
+        width: min(220px, 70%);
+        max-height: 72px;
+        margin-bottom: 8px;
+    }
+
+    #customAlertMessage {
+        padding: 8px 6px 18px;
+        font-size: clamp(20px, 6vw, 30px);
+    }
+
+    .customAlertButtons {
+        gap: 10px;
+    }
+
+    .customAlertButton {
+        min-width: 105px;
+        padding: 10px 18px;
+        font-size: 15px;
+    }
+}
