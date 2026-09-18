@@ -174,6 +174,14 @@ function canEditLocation() {
   );
 }
 
+function canViewLocation() {
+  return (
+    isAdministrator() ||
+    isManager() ||
+    isInstructor()
+  );
+}
+
 function canEditBranding() {
   return isAdministrator();
 }
@@ -318,11 +326,11 @@ const emailsTabButton =
   const bookingRulesTabButton =
   document.querySelector('[data-tab="bookingRulesTab"]');
 
-  // Administrator: full access
-  if (canEditLocation()) {
-    locationTabButton?.classList.remove("hidden");
-    locationTab?.classList.remove("hidden");
-  }
+// Location tab visibility
+if (canViewLocation()) {
+  locationTabButton?.classList.remove("hidden");
+  locationTab?.classList.remove("hidden");
+}
 
 // Users: Administrator and Manager
 if (canManageUsers()) {
@@ -361,7 +369,7 @@ if (
   calendarTab?.classList.remove("hidden");
 }
 
-if (isInstructor() || isBasic()) {
+if (isManager() || isInstructor() || isBasic()) {
   document.querySelectorAll(".settings-tab-panel").forEach(panel => {
     panel.classList.remove("active");
   });
@@ -370,15 +378,20 @@ if (isInstructor() || isBasic()) {
     tab.classList.remove("active");
   });
 
-  if (isInstructor()) {
-    calendarTab?.classList.add("active");
-    calendarTabButton?.classList.add("active");
-  }
+if (isManager()) {
+  locationTab?.classList.add("active");
+  locationTabButton?.classList.add("active");
+}
 
-  if (isBasic()) {
-    availabilityTab?.classList.add("active");
-    availabilityTabButton?.classList.add("active");
-  }
+if (isInstructor()) {
+  calendarTab?.classList.add("active");
+  calendarTabButton?.classList.add("active");
+}
+
+if (isBasic()) {
+  availabilityTab?.classList.add("active");
+  availabilityTabButton?.classList.add("active");
+}
 }
 
 if (canEditEmails()) {
@@ -387,9 +400,9 @@ if (canEditEmails()) {
 }
 
   // Hide tabs that this role cannot access
-  if (!canEditLocation()) {
-    locationTabButton?.classList.add("hidden");
-  }
+if (!canViewLocation()) {
+  locationTabButton?.classList.add("hidden");
+}
 
 if (!canManageUsers()) {
   usersTabButton?.classList.add("hidden");
