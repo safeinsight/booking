@@ -1164,13 +1164,8 @@ $("calendarInfo").innerHTML =
               class="special-day-row"
               data-id="${escapeAttr(day.id)}"
               style="
-                display:grid;
-                grid-template-columns:
-                  150px
-                  100px
-                  130px
-                  130px
-                  90px;
+                display:flex;
+                flex-wrap:wrap;
                 gap:10px;
                 align-items:center;
                 margin-top:10px;
@@ -1331,13 +1326,8 @@ $("addSpecialDayBtn").onclick = () => {
   row.dataset.id = "";
 
   row.style.cssText = `
-    display:grid;
-    grid-template-columns:
-      150px
-      100px
-      130px
-      130px
-      90px;
+    display:flex;
+    flex-wrap:wrap;
     gap:10px;
     align-items:center;
     margin-top:10px;
