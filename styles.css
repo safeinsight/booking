@@ -366,3 +366,11 @@ button, .button {
   }
 
 }
+
+.summary-section {
+  margin-bottom: 16px;
+}
+
+.summary-section:last-child {
+  margin-bottom: 0;
+}
