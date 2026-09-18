@@ -126,27 +126,38 @@ function formatAddress(address) {
 
 function renderLocationSummary() {
   const l = state.location;
-  const instructorName = state.instructor?.name || l.instructor_name;
+  const i = state.instructor || {};
 
-  $("locationSummary").innerHTML = `
-    ${instructorName ? `
-      <div class="summary-section location-section">
-        <strong>Instructor:</strong><br>
-        ${escapeHtml(instructorName)}
-      </div>
-    ` : ""}
+  const locationName =
+    i.location_name ||
+    l.name ||
+    "";
 
-    <div class="summary-section">
-      <strong>Location:</strong><br>
-${escapeHtml(l.name)}<br>
-${l.address ? formatAddress(l.address) : ""}
-    </div>
+  const address =
+    i.address ||
+    l.address ||
+    "";
 
-    <div class="summary-section booking-section">
-      <strong>Booking:</strong><br>
-      Appointment Length: ${l.appointment_length_minutes} minutes<br>
-      Appointment Capacity: ${l.max_students_per_slot} student${l.max_students_per_slot === 1 ? "" : "s"}
-    </div>
+  const services =
+    i.services ||
+    "";
+
+  const appointmentLength =
+    i.appointment_length_minutes ??
+    l.appointment_length_minutes;
+
+  const capacity =
+    i.max_students_per_slot ??
+    l.max_students_per_slot;
+
+  $( "locationSummary" ).innerHTML = `
+    <strong>${escapeHtml(locationName)}</strong><br>
+    ${i.name ? `Instructor: ${escapeHtml(i.name)}<br>` : ""}
+    ${address ? escapeHtml(address) + "<br>" : ""}
+    ${services ? `<br><strong>Services:</strong><br>${escapeHtml(services)}<br>` : ""}
+    <br>
+    Appointment Length: ${appointmentLength} minutes<br>
+    Appointment Capacity: ${capacity} student${capacity === 1 ? "" : "s"}
   `;
 }
 
@@ -199,7 +210,24 @@ async function loadInstructor() {
 
   const { data, error } = await db
     .from("instructors")
-    .select("id, location_id, user_id, name, email, slug")
+    .select(`
+      id,
+      location_id,
+      user_id,
+      name,
+      email,
+      slug,
+      location_name,
+      address,
+      website,
+      services,
+      appointment_length_minutes,
+      max_students_per_slot,
+      booking_horizon_days,
+      minimum_booking_notice_hours,
+      cancellation_hours,
+      reschedule_hours
+    `)
     .eq("slug", state.instructorSlug)
     .eq("location_id", state.location.id);
 
