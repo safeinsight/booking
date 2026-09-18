@@ -268,9 +268,27 @@ state.location = loc;
     );
   }
 
-  $("locationName").value = loc.name || "";
-  $("address").value = loc.address || "";
-  $("website").value = loc.website || "";
+  const instructorLocation =
+    state.instructor || {};
+
+  $("locationName").value =
+    instructorLocation.location_name ||
+    loc.name ||
+    "";
+
+  $("address").value =
+    instructorLocation.address ||
+    loc.address ||
+    "";
+
+  $("website").value =
+    instructorLocation.website ||
+    loc.website ||
+    "";
+
+  $("services").value =
+    instructorLocation.services ||
+    "";
 
   $("logoUrl").value =
     loc.logo_url || "safe-insight-logo.png";
