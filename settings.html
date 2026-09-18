@@ -111,28 +111,48 @@
 .settings-tabs { gap: 5px; } 
 .settings-tab { flex: 1 1 calc(50% - 5px); padding: 11px 10px; } /
 
-* -------------------------------------------------- 
-SPECIAL DAYS — MOBILE LAYOUT 
--------------------------------------------------- */ 
-.special-day-row 
-{ grid-template-columns: 1fr 1fr !important; 
-gap: 10px !important; 
-width: 100%; box-sizing: border-box; } 
+      /* --------------------------------------------------
+         SPECIAL DAYS — MOBILE LAYOUT
+         -------------------------------------------------- */
 
-.special-day-row 
-.special-day-date, 
-.special-day-row 
-.special-day-closed, 
-.special-day-row 
-.special-day-delete 
-{ grid-column: 1 / -1; width: 100%; box-sizing: border-box; } 
+      .special-day-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        width: 100% !important;
+        gap: 10px !important;
+        box-sizing: border-box;
+      }
 
-.special-day-row 
-.special-day-start, 
-.special-day-row 
-.special-day-end 
-{ width: 100%; min-width: 0; box-sizing: border-box; } 
-.special-day-row label { min-width: 0; } }
+      .special-day-row .special-day-date {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box;
+      }
+
+      .special-day-row .special-day-closed {
+        flex: 0 0 auto !important;
+      }
+
+      .special-day-row .special-day-start,
+      .special-day-row .special-day-end {
+        flex: 1 1 calc(50% - 5px) !important;
+        width: calc(50% - 5px) !important;
+        min-width: 0 !important;
+        box-sizing: border-box;
+      }
+
+      .special-day-row .special-day-delete {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        box-sizing: border-box;
+      }
+
+      .special-day-row label {
+        width: 100% !important;
+        margin: 0 !important;
+        box-sizing: border-box;
+      }
 
     
   </style>
