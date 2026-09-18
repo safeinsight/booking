@@ -150,12 +150,25 @@ function renderLocationSummary() {
     i.max_students_per_slot ??
     l.max_students_per_slot;
 
-  $( "locationSummary" ).innerHTML = `
-    <strong>${escapeHtml(locationName)}</strong><br>
-    ${i.name ? `Instructor: ${escapeHtml(i.name)}<br>` : ""}
-    ${address ? escapeHtml(address) + "<br>" : ""}
-    ${services ? `<br><strong>Services:</strong><br>${escapeHtml(services)}<br>` : ""}
-    <br>
+  $("locationSummary").innerHTML = `
+    <strong>Instructor:</strong><br>
+    ${i.name ? escapeHtml(i.name) : ""}
+
+    <br><br>
+
+    <strong>Location:</strong><br>
+    ${escapeHtml(locationName)}<br>
+    ${address ? escapeHtml(address) : ""}
+
+    ${services ? `
+      <br><br>
+      <strong>Services:</strong><br>
+      ${escapeHtml(services)}
+    ` : ""}
+
+    <br><br>
+
+    <strong>Booking:</strong><br>
     Appointment Length: ${appointmentLength} minutes<br>
     Appointment Capacity: ${capacity} student${capacity === 1 ? "" : "s"}
   `;
