@@ -3314,7 +3314,7 @@ document.addEventListener("click", async function (event) {
   const email =
     emailInput?.value.trim().toLowerCase() || "";
 
-  const role =
+const role =
     roleInput?.value || "";
 
   if (!email) {
@@ -3327,7 +3327,8 @@ document.addEventListener("click", async function (event) {
   if (![
     "Administrator",
     "Manager",
-    "Instructor"
+    "Instructor",
+    "Basic"
   ].includes(role)) {
     alert(
       "Please select a valid user role."
