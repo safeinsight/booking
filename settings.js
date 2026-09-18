@@ -902,7 +902,7 @@ if (!calendarResponse.ok || calendarResult.error) {
 
   if (connection?.google_calendar_id) {
     $("connectCalendarBtn").textContent =
-      "Reconnect Google Calendar";
+      "Connect NEW Google Calendar";
   } else {
     $("connectCalendarBtn").textContent =
       "Connect Google Calendar";
