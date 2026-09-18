@@ -1324,20 +1324,24 @@ async function loadAllInstructors() {
   const { data, error } =
     await db
       .from("instructors")
-      .select(`
-        id,
-        location_id,
-        user_id,
-        name,
-        email,
-        slug,
-        appointment_length_minutes,
-        max_students_per_slot,
-        booking_horizon_days,
-        minimum_booking_notice_hours,
-        cancellation_hours,
-        reschedule_hours
-      `)
+.select(`
+  id,
+  location_id,
+  user_id,
+  name,
+  email,
+  slug,
+  location_name,
+  address,
+  website,
+  services,
+  appointment_length_minutes,
+  max_students_per_slot,
+  booking_horizon_days,
+  minimum_booking_notice_hours,
+  cancellation_hours,
+  reschedule_hours
+`)
       .order("name");
 
   if (error) {
