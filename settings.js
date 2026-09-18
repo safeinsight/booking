@@ -208,10 +208,20 @@ if (canManageUsers()) {
     brandingTab?.classList.remove("hidden");
   }
 
-  // Availability: Administrator, Manager, Instructor
+  // Availability: Administrator, Manager, Instructor, Basic
+  
 if (canEditAvailability()) {
   availabilityTabButton?.classList.remove("hidden");
   availabilityTab?.classList.remove("hidden");
+}
+
+if (
+  isAdministrator() ||
+  isManager() ||
+  isInstructor()
+) {
+  bookingRulesTabButton?.classList.remove("hidden");
+  bookingRulesTab?.classList.remove("hidden");
 }
 
 if (
@@ -265,6 +275,15 @@ if (!canManageUsers()) {
 
 if (!canEditAvailability()) {
   availabilityTabButton?.classList.add("hidden");
+}
+
+if (
+  !isAdministrator() &&
+  !isManager() &&
+  !isInstructor()
+) {
+  bookingRulesTabButton?.classList.add("hidden");
+  bookingRulesTab?.classList.add("hidden");
 }
 
 if (
