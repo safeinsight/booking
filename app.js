@@ -253,10 +253,33 @@ async function loadInstructor() {
 }
 
 async function loadDates() {
+  const i = state.instructor || {};
+  const l = state.location || {};
+
+  const bookingHorizon =
+    i.booking_horizon_days ??
+    l.booking_horizon_days ??
+    14;
+
+  const minimumNotice =
+    i.minimum_booking_notice_hours ??
+    l.minimum_booking_notice_hours ??
+    24;
+
+  const cancellationHours =
+    i.cancellation_hours ??
+    l.cancellation_hours ??
+    0;
+
+  const rescheduleHours =
+    i.reschedule_hours ??
+    l.reschedule_hours ??
+    0;
+
   $("availabilityNote").textContent =
-    `Bookings are available for the next two weeks and must be made at least 24 hours in advance. ` +
-    `Cancellation: ${state.location.cancellation_hours} hours. ` +
-    `Reschedule: ${state.location.reschedule_hours}.`;
+    `Bookings are available for the next ${bookingHorizon} days and must be made at least ${minimumNotice} hours in advance. ` +
+    `Cancellation: ${cancellationHours} hours. ` +
+    `Reschedule: ${rescheduleHours} hours.`;
 
   const res = await fetch(
     `${cfg.functionsBaseUrl}/get-availability?location=${encodeURIComponent(state.location.slug)}&instructor=${encodeURIComponent(state.instructorSlug)}`,
@@ -522,12 +545,25 @@ function buildReview() {
   const last = day.slots[state.selectedEnd];
   const l = state.location;
 
+  const instructor = state.instructor || {};
+
+  const reviewLocationName =
+    instructor.location_name ||
+    l.name ||
+    "";
+
+  const reviewAddress =
+    instructor.address ||
+    l.address ||
+    "";
+
   $("review").innerHTML = `
-    <strong>${escapeHtml(l.name)}</strong><br>
-        ${(state.instructor?.name || l.instructor_name) ? `Instructor: ${escapeHtml(state.instructor?.name || l.instructor_name)}<br>` : ""}
+    <strong>${escapeHtml(reviewLocationName)}</strong><br>
+    ${instructor.name ? `Instructor: ${escapeHtml(instructor.name)}<br>` : ""}
 ${formatDate(first.start, state.location.timezone)}<br>
 ${formatTime(first.start, state.location.timezone)} – ${formatTime(last.end, state.location.timezone)}<br>
-    ${l.address ? escapeHtml(l.address) + "<br>" : ""}
+    ${reviewAddress ? escapeHtml(reviewAddress) + "<br>" : ""}
+    
     <hr>
     <strong>Student</strong><br>
     ${escapeHtml(state.student.fullName)}<br>
