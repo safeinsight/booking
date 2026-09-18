@@ -1051,7 +1051,7 @@ return `
               ? "Disable"
               : "Enable";
 
-          alert(
+          showCustomAlert(  
             error.message ||
             "Unable to update blocking calendar."
           );
@@ -2924,7 +2924,7 @@ document.addEventListener("click", async function (event) {
     button.getAttribute("data-delete-user");
 
   if (!userId) {
-    alert(
+    showCustomAlert(
       "This user does not have a Booking Settings account."
     );
     return;
@@ -3038,7 +3038,7 @@ document.addEventListener("click", async function (event) {
     await loadAllInstructors();
 
 
-    alert(
+    showCustomAlert(
       `${userName} has been permanently deleted.`
     );
 
@@ -3051,7 +3051,7 @@ document.addEventListener("click", async function (event) {
     );
 
 
-    alert(
+    showCustomAlert(
       error.message ||
       "Unable to delete user."
     );
@@ -3081,7 +3081,7 @@ document.addEventListener("click", async function (event) {
     button.getAttribute("data-deactivate-user");
 
   if (!userId) {
-    alert(
+    showCustomAlert(
       "This user does not have a Booking Settings account."
     );
     return;
@@ -3136,7 +3136,7 @@ document.addEventListener("click", async function (event) {
 
     renderInstructorList();
 
-    alert(
+    showCustomAlert(
       "User deactivated successfully."
     );
 
@@ -3147,7 +3147,7 @@ document.addEventListener("click", async function (event) {
       error
     );
 
-    alert(
+    showCustomAlert(
       error.message ||
       "Unable to deactivate user."
     );
@@ -3177,7 +3177,7 @@ document.addEventListener("click", async function (event) {
     button.getAttribute("data-resend-invite");
 
   if (!userId) {
-    alert(
+    showCustomAlert(
       "This user does not have a Booking Settings account."
     );
     return;
@@ -3234,7 +3234,7 @@ document.addEventListener("click", async function (event) {
     button.textContent =
       "Sent";
 
-    alert(
+    showCustomAlert(
       `The invitation has been resent to ${userName}.`
     );
 
@@ -3255,7 +3255,7 @@ document.addEventListener("click", async function (event) {
     button.textContent =
       originalText;
 
-    alert(
+    showCustomAlert(
       error.message ||
       "Unable to resend invitation."
     );
@@ -3382,7 +3382,7 @@ updateBookingUrlDisplay();
 
   if (!instructor.user_id) {
 
-    alert(
+    showCustomAlert(
       "This instructor does not have a Booking Settings account yet."
     );
 
@@ -3464,7 +3464,7 @@ updateBookingUrlDisplay();
 
     renderInstructorList();
 
-    alert(
+    showCustomAlert(
       error.message ||
       "Unable to update instructor role."
     );
@@ -3510,7 +3510,7 @@ const role =
     roleInput?.value || "";
 
   if (!email) {
-    alert(
+    showCustomAlert(
       "Please enter an email address."
     );
     return;
@@ -3522,7 +3522,7 @@ const role =
     "Instructor",
     "Basic"
   ].includes(role)) {
-    alert(
+    showCustomAlert(
       "Please select a valid user role."
     );
     return;
@@ -3532,7 +3532,7 @@ const role =
     role === "Instructor" &&
     !name
   ) {
-    alert(
+    showCustomAlert(
       "Please enter the instructor name."
     );
     return;
@@ -3593,7 +3593,7 @@ const role =
 
     renderInstructorList();
 
-    alert(
+    showCustomAlert(
       result.message ||
       "Invitation sent successfully."
     );
@@ -3605,7 +3605,7 @@ const role =
       error
     );
 
-    alert(
+    showCustomAlert(
       error.message ||
       "Unable to add user."
     );
