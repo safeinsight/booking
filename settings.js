@@ -903,9 +903,15 @@ if (!calendarResponse.ok || calendarResult.error) {
   if (connection?.google_calendar_id) {
     $("connectCalendarBtn").textContent =
       "Connect NEW Google Calendar";
+
+    $("calendarConnectionName").textContent =
+      "Connected";
   } else {
     $("connectCalendarBtn").textContent =
       "Connect Google Calendar";
+
+    $("calendarConnectionName").textContent =
+      "Not connected";
   }
 
 let calendarInfo = "";
