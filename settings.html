@@ -107,7 +107,32 @@
       min-width: 170px;
     }
 
-@media (max-width: 700px) { 
+    /* GLOBAL CHECKBOX LAYOUT */
+
+    label:has(input[type="checkbox"]) {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      width: fit-content;
+    }
+
+    label:has(input[type="checkbox"]) input[type="checkbox"] {
+      appearance: auto;
+      -webkit-appearance: checkbox;
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      margin: 0;
+      padding: 0;
+      vertical-align: middle;
+      flex: 0 0 16px;
+    }
+
+    @media (max-width: 700px) {
+
+
+  
 .settings-tabs { gap: 5px; } 
 .settings-tab { flex: 1 1 calc(50% - 5px); padding: 11px 10px; } /
 
