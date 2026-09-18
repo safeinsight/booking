@@ -130,7 +130,7 @@ function renderLocationSummary() {
 
   $("locationSummary").innerHTML = `
     ${instructorName ? `
-      <div class="summary-section">
+      <div class="summary-section location-section">
         <strong>Instructor:</strong><br>
         ${escapeHtml(instructorName)}
       </div>
@@ -142,7 +142,7 @@ ${escapeHtml(l.name)}<br>
 ${l.address ? formatAddress(l.address) : ""}
     </div>
 
-    <div class="summary-section">
+    <div class="summary-section booking-section">
       <strong>Booking:</strong><br>
       Appointment Length: ${l.appointment_length_minutes} minutes<br>
       Appointment Capacity: ${l.max_students_per_slot} student${l.max_students_per_slot === 1 ? "" : "s"}
