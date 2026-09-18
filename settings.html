@@ -1543,6 +1543,45 @@
     </span>
   </footer>
 
+    <!-- =======================================================
+       CUSTOM ALERT / CONFIRM
+  ======================================================== -->
+  <div id="customAlertOverlay" aria-hidden="true">
+    <div
+      id="customAlertBox"
+      class="customAlertBox"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="customAlertMessage"
+    >
+      <img
+        src="safe-insight-logo.png"
+        class="customAlertLogo"
+        alt="Safe Insight"
+      >
+
+      <div id="customAlertMessage"></div>
+
+      <div class="customAlertButtons">
+        <button
+          type="button"
+          id="customAlertCancel"
+          class="customAlertButton cancel"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          id="customAlertOk"
+          class="customAlertButton"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
