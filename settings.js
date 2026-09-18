@@ -36,6 +36,10 @@ function isInstructor() {
   return state.role === "Instructor";
 }
 
+function isBasic() {
+  return state.role === "Basic";
+}
+
 function canEditLocation() {
   return (
     isAdministrator() ||
@@ -51,7 +55,8 @@ function canEditAvailability() {
   return (
     isAdministrator() ||
     isManager() ||
-    isInstructor()
+    isInstructor() ||
+    isBasic()
   );
 }
 
