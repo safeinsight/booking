@@ -107,16 +107,34 @@
       min-width: 170px;
     }
 
-    @media (max-width: 700px) {
-      .settings-tabs {
-        gap: 5px;
-      }
+@media (max-width: 700px) { 
+.settings-tabs { gap: 5px; } 
+.settings-tab { flex: 1 1 calc(50% - 5px); padding: 11px 10px; } /
 
-      .settings-tab {
-        flex: 1 1 calc(50% - 5px);
-        padding: 11px 10px;
-      }
-    }
+* -------------------------------------------------- 
+SPECIAL DAYS — MOBILE LAYOUT 
+-------------------------------------------------- */ 
+.special-day-row 
+{ grid-template-columns: 1fr 1fr !important; 
+gap: 10px !important; 
+width: 100%; box-sizing: border-box; } 
+
+.special-day-row 
+.special-day-date, 
+.special-day-row 
+.special-day-closed, 
+.special-day-row 
+.special-day-delete 
+{ grid-column: 1 / -1; width: 100%; box-sizing: border-box; } 
+
+.special-day-row 
+.special-day-start, 
+.special-day-row 
+.special-day-end 
+{ width: 100%; min-width: 0; box-sizing: border-box; } 
+.special-day-row label { min-width: 0; } }
+
+    
   </style>
 </head>
 
