@@ -2312,51 +2312,55 @@ async function saveBookingRulesSettings(button) {
     }
 
 
-    const {
-      data: updatedInstructor,
-      error: settingsError
-    } =
-      await db
-        .from("instructors")
-        .update({
-          appointment_length_minutes:
-            Number($("appointmentLengthInput").value),
+    const payload = {
+      location_id:
+        state.location.id,
 
-          max_students_per_slot:
-            Number($("maxStudentsInput").value),
+      instructor_id:
+        state.instructor.id,
 
-          booking_horizon_days:
-            Number($("bookingHorizonInput").value),
+      appointment_length_minutes:
+        Number($("appointmentLengthInput").value),
 
-          minimum_booking_notice_hours:
-            Number($("minimumNoticeInput").value),
+      max_students_per_slot:
+        Number($("maxStudentsInput").value),
 
-          cancellation_hours:
-            Number($("cancellationHoursInput").value),
+      booking_horizon_days:
+        Number($("bookingHorizonInput").value),
 
-          reschedule_hours:
-            Number($("rescheduleHoursInput").value)
-        })
-        .eq(
-          "id",
-          state.instructor.id
-        )
-        .select(`
-          id,
-          appointment_length_minutes,
-          max_students_per_slot,
-          booking_horizon_days,
-          minimum_booking_notice_hours,
-          cancellation_hours,
-          reschedule_hours
-        `)
-        .single();
+      minimum_booking_notice_hours:
+        Number($("minimumNoticeInput").value),
 
-    if (settingsError) {
-      throw settingsError;
+      cancellation_hours:
+        Number($("cancellationHoursInput").value),
+
+      reschedule_hours:
+        Number($("rescheduleHoursInput").value)
+    };
+
+    const response = await fetch(
+      `${cfg.functionsBaseUrl}/save-location-settings`,
+      {
+        method: "POST",
+        headers: await getAuthHeaders(),
+        body: JSON.stringify(payload)
+      }
+    );
+
+    const result =
+      await response.json();
+
+    if (!response.ok || result.error) {
+      throw new Error(
+        typeof result.error === "string"
+          ? result.error
+          : JSON.stringify(
+              result.error || result
+            )
+      );
     }
 
-    if (!updatedInstructor) {
+    if (!result.instructor) {
       throw new Error(
         "The Booking Rules could not be saved because the selected instructor was not updated."
       );
