@@ -570,6 +570,20 @@ Location: {{LOCATION}}
 
 {{MANAGE_BUTTON}}`;
 
+$("instructorConfirmationSubject").value =
+  loc.instructor_confirmation_subject ||
+  "New appointment booking";
+
+$("instructorConfirmationMessage").value =
+  loc.instructor_confirmation_message ||
+  `A new appointment has been booked.
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+Student: {{STUDENT_NAME}}
+Instructor: {{INSTRUCTOR_NAME}}`;
+
 $("confirmationButtonEnabled").checked =
   Boolean(loc.confirmation_button_enabled);
 
@@ -2465,6 +2479,12 @@ async function saveEmailSettings(button) {
 
       confirmation_email_message:
         $("emailMessage").value.trim(),
+
+      instructor_confirmation_subject:
+        $("instructorConfirmationSubject").value.trim(),
+
+      instructor_confirmation_message:
+        $("instructorConfirmationMessage").value.trim(),
 
       confirmation_button_enabled:
         $("confirmationButtonEnabled").checked,
