@@ -599,6 +599,9 @@
     const bookingToken =
       params.get("token");
 
+    const paymentResult =
+      params.get("payment");
+
 
     /*
      * ELEMENTS
@@ -752,6 +755,22 @@
 
         bookingDetails.style.display =
           "block";
+
+
+        /*
+         * PAYMENT STATUS MESSAGE
+         */
+
+        if (
+          paymentResult === "cancelled" &&
+          data.booking.status === "pending"
+        ) {
+
+          showSuccess(
+            "Payment was not completed. Your appointment is not confirmed."
+          );
+
+        }
 
 
         /*
