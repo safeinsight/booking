@@ -1516,6 +1516,7 @@ async function loadLocations() {
       payment_required,
       confirmation_email_subject,
       confirmation_email_message,
+      instructor_confirmation_email,
       instructor_confirmation_subject,
       instructor_confirmation_message,
       confirmation_button_enabled,
