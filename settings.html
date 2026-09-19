@@ -1191,7 +1191,7 @@
             >
 
             <label for="emailMessage">
-              Confirmation Message
+              Student Confirmation Message
             </label>
 
             <textarea
@@ -1200,6 +1200,63 @@
               maxlength="5000"
               placeholder="Thank you for booking with us..."
             ></textarea>
+
+            <p class="muted">
+              Available placeholders:
+              <code>{{DATE}}</code>,
+              <code>{{TIME}}</code>,
+              <code>{{LOCATION}}</code>,
+              <code>{{STUDENT_NAME}}</code>,
+              <code>{{INSTRUCTOR_NAME}}</code>,
+              <code>{{CONFIRMATION_BUTTON}}</code>,
+              <code>{{MANAGE_BUTTON}}</code>
+            </p>
+
+            <div
+              style="
+                margin-top:24px;
+                padding-top:20px;
+                border-top:1px solid #ddd;
+              "
+            >
+              <h3>Instructor Confirmation Email</h3>
+
+              <p class="muted">
+                Customize the confirmation message sent to the instructor
+                after a successful booking.
+              </p>
+
+              <label for="instructorConfirmationSubject">
+                Instructor Confirmation Email Subject
+              </label>
+
+              <input
+                id="instructorConfirmationSubject"
+                type="text"
+                maxlength="200"
+                placeholder="New appointment booking"
+              >
+
+              <label for="instructorConfirmationMessage">
+                Instructor Confirmation Message
+              </label>
+
+              <textarea
+                id="instructorConfirmationMessage"
+                rows="8"
+                maxlength="5000"
+                placeholder="A new appointment has been booked..."
+              ></textarea>
+
+              <p class="muted">
+                Available placeholders:
+                <code>{{DATE}}</code>,
+                <code>{{TIME}}</code>,
+                <code>{{LOCATION}}</code>,
+                <code>{{STUDENT_NAME}}</code>,
+                <code>{{INSTRUCTOR_NAME}}</code>
+              </p>
+            </div>
 
             <div style="margin-top:18px; padding:15px; border:1px solid #ddd; border-radius:8px; background:#fafafa;">
               <strong>Confirmation Button</strong>
