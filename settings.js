@@ -1347,6 +1347,18 @@ Location: {{LOCATION}}
 
 {{MANAGE_BUTTON}}`;
 
+      $("instructorConfirmationSubject").value =
+        "New appointment booking";
+
+      $("instructorConfirmationMessage").value =
+        `A new appointment has been booked.
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+Student: {{STUDENT_NAME}}
+Instructor: {{INSTRUCTOR_NAME}}`;
+
     }
   );
 
