@@ -232,6 +232,13 @@ function canEditEmails() {
   );
 }
 
+function canManageServices() {
+  return (
+    isAdministrator() ||
+    isManager()
+  );
+}
+
 function canManageUsers() {
   return (
     isAdministrator() ||
@@ -324,6 +331,7 @@ function applyRolePermissions() {
   const brandingTab = $("brandingTab");
   const availabilityTab = $("availabilityTab");
   const bookingRulesTab = $("bookingRulesTab");
+  const servicesTab = $("servicesTab");
   const calendarTab = $("calendarTab");
   const emailsTab = $("emailsTab");
 
@@ -338,6 +346,9 @@ const brandingTabButton =
 
 const availabilityTabButton =
   document.querySelector('[data-tab="availabilityTab"]');
+
+const servicesTabButton =
+  document.querySelector('[data-tab="servicesTab"]');
 
 const calendarTabButton =
   document.querySelector('[data-tab="calendarTab"]');
@@ -379,6 +390,11 @@ if (
 ) {
   bookingRulesTabButton?.classList.remove("hidden");
   bookingRulesTab?.classList.remove("hidden");
+}
+
+if (canManageServices()) {
+  servicesTabButton?.classList.remove("hidden");
+  servicesTab?.classList.remove("hidden");
 }
 
 if (
@@ -437,6 +453,11 @@ if (!canManageUsers()) {
 
 if (!canEditAvailability()) {
   availabilityTabButton?.classList.add("hidden");
+}
+
+if (!canManageServices()) {
+  servicesTabButton?.classList.add("hidden");
+  servicesTab?.classList.add("hidden");
 }
 
 if (
