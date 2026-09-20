@@ -3483,6 +3483,7 @@ const { data: selectedInstructor, error: instructorError } =
       name,
       email,
       slug,
+      timezone,
       appointment_length_minutes,
       max_students_per_slot,
       booking_horizon_days,
