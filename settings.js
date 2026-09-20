@@ -251,6 +251,8 @@ const state = {
   location: null,
   instructors: [],
   instructor: null,
+  services: [],
+  instructorServiceIds: [],
   user: null,
   role: null
 };
@@ -1566,6 +1568,92 @@ $("brandLogo").src =
     loc.footer_text ||
     `Booking powered by ${loc.name || "Safe Insight"}`;
 }
+
+function renderServices() {
+
+  const container =
+    $("servicesList");
+
+  if (!container) {
+    return;
+  }
+
+  if (!state.services.length) {
+
+    container.innerHTML = `
+      <p class="muted">
+        No services have been created yet.
+      </p>
+    `;
+
+    return;
+  }
+
+  container.innerHTML =
+    state.services
+      .map(service => {
+
+        const price =
+          (service.price_cents / 100)
+            .toFixed(2);
+
+        return `
+          <div
+            style="
+              padding:15px;
+              border:1px solid #ddd;
+              border-radius:8px;
+              margin-bottom:10px;
+            "
+          >
+            <strong>
+              ${escapeHtml(service.name)}
+            </strong>
+
+            <div style="margin-top:5px;">
+              $${price}
+            </div>
+
+            <div
+              class="muted"
+              style="margin-top:5px;"
+            >
+              ${service.active
+                ? "Active"
+                : "Inactive"}
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+}
+
+
+
+async function loadServices() {
+
+  const { data, error } =
+    await db
+      .from("services")
+      .select(`
+        id,
+        name,
+        price_cents,
+        active
+      `)
+      .order("name");
+
+  if (error) {
+    throw error;
+  }
+
+  state.services =
+    data || [];
+
+  renderServices();
+}
+
+
 
 
 async function loadLocations() {
@@ -4098,6 +4186,7 @@ $("logoutBtn").addEventListener(
 
     await loadAllInstructors();
     await loadLocations();
+    await loadServices();
 
     updateBookingUrlDisplay();
 
