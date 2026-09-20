@@ -1052,54 +1052,265 @@ let rescheduleCalendarCurrentMonth = null;
     }
 
 
-    /*
-     * RESCHEDULE BUTTON
-     */
+/*
+ * RESCHEDULE BUTTON
+ */
 
-    rescheduleButton.addEventListener(
-      "click",
-      () => {
+rescheduleButton.addEventListener(
+  "click",
+  async () => {
 
-        if (
-          rescheduleButton.disabled
-        ) {
+    if (
+      rescheduleButton.disabled
+    ) {
 
-          return;
+      return;
 
-        }
+    }
 
-        rescheduleSection.style.display =
-          "block";
+    rescheduleSection.style.display =
+      "block";
 
-        rescheduleButton.style.display =
-          "none";
+    rescheduleButton.style.display =
+      "none";
 
-        cancelButton.style.display =
-          "none";
-
-      }
-    );
+    cancelButton.style.display =
+      "none";
 
 
     /*
-     * CLOSE RESCHEDULE
+     * Reset previous selection.
      */
 
-    closeRescheduleButton.addEventListener(
-      "click",
-      () => {
+    newDate.value =
+      "";
 
-        rescheduleSection.style.display =
-          "none";
+    newDateDisplay.value =
+      "";
 
-        rescheduleButton.style.display =
-          "block";
+    newTime.innerHTML = `
+      <option value="">
+        Select a date first
+      </option>
+    `;
 
-        cancelButton.style.display =
-          "block";
+
+    try {
+
+      /*
+       * Load the complete availability
+       * range for this booking.
+       */
+
+      const response =
+        await fetch(
+          `${SUPABASE_URL}/functions/v1/get-availability?token=${encodeURIComponent(bookingToken)}`
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error ||
+          "Unable to load availability."
+        );
 
       }
-    );
+
+
+      rescheduleAvailability =
+        data;
+
+
+      /*
+       * Start on the first month in
+       * the returned availability range.
+       */
+
+      if (
+        data.days &&
+        data.days.length
+      ) {
+
+        rescheduleCalendarCurrentMonth =
+          data.days[0]
+            .date
+            .slice(0, 7);
+
+        renderRescheduleCalendar();
+
+      } else {
+
+        rescheduleCalendarDays.innerHTML = `
+          <p class="muted">
+            No reschedule dates are currently available.
+          </p>
+        `;
+
+      }
+
+
+    } catch (error) {
+
+      console.error(
+        "LOAD RESCHEDULE CALENDAR ERROR:",
+        error
+      );
+
+
+      rescheduleCalendarDays.innerHTML = `
+        <p class="muted">
+          Unable to load available dates.
+        </p>
+      `;
+
+    }
+
+  }
+);
+
+
+/*
+ * RESCHEDULE CALENDAR NAVIGATION
+ */
+
+rescheduleCalendarPrev.addEventListener(
+  "click",
+  () => {
+
+    if (
+      !rescheduleCalendarCurrentMonth
+    ) {
+      return;
+    }
+
+
+    const [
+      year,
+      month
+    ] =
+      rescheduleCalendarCurrentMonth
+        .split("-")
+        .map(Number);
+
+
+    const previousMonth =
+      new Date(
+        year,
+        month - 2,
+        1
+      );
+
+
+    rescheduleCalendarCurrentMonth =
+      [
+        previousMonth.getFullYear(),
+        String(
+          previousMonth.getMonth() + 1
+        ).padStart(2, "0")
+      ].join("-");
+
+
+    renderRescheduleCalendar();
+
+  }
+);
+
+
+rescheduleCalendarNext.addEventListener(
+  "click",
+  () => {
+
+    if (
+      !rescheduleCalendarCurrentMonth
+    ) {
+      return;
+    }
+
+
+    const [
+      year,
+      month
+    ] =
+      rescheduleCalendarCurrentMonth
+        .split("-")
+        .map(Number);
+
+
+    const nextMonth =
+      new Date(
+        year,
+        month,
+        1
+      );
+
+
+    rescheduleCalendarCurrentMonth =
+      [
+        nextMonth.getFullYear(),
+        String(
+          nextMonth.getMonth() + 1
+        ).padStart(2, "0")
+      ].join("-");
+
+
+    renderRescheduleCalendar();
+
+  }
+);
+
+/*
+ * CLOSE RESCHEDULE
+ */
+
+closeRescheduleButton.addEventListener(
+  "click",
+  () => {
+
+    rescheduleSection.style.display =
+      "none";
+
+    rescheduleButton.style.display =
+      "block";
+
+    cancelButton.style.display =
+      "block";
+
+
+    /*
+     * Reset reschedule selection.
+     */
+
+    newDate.value =
+      "";
+
+    newDateDisplay.value =
+      "";
+
+    newTime.innerHTML = `
+      <option value="">
+        Select a time
+      </option>
+    `;
+
+    rescheduleAvailability =
+      null;
+
+    rescheduleCalendarCurrentMonth =
+      null;
+
+    rescheduleCalendarDays.innerHTML =
+      "";
+
+    rescheduleCalendarMonth.textContent =
+      "";
+
+  }
+);
 
 
     /*
@@ -1378,121 +1589,90 @@ function selectRescheduleDate(date) {
     
     newDate.addEventListener(
       "change",
-      async () => {
+      () => {
 
         newTime.innerHTML = `
           <option value="">
-            Loading available times...
+            Select a time
           </option>
         `;
 
 
-        try {
-
-          const response =
-            await fetch(
-              `${SUPABASE_URL}/functions/v1/get-availability?token=${encodeURIComponent(bookingToken)}&date=${encodeURIComponent(newDate.value)}`
-            );
+        const days =
+          rescheduleAvailability?.days || [];
 
 
-          const data =
-            await response.json();
+        const selectedDay =
+          days.find(
+            day =>
+              day.date ===
+              newDate.value
+          );
 
 
-          if (!response.ok) {
+        const slots =
+          selectedDay?.slots || [];
 
-            throw new Error(
-              data.error ||
-              "Unable to load available times."
+
+        slots.forEach(
+          slot => {
+
+            if (
+              slot.blocked ||
+              slot.remaining <= 0
+            ) {
+              return;
+            }
+
+
+            const option =
+              document.createElement(
+                "option"
+              );
+
+
+            option.value =
+              slot.start;
+
+
+            option.textContent =
+              new Intl.DateTimeFormat(
+                "en-US",
+                {
+                  timeZone:
+                    rescheduleAvailability
+                      ?.location
+                      ?.timezone ||
+                    "America/Phoenix",
+
+                  hour:
+                    "numeric",
+
+                  minute:
+                    "2-digit"
+                }
+              ).format(
+                new Date(
+                  slot.start
+                )
+              );
+
+
+            newTime.appendChild(
+              option
             );
 
           }
-
-
-          newTime.innerHTML = `
-            <option value="">
-              Select a time
-            </option>
-          `;
-
-
-      const days =
-        data.days || [];
-
-      const selectedDay =
-        days.find(
-          day =>
-            day.date ===
-            newDate.value
         );
 
-      const slots =
-        selectedDay?.slots || [];
 
-      slots.forEach(
-        slot => {
-
-          if (
-            slot.blocked ||
-            slot.remaining <= 0
-          ) {
-            return;
-          }
-
-          const option =
-            document.createElement(
-              "option"
-            );
-
-          option.value =
-            slot.start;
-
-          option.textContent =
-            new Intl.DateTimeFormat(
-              "en-US",
-              {
-                timeZone:
-                  data.location?.timezone ||
-                  "America/Phoenix",
-                hour:
-                  "numeric",
-                minute:
-                  "2-digit"
-              }
-            ).format(
-              new Date(
-                slot.start
-              )
-            );
-
-          newTime.appendChild(
-            option
-          );
-        });
-
-      if (
-        newTime.options.length === 1
-      ) {
-
-            newTime.innerHTML = `
-              <option value="">
-                No available times
-              </option>
-            `;
-
-          }
-
-        } catch (error) {
-
-          console.error(
-            "LOAD TIMES ERROR:",
-            error
-          );
-
+        if (
+          newTime.options.length === 1
+        ) {
 
           newTime.innerHTML = `
             <option value="">
-              Unable to load times
+              No available times
             </option>
           `;
 
