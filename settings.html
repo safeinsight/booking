@@ -1133,6 +1133,14 @@
   <button
     type="button"
     class="email-tab"
+    data-email-tab="rescheduleEmailTab"
+  >
+    Reschedule
+  </button>
+
+  <button
+    type="button"
+    class="email-tab"
     data-email-tab="reminderEmailTab"
   >
     Reminder
@@ -1307,6 +1315,168 @@
           </div>
 
           </div>
+
+<!-- RESCHEDULE EMAIL -->
+
+<div
+  id="rescheduleEmailTab"
+  class="email-tab-panel"
+>
+
+  <div class="settings-section">
+
+    <h2>Reschedule Email</h2>
+
+    <p class="muted">
+      Customize the message sent to the student after an appointment is rescheduled.
+    </p>
+
+    <label for="rescheduleEmailSubject">
+      Email Subject
+    </label>
+
+    <input
+      id="rescheduleEmailSubject"
+      type="text"
+      maxlength="200"
+      placeholder="Your appointment has been rescheduled"
+    >
+
+    <label for="rescheduleEmailMessage">
+      Reschedule Message
+    </label>
+
+    <textarea
+      id="rescheduleEmailMessage"
+      rows="8"
+      maxlength="5000"
+      placeholder="Your appointment has been rescheduled..."
+    ></textarea>
+
+
+    <div
+      style="
+        margin-top:18px;
+        padding:15px;
+        border:1px solid #ddd;
+        border-radius:8px;
+        background:#fafafa;
+      "
+    >
+
+      <strong>Reschedule Button</strong>
+
+      <p
+        class="muted"
+        style="margin:6px 0 12px;"
+      >
+        Add a button to the reschedule email. Administrators and Managers can change the destination URL and button text here.
+      </p>
+
+      <label for="rescheduleButtonEnabled">
+        <input
+          id="rescheduleButtonEnabled"
+          type="checkbox"
+        >
+        Include button in reschedule emails
+      </label>
+
+      <label
+        for="rescheduleButtonText"
+        style="display:block; margin-top:12px;"
+      >
+        Button Text
+      </label>
+
+      <input
+        id="rescheduleButtonText"
+        type="text"
+        maxlength="100"
+        placeholder="Join Video Conference"
+      >
+
+      <label
+        for="rescheduleButtonUrl"
+        style="display:block; margin-top:12px;"
+      >
+        Button URL
+      </label>
+
+      <input
+        id="rescheduleButtonUrl"
+        type="url"
+        maxlength="1000"
+        placeholder="https://"
+      >
+
+      <p
+        class="muted"
+        style="margin:8px 0 0; font-size:13px;"
+      >
+        The button is generated as HTML by the booking system. You do not need to paste HTML into the message box.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="settings-section">
+
+    <h2>Instructor Reschedule Email</h2>
+
+    <p class="muted">
+      Send a separate notification to the instructor when an appointment is rescheduled.
+    </p>
+
+    <label for="instructorRescheduleEmail">
+      Instructor Email Address
+    </label>
+
+    <input
+      id="instructorRescheduleEmail"
+      type="email"
+      maxlength="320"
+      placeholder="instructor@example.com"
+    >
+
+    <label for="instructorRescheduleSubject">
+      Email Subject
+    </label>
+
+    <input
+      id="instructorRescheduleSubject"
+      type="text"
+      maxlength="200"
+      placeholder="Appointment rescheduled"
+    >
+
+    <label for="instructorRescheduleMessage">
+      Instructor Reschedule Message
+    </label>
+
+    <textarea
+      id="instructorRescheduleMessage"
+      rows="8"
+      maxlength="5000"
+      placeholder="An appointment has been rescheduled..."
+    ></textarea>
+
+    <p class="muted">
+      Available placeholders:
+      <code>{{DATE}}</code>,
+      <code>{{TIME}}</code>,
+      <code>{{LOCATION}}</code>,
+      <code>{{STUDENT_NAME}}</code>,
+      <code>{{INSTRUCTOR_NAME}}</code>
+    </p>
+
+  </div>
+
+</div>
+
+
+<!-- REMINDER EMAIL -->
 
 
 <!-- REMINDER EMAIL -->
