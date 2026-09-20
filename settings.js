@@ -2048,7 +2048,11 @@ async function saveLocationSettings(button) {
         $("website").value.trim(),
 
       services:
-        $("services").value.trim()
+        $("services").value.trim(),
+
+      timezone:
+        $("instructorTimezone").value ||
+        "America/Phoenix"
     };
 
     const response = await fetch(
