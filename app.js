@@ -6,6 +6,7 @@ const state = {
   location: null,
   date: null,
   availability: null,
+  rawAvailability: null,
   selectedStart: null,
   selectedEnd: null,
   student: null,
@@ -47,6 +48,82 @@ function formatDate(iso, timeZone) {
     day: "numeric",
     year: "numeric"
   }).format(new Date(iso));
+}
+
+function getDateKey(iso, timeZone) {
+  const parts =
+    new Intl.DateTimeFormat(
+      "en-US",
+      {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }
+    ).formatToParts(new Date(iso));
+
+  const year =
+    parts.find(p => p.type === "year")?.value;
+
+  const month =
+    parts.find(p => p.type === "month")?.value;
+
+  const day =
+    parts.find(p => p.type === "day")?.value;
+
+  return `${year}-${month}-${day}`;
+}
+
+function groupAvailabilityByStudentTimezone(days) {
+  const grouped = new Map();
+
+  for (const instructorDay of days || []) {
+    for (const slot of instructorDay.slots || []) {
+      const studentDate =
+        getDateKey(
+          slot.start,
+          state.studentTimezone
+        );
+
+      if (!grouped.has(studentDate)) {
+        grouped.set(studentDate, {
+          date: studentDate,
+          label: formatDate(
+            slot.start,
+            state.studentTimezone
+          ),
+          has_available: false,
+          slots: []
+        });
+      }
+
+      const studentDay =
+        grouped.get(studentDate);
+
+      studentDay.slots.push(slot);
+
+      if (
+        !slot.blocked &&
+        slot.remaining > 0
+      ) {
+        studentDay.has_available = true;
+      }
+    }
+  }
+
+  return [...grouped.values()]
+    .map(day => ({
+      ...day,
+      slots: day.slots.sort(
+        (a, b) =>
+          new Date(a.start).getTime() -
+          new Date(b.start).getTime()
+      )
+    }))
+    .sort(
+      (a, b) =>
+        a.date.localeCompare(b.date)
+    );
 }
 
 function getInstructorTimezone() {
@@ -343,15 +420,36 @@ async function loadDates() {
   const json = await res.json();
   if (!res.ok) throw new Error(json.error || "Unable to load availability.");
 
-  state.availability = json;
-const firstAvailable = json.days.find(d => d.has_available);
+  state.rawAvailability = json;
 
-state.date = firstAvailable?.date || json.days[0]?.date || null;
-state.calendarMonth = state.date ? state.date.slice(0, 7) : null;
+  const studentDays =
+    groupAvailabilityByStudentTimezone(
+      state.rawAvailability.days
+    );
 
-renderCalendar();
-renderSelectedDate();
-renderSlots();
+  state.availability = {
+    ...state.rawAvailability,
+    days: studentDays
+  };
+
+  const firstAvailable =
+    studentDays.find(
+      d => d.has_available
+    );
+
+  state.date =
+    firstAvailable?.date ||
+    studentDays[0]?.date ||
+    null;
+
+  state.calendarMonth =
+    state.date
+      ? state.date.slice(0, 7)
+      : null;
+
+  renderCalendar();
+  renderSelectedDate();
+  renderSlots();
 }
 
 function renderSelectedDate() {
@@ -532,7 +630,7 @@ function renderSlots() {
   container.innerHTML = day.slots.map((s, i) => {
     const status = s.blocked ? "blocked" : (s.remaining <= 0 ? "unavailable full" : "");
     return `<button type="button" class="slot ${status}" data-index="${i}" ${status ? "disabled" : ""}>
-      ${formatTime(s.start, state.location.timezone)}<br><small>${s.remaining} space${s.remaining === 1 ? "" : "s"}</small>
+       ${formatTime(s.start, state.studentTimezone)}<br><small>${s.remaining} space${s.remaining === 1 ? "" : "s"}</small>
     </button>`;
   }).join("");
 
@@ -584,7 +682,7 @@ function selectSlot(index) {
   if (state.selectedStart !== null) {
     const first = slots[state.selectedStart], last = slots[state.selectedEnd];
     $("selectionSummary").textContent =
-      `Selected: ${formatTime(first.start, state.location.timezone)} – ${formatTime(last.end, state.location.timezone)}`;
+      `Selected: ${formatTime(first.start, state.studentTimezone)} – ${formatTime(last.end, state.studentTimezone)}`;
     $("toInfoBtn").disabled = false;
   } else {
     $("selectionSummary").textContent = "";
@@ -613,8 +711,8 @@ function buildReview() {
   $("review").innerHTML = `
     <strong>${escapeHtml(reviewLocationName)}</strong><br>
     ${instructor.name ? `Instructor: ${escapeHtml(instructor.name)}<br>` : ""}
-${formatDate(first.start, state.location.timezone)}<br>
-${formatTime(first.start, state.location.timezone)} – ${formatTime(last.end, state.location.timezone)}<br>
+${formatDate(first.start, state.studentTimezone)}<br>
+${formatTime(first.start, state.studentTimezone)} – ${formatTime(last.end, state.studentTimezone)}<br>
     ${reviewAddress ? escapeHtml(reviewAddress) + "<br>" : ""}
     
     <hr>
@@ -650,6 +748,49 @@ $("locationSelect").addEventListener("change", async e => {
     showError(err.message);
   }
 });
+
+$("studentTimezone").addEventListener(
+  "change",
+  e => {
+    state.studentTimezone =
+      e.target.value ||
+      "America/Los_Angeles";
+
+    state.selectedStart = null;
+    state.selectedEnd = null;
+
+    if (state.rawAvailability?.days?.length) {
+      const studentDays =
+        groupAvailabilityByStudentTimezone(
+          state.rawAvailability.days
+        );
+
+      state.availability = {
+        ...state.rawAvailability,
+        days: studentDays
+      };
+
+      const firstAvailable =
+        studentDays.find(
+          d => d.has_available
+        );
+
+      state.date =
+        firstAvailable?.date ||
+        studentDays[0]?.date ||
+        null;
+
+      state.calendarMonth =
+        state.date
+          ? state.date.slice(0, 7)
+          : null;
+
+      renderCalendar();
+      renderSelectedDate();
+      renderSlots();
+    }
+  }
+);
 
 $("toDateBtn").addEventListener("click", async () => {
   try { await loadDates(); showStep(2); }
@@ -729,8 +870,8 @@ if (!res.ok) {
     $("success").classList.remove("hidden");
     $("successText").innerHTML =
       `Your appointment at ${escapeHtml(state.location.name)} is confirmed for<br>` +
-      `${formatDate(first.start, state.location.timezone)}<br>` +
-      `${formatTime(first.start, state.location.timezone)} – ${formatTime(last.end, state.location.timezone)}`;
+      `${formatDate(first.start, state.studentTimezone)}<br>` +
+      `${formatTime(first.start, state.studentTimezone)} – ${formatTime(last.end, state.studentTimezone)}`;
     $("manageLink").href = json.manage_url || "#";
   } catch (err) {
     $("submitStatus").textContent = err.message;
