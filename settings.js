@@ -497,6 +497,10 @@ state.location = loc;
     instructorLocation.services ||
     "";
 
+  $("instructorTimezone").value =
+    instructorLocation.timezone ||
+    "America/Phoenix";
+
   $("logoUrl").value =
     loc.logo_url || "safe-insight-logo.png";
 
