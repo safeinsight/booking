@@ -1569,6 +1569,35 @@ $("brandLogo").src =
     `Booking powered by ${loc.name || "Safe Insight"}`;
 }
 
+$("addServiceBtn")?.addEventListener(
+  "click",
+  () => {
+
+    $("newServiceName").value = "";
+    $("newServicePrice").value = "";
+
+    $("addServiceForm")
+      ?.classList.remove("hidden");
+
+    $("newServiceName")
+      ?.focus();
+  }
+);
+
+$("cancelNewServiceBtn")?.addEventListener(
+  "click",
+  () => {
+
+    $("addServiceForm")
+      ?.classList.add("hidden");
+
+    $("newServiceName").value = "";
+    $("newServicePrice").value = "";
+  }
+);
+
+
+
 function renderServices() {
 
   const container =
