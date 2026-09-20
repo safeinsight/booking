@@ -1575,6 +1575,16 @@ async function loadLocations() {
       confirmation_button_enabled,
       confirmation_button_text,
       confirmation_button_url,
+
+      reschedule_email_subject,
+      reschedule_email_message,
+      reschedule_button_enabled,
+      reschedule_button_text,
+      reschedule_button_url,
+      instructor_reschedule_email,
+      instructor_reschedule_subject,
+      instructor_reschedule_message,
+
       student_confirmation_enabled,
       instructor_notification_enabled,
       reminder_enabled,
