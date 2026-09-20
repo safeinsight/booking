@@ -1682,6 +1682,71 @@ $("saveNewServiceBtn")?.addEventListener(
   }
 );
 
+document.addEventListener(
+  "click",
+  event => {
+
+    const editButton =
+      event.target.closest(
+        "[data-edit-service]"
+      );
+
+    if (editButton) {
+
+      const serviceId =
+        editButton.dataset.editService;
+
+      const row =
+        document.querySelector(
+          `[data-service-row="${serviceId}"]`
+        );
+
+      if (!row) {
+        return;
+      }
+
+      row
+        .querySelector("[data-service-display]")
+        ?.classList.add("hidden");
+
+      row
+        .querySelector("[data-service-edit]")
+        ?.classList.remove("hidden");
+
+      return;
+    }
+
+
+    const cancelButton =
+      event.target.closest(
+        "[data-cancel-service]"
+      );
+
+    if (cancelButton) {
+
+      const serviceId =
+        cancelButton.dataset.cancelService;
+
+      const row =
+        document.querySelector(
+          `[data-service-row="${serviceId}"]`
+        );
+
+      if (!row) {
+        return;
+      }
+
+      row
+        .querySelector("[data-service-edit]")
+        ?.classList.add("hidden");
+
+      row
+        .querySelector("[data-service-display]")
+        ?.classList.remove("hidden");
+    }
+  }
+);
+
 
 
 function renderServices() {
@@ -1714,6 +1779,7 @@ function renderServices() {
 
         return `
           <div
+            data-service-row="${escapeAttr(service.id)}"
             style="
               padding:15px;
               border:1px solid #ddd;
@@ -1721,22 +1787,112 @@ function renderServices() {
               margin-bottom:10px;
             "
           >
-            <strong>
-              ${escapeHtml(service.name)}
-            </strong>
 
-            <div style="margin-top:5px;">
-              $${price}
+            <div data-service-display>
+
+              <strong>
+                ${escapeHtml(service.name)}
+              </strong>
+
+              <div style="margin-top:5px;">
+                $${price}
+              </div>
+
+              <div
+                class="muted"
+                style="margin-top:5px;"
+              >
+                ${service.active
+                  ? "Active"
+                  : "Inactive"}
+              </div>
+
+              <button
+                type="button"
+                class="secondary"
+                data-edit-service="${escapeAttr(service.id)}"
+                style="margin-top:10px;"
+              >
+                Edit
+              </button>
+
             </div>
+
 
             <div
-              class="muted"
-              style="margin-top:5px;"
+              data-service-edit
+              class="hidden"
             >
-              ${service.active
-                ? "Active"
-                : "Inactive"}
+
+              <div class="form-group">
+
+                <label>
+                  Service Name
+                </label>
+
+                <input
+                  type="text"
+                  data-service-name
+                  value="${escapeAttr(service.name)}"
+                >
+
+              </div>
+
+              <div class="form-group">
+
+                <label>
+                  Price
+                </label>
+
+                <input
+                  type="number"
+                  data-service-price
+                  min="0"
+                  step="0.01"
+                  value="${price}"
+                >
+
+              </div>
+
+              <label
+                style="
+                  display:flex;
+                  align-items:center;
+                  gap:8px;
+                  margin-top:10px;
+                "
+              >
+                <input
+                  type="checkbox"
+                  data-service-active
+                  ${service.active ? "checked" : ""}
+                >
+                Active
+              </label>
+
+              <div style="margin-top:15px;">
+
+                <button
+                  type="button"
+                  class="primary"
+                  data-save-service="${escapeAttr(service.id)}"
+                >
+                  Save
+                </button>
+
+                <button
+                  type="button"
+                  class="secondary"
+                  data-cancel-service="${escapeAttr(service.id)}"
+                  style="margin-left:8px;"
+                >
+                  Cancel
+                </button>
+
+              </div>
+
             </div>
+
           </div>
         `;
       })
