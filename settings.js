@@ -1656,6 +1656,7 @@ async function loadAllInstructors() {
   address,
   website,
   services,
+  timezone,
   appointment_length_minutes,
   max_students_per_slot,
   booking_horizon_days,
