@@ -57,6 +57,28 @@ function getInstructorTimezone() {
   );
 }
 
+function initializeStudentTimezone() {
+  const select = $("studentTimezone");
+
+  if (!select) {
+    return;
+  }
+
+  const supported =
+    [...select.options].some(
+      option =>
+        option.value === state.studentTimezone
+    );
+
+  if (!supported) {
+    state.studentTimezone =
+      "America/Los_Angeles";
+  }
+
+  select.value =
+    state.studentTimezone;
+}
+
 function getBookingRoute() {
   const path = window.location.pathname.replace(/\/+$/, "");
 
@@ -725,6 +747,8 @@ function escapeAttr(v) { return escapeHtml(v); }
   try {
     await loadLocations();
     await loadInstructor();
+
+    initializeStudentTimezone();
 
     $("loading").classList.add("hidden");
     $("bookingApp").classList.remove("hidden");
