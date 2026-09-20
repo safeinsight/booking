@@ -1596,6 +1596,92 @@ $("cancelNewServiceBtn")?.addEventListener(
   }
 );
 
+$("saveNewServiceBtn")?.addEventListener(
+  "click",
+  async () => {
+
+    const name =
+      $("newServiceName")?.value.trim() || "";
+
+    const priceValue =
+      $("newServicePrice")?.value.trim() || "";
+
+    if (!name) {
+      showCustomAlert(
+        "Please enter a service name."
+      );
+      return;
+    }
+
+    if (
+      priceValue === "" ||
+      !Number.isFinite(Number(priceValue)) ||
+      Number(priceValue) < 0
+    ) {
+      showCustomAlert(
+        "Please enter a valid service price."
+      );
+      return;
+    }
+
+    const priceCents =
+      Math.round(
+        Number(priceValue) * 100
+      );
+
+    const button =
+      $("saveNewServiceBtn");
+
+    const originalText =
+      button.textContent;
+
+    button.disabled = true;
+    button.textContent = "Saving...";
+
+    try {
+
+      const { error } =
+        await db
+          .from("services")
+          .insert({
+            name,
+            price_cents: priceCents,
+            active: true
+          });
+
+      if (error) {
+        throw error;
+      }
+
+      $("addServiceForm")
+        ?.classList.add("hidden");
+
+      $("newServiceName").value = "";
+      $("newServicePrice").value = "";
+
+      await loadServices();
+
+    } catch (error) {
+
+      console.error(
+        "SAVE SERVICE ERROR:",
+        error
+      );
+
+      showCustomAlert(
+        error.message ||
+        "Unable to save service."
+      );
+
+    } finally {
+
+      button.disabled = false;
+      button.textContent =
+        originalText;
+    }
+  }
+);
+
 
 
 function renderServices() {
