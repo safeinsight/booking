@@ -44,6 +44,35 @@
           <h2>Select your time</h2>
           <p id="availabilityNote" class="muted"></p>
 
+          <label for="studentTimezone">Your Time Zone</label>
+          <select id="studentTimezone">
+            <option value="America/Los_Angeles">
+              Pacific Time — Los Angeles
+            </option>
+            <option value="America/Phoenix">
+              Arizona — Phoenix (MST)
+            </option>
+            <option value="America/Denver">
+              Mountain Time — Denver
+            </option>
+            <option value="America/Chicago">
+              Central Time — Chicago
+            </option>
+            <option value="America/New_York">
+              Eastern Time — New York
+            </option>
+            <option value="America/Anchorage">
+              Alaska Time — Anchorage
+            </option>
+            <option value="Pacific/Honolulu">
+              Hawaii Time — Honolulu
+            </option>
+          </select>
+
+          <p class="muted">
+            Appointment times are shown in your selected time zone.
+          </p>
+
           <div class="calendar" aria-label="Choose a booking date">
             <div class="calendar-header">
               <button type="button" id="calendarPrev" class="calendar-nav" aria-label="Previous month">‹</button>
