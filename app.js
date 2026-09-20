@@ -837,7 +837,8 @@ body: JSON.stringify({
   instructor_slug: state.instructorSlug,
   start_time: first.start,
   end_time: last.end,
-  student: state.student
+  student: state.student,
+  student_timezone: state.studentTimezone
 })
 });
 
