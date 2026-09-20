@@ -9,7 +9,10 @@ const state = {
   selectedStart: null,
   selectedEnd: null,
   student: null,
-  calendarMonth: null
+  calendarMonth: null,
+  studentTimezone:
+    Intl.DateTimeFormat().resolvedOptions().timeZone ||
+    "America/Los_Angeles"
 };
 
 const $ = id => document.getElementById(id);
@@ -44,6 +47,14 @@ function formatDate(iso, timeZone) {
     day: "numeric",
     year: "numeric"
   }).format(new Date(iso));
+}
+
+function getInstructorTimezone() {
+  return (
+    state.instructor?.timezone ||
+    state.location?.timezone ||
+    "America/Phoenix"
+  );
 }
 
 function getBookingRoute() {
@@ -240,6 +251,7 @@ async function loadInstructor() {
       address,
       website,
       services,
+      timezone,
       appointment_length_minutes,
       max_students_per_slot,
       booking_horizon_days,
