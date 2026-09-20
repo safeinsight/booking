@@ -333,6 +333,131 @@
         text-align: left;
       }
     }
+
+/* =========================================
+   RESCHEDULE DATE CALENDAR
+   ========================================= */
+
+#rescheduleCalendar {
+  border: 1px solid #dddddd;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 8px;
+  background: #ffffff;
+}
+
+#rescheduleCalendar .calendar-header {
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+#rescheduleCalendar .calendar-month {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+#rescheduleCalendar .calendar-nav {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid #dddddd;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #000000;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+#rescheduleCalendar .calendar-nav:hover:not(:disabled) {
+  border-color: #ff0000;
+}
+
+#rescheduleCalendar .calendar-nav:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+#rescheduleCalendar .calendar-weekdays,
+#rescheduleCalendar .calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+#rescheduleCalendar .calendar-weekdays span {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #666666;
+  padding: 6px 0;
+}
+
+#rescheduleCalendar .calendar-day {
+  min-height: 42px;
+  padding: 7px 4px;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #000000;
+  font-size: 15px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+#rescheduleCalendar .calendar-day.available {
+  cursor: pointer;
+}
+
+#rescheduleCalendar .calendar-day.available:hover {
+  border-color: #ff0000;
+}
+
+#rescheduleCalendar .calendar-day.selected {
+  background: #ff0000;
+  color: #ffffff;
+  border-color: #ff0000;
+}
+
+#rescheduleCalendar .calendar-day.unavailable,
+#rescheduleCalendar .calendar-day.outside-range {
+  background: #f1f1f1;
+  color: #aaaaaa;
+  cursor: not-allowed;
+}
+
+#rescheduleCalendar .calendar-day.blank {
+  visibility: hidden;
+  border: 0;
+}
+
+#newDateDisplay {
+  background: #f8f8f8;
+  cursor: default;
+}
+
+@media (max-width: 450px) {
+
+  #rescheduleCalendar {
+    padding: 10px;
+  }
+
+  #rescheduleCalendar .calendar-weekdays,
+  #rescheduleCalendar .calendar-days {
+    gap: 3px;
+  }
+
+  #rescheduleCalendar .calendar-day {
+    min-height: 38px;
+    font-size: 14px;
+  }
+}
+    
   </style>
 </head>
 
@@ -475,14 +600,75 @@
 
         <div class="field">
 
-          <label for="newDate">
-            New Date
-          </label>
+<label>New Date</label>
 
-          <input
-            id="newDate"
-            type="date"
-          >
+<div
+  id="rescheduleCalendar"
+  class="calendar"
+  aria-label="Choose a new appointment date"
+>
+  <div class="calendar-header">
+
+    <button
+      type="button"
+      id="rescheduleCalendarPrev"
+      class="calendar-nav"
+      aria-label="Previous month"
+    >
+      ‹
+    </button>
+
+    <div
+      id="rescheduleCalendarMonth"
+      class="calendar-month"
+    ></div>
+
+    <button
+      type="button"
+      id="rescheduleCalendarNext"
+      class="calendar-nav"
+      aria-label="Next month"
+    >
+      ›
+    </button>
+
+  </div>
+
+  <div
+    class="calendar-weekdays"
+    aria-hidden="true"
+  >
+    <span>Sun</span>
+    <span>Mon</span>
+    <span>Tue</span>
+    <span>Wed</span>
+    <span>Thu</span>
+    <span>Fri</span>
+    <span>Sat</span>
+  </div>
+
+  <div
+    id="rescheduleCalendarDays"
+    class="calendar-days"
+  ></div>
+</div>
+
+<input
+  id="newDate"
+  type="hidden"
+>
+
+<label for="newDateDisplay">
+  Selected Date
+</label>
+
+<input
+  id="newDateDisplay"
+  type="text"
+  readonly
+  aria-readonly="true"
+  placeholder="Select a date from the calendar"
+>
 
         </div>
 
@@ -648,6 +834,35 @@
 
     const newTime =
       document.getElementById("newTime");
+
+    const newDateDisplay =
+  document.getElementById(
+    "newDateDisplay"
+  );
+
+const rescheduleCalendarDays =
+  document.getElementById(
+    "rescheduleCalendarDays"
+  );
+
+const rescheduleCalendarMonth =
+  document.getElementById(
+    "rescheduleCalendarMonth"
+  );
+
+const rescheduleCalendarPrev =
+  document.getElementById(
+    "rescheduleCalendarPrev"
+  );
+
+const rescheduleCalendarNext =
+  document.getElementById(
+    "rescheduleCalendarNext"
+  );
+
+let rescheduleAvailability = null;
+
+let rescheduleCalendarCurrentMonth = null;
 
     const confirmRescheduleButton =
       document.getElementById(
@@ -894,6 +1109,273 @@
      * the available times for this date.
      */
 
+function renderRescheduleCalendar() {
+
+  if (
+    !rescheduleAvailability?.days?.length ||
+    !rescheduleCalendarCurrentMonth
+  ) {
+    return;
+  }
+
+  const [year, month] =
+    rescheduleCalendarCurrentMonth
+      .split("-")
+      .map(Number);
+
+  const monthStart =
+    new Date(
+      year,
+      month - 1,
+      1
+    );
+
+  const firstWeekday =
+    monthStart.getDay();
+
+  const daysInMonth =
+    new Date(
+      year,
+      month,
+      0
+    ).getDate();
+
+  const availabilityByDate =
+    new Map(
+      rescheduleAvailability.days.map(
+        day => [
+          day.date,
+          day
+        ]
+      )
+    );
+
+  const minDate =
+    rescheduleAvailability
+      .days[0]
+      .date;
+
+  const maxDate =
+    rescheduleAvailability
+      .days[
+        rescheduleAvailability.days.length - 1
+      ]
+      .date;
+
+  rescheduleCalendarMonth.textContent =
+    monthStart.toLocaleDateString(
+      "en-US",
+      {
+        month: "long",
+        year: "numeric"
+      }
+    );
+
+  rescheduleCalendarDays.innerHTML = "";
+
+  /*
+   * Empty cells before the first
+   * day of the month.
+   */
+  for (
+    let i = 0;
+    i < firstWeekday;
+    i++
+  ) {
+
+    const blank =
+      document.createElement("span");
+
+    blank.className =
+      "calendar-day blank";
+
+    blank.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    rescheduleCalendarDays
+      .appendChild(blank);
+  }
+
+  /*
+   * Actual calendar dates.
+   */
+  for (
+    let dayNumber = 1;
+    dayNumber <= daysInMonth;
+    dayNumber++
+  ) {
+
+    const date =
+      `${year}-${String(month).padStart(2, "0")}-${String(dayNumber).padStart(2, "0")}`;
+
+    const day =
+      availabilityByDate.get(date);
+
+    const button =
+      document.createElement(
+        "button"
+      );
+
+    button.type = "button";
+
+    button.className =
+      "calendar-day";
+
+    button.textContent =
+      dayNumber;
+
+    button.dataset.date =
+      date;
+
+    /*
+     * Outside the booking range.
+     */
+    if (
+      date < minDate ||
+      date > maxDate ||
+      !day
+    ) {
+
+      button.disabled = true;
+
+      button.classList.add(
+        "outside-range"
+      );
+
+      button.setAttribute(
+        "aria-label",
+        `${date}, unavailable`
+      );
+
+    /*
+     * Date exists but has
+     * no available appointment times.
+     */
+    } else if (
+      !day.has_available
+    ) {
+
+      button.disabled = true;
+
+      button.classList.add(
+        "unavailable"
+      );
+
+      button.setAttribute(
+        "aria-label",
+        `${day.label}, no availability`
+      );
+
+    /*
+     * Available date.
+     */
+    } else {
+
+      button.classList.add(
+        "available"
+      );
+
+      button.setAttribute(
+        "aria-label",
+        day.label
+      );
+
+      button.addEventListener(
+        "click",
+        () => {
+          selectRescheduleDate(
+            date
+          );
+        }
+      );
+    }
+
+    /*
+     * Currently selected date.
+     */
+    if (
+      date === newDate.value
+    ) {
+      button.classList.add(
+        "selected"
+      );
+    }
+
+    rescheduleCalendarDays
+      .appendChild(button);
+  }
+
+  const minMonth =
+    minDate.slice(0, 7);
+
+  const maxMonth =
+    maxDate.slice(0, 7);
+
+  rescheduleCalendarPrev.disabled =
+    rescheduleCalendarCurrentMonth <=
+    minMonth;
+
+  rescheduleCalendarNext.disabled =
+    rescheduleCalendarCurrentMonth >=
+    maxMonth;
+}
+
+function selectRescheduleDate(date) {
+
+  const day =
+    rescheduleAvailability?.days?.find(
+      item =>
+        item.date === date
+    );
+
+  if (
+    !day ||
+    !day.has_available
+  ) {
+    return;
+  }
+
+  /*
+   * Store the selected date in the
+   * existing hidden field used by
+   * Confirm Reschedule.
+   */
+  newDate.value =
+    date;
+
+  /*
+   * Show the same friendly date label
+   * supplied by get-availability.
+   */
+  newDateDisplay.value =
+    day.label || date;
+
+  /*
+   * Keep the calendar on the month
+   * containing the selected date.
+   */
+  rescheduleCalendarCurrentMonth =
+    date.slice(0, 7);
+
+  /*
+   * Redraw so the selected date
+   * receives the red highlight.
+   */
+  renderRescheduleCalendar();
+
+  /*
+   * Trigger the existing New Date
+   * change handler so New Time loads
+   * exactly as it already does.
+   */
+  newDate.dispatchEvent(
+    new Event("change")
+  );
+}
+
+    
     newDate.addEventListener(
       "change",
       async () => {
