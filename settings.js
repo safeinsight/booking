@@ -597,6 +597,59 @@ $("confirmationButtonText").value =
 $("confirmationButtonUrl").value =
   loc.confirmation_button_url || "";
 
+
+/*
+ * Reschedule Email
+ */
+
+$("rescheduleEmailSubject").value =
+  loc.reschedule_email_subject ||
+  "Your appointment has been rescheduled";
+
+$("rescheduleEmailMessage").value =
+  loc.reschedule_email_message ||
+  `Your appointment has been rescheduled.
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+
+{{RESCHEDULE_BUTTON}}
+
+{{MANAGE_BUTTON}}`;
+
+$("rescheduleButtonEnabled").checked =
+  Boolean(loc.reschedule_button_enabled);
+
+$("rescheduleButtonText").value =
+  loc.reschedule_button_text ||
+  "Join Video Conference";
+
+$("rescheduleButtonUrl").value =
+  loc.reschedule_button_url || "";
+
+$("instructorRescheduleEmail").value =
+  loc.instructor_reschedule_email || "";
+
+$("instructorRescheduleSubject").value =
+  loc.instructor_reschedule_subject ||
+  "Appointment rescheduled";
+
+$("instructorRescheduleMessage").value =
+  loc.instructor_reschedule_message ||
+  `An appointment has been rescheduled.
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+Student: {{STUDENT_NAME}}
+Instructor: {{INSTRUCTOR_NAME}}`;
+
+
+/*
+ * Reminder Email
+ */
+
 $("reminderEnabled").checked =
   loc.reminder_enabled ?? true;
 
@@ -2514,8 +2567,32 @@ async function saveEmailSettings(button) {
       confirmation_button_text:
         $("confirmationButtonText").value.trim(),
 
-      confirmation_button_url:
-        $("confirmationButtonUrl").value.trim(),
+confirmation_button_url:
+  $("confirmationButtonUrl").value.trim(),
+
+reschedule_email_subject:
+  $("rescheduleEmailSubject").value.trim(),
+
+reschedule_email_message:
+  $("rescheduleEmailMessage").value.trim(),
+
+reschedule_button_enabled:
+  $("rescheduleButtonEnabled").checked,
+
+reschedule_button_text:
+  $("rescheduleButtonText").value.trim(),
+
+reschedule_button_url:
+  $("rescheduleButtonUrl").value.trim(),
+
+instructor_reschedule_email:
+  $("instructorRescheduleEmail").value.trim(),
+
+instructor_reschedule_subject:
+  $("instructorRescheduleSubject").value.trim(),
+
+instructor_reschedule_message:
+  $("instructorRescheduleMessage").value.trim(),
 
       reminder_enabled:
         $("reminderEnabled").checked,
