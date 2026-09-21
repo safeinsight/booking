@@ -803,13 +803,21 @@ function renderBookingServices() {
                       data-booking-service
                       value="${escapeAttr(service.price_id)}"
                       ${checked ? "checked" : ""}
+                      ${service.required === true ? "disabled" : ""}
                       style="
                         width:auto;
                         margin:0;
                         flex:0 0 auto;
                       "
                     >
-                    <strong>${escapeHtml(service.product_name)}</strong>
+                    <strong>
+                      ${escapeHtml(service.product_name)}
+                      ${
+                        service.required === true
+                          ? " (Required)"
+                          : ""
+                      }
+                    </strong>
                   </label>
                 `
                 : `
