@@ -1682,6 +1682,31 @@ function renderServices() {
                     : ""
                 }
 
+                <label
+                  style="
+                    display:flex;
+                    align-items:center;
+                    gap:8px;
+                    margin-top:10px;
+                    cursor:${service.assigned ? "pointer" : "default"};
+                  "
+                >
+
+                  <input
+                    type="checkbox"
+                    data-stripe-service-required
+                    data-product-id="${escapeAttr(service.product_id)}"
+                    data-price-id="${escapeAttr(service.price_id)}"
+                    ${service.required ? "checked" : ""}
+                    ${service.assigned ? "" : "disabled"}
+                  >
+
+                  <span>
+                    Required for booking
+                  </span>
+
+                </label>
+
               </span>
 
             </label>
@@ -3748,6 +3773,115 @@ document.addEventListener("change", async function (event) {
   }
 
 
+  const requiredService =
+    event.target.closest(
+      "[data-stripe-service-required]"
+    );
+
+  if (requiredService) {
+
+    if (!state.instructor?.id) {
+      return;
+    }
+
+    const productId =
+      requiredService.getAttribute(
+        "data-product-id"
+      );
+
+    const priceId =
+      requiredService.getAttribute(
+        "data-price-id"
+      );
+
+    const required =
+      requiredService.checked;
+
+    requiredService.disabled = true;
+
+    try {
+
+      const authHeaders =
+        await getAuthHeaders();
+
+      const response =
+        await fetch(
+          `${cfg.functionsBaseUrl}/stripe-products`,
+          {
+            method: "POST",
+            headers: authHeaders,
+            body: JSON.stringify({
+              instructor_id:
+                state.instructor.id,
+
+              product_id:
+                productId,
+
+              price_id:
+                priceId,
+
+              assigned:
+                true,
+
+              required:
+                required
+            })
+          }
+        );
+
+      const result =
+        await response.json();
+
+      if (
+        !response.ok ||
+        result.error
+      ) {
+        throw new Error(
+          result.error ||
+          "Unable to update required service."
+        );
+      }
+
+      const service =
+        state.services.find(
+          item =>
+            item.product_id ===
+            productId
+        );
+
+      if (service) {
+        service.assigned =
+          result.assigned === true;
+
+        service.required =
+          result.required === true;
+      }
+
+    } catch (error) {
+
+      console.error(
+        "REQUIRED SERVICE ERROR:",
+        error
+      );
+
+      requiredService.checked =
+        !required;
+
+      showCustomAlert(
+        error.message ||
+        "Unable to update required service."
+      );
+
+    } finally {
+
+      requiredService.disabled =
+        false;
+    }
+
+    return;
+  }
+
+
   const stripeService =
     event.target.closest(
       "[data-stripe-service]"
@@ -3823,8 +3957,13 @@ document.addEventListener("change", async function (event) {
 
       if (service) {
         service.assigned =
-          assigned;
+          result.assigned === true;
+
+        service.required =
+          result.required === true;
       }
+
+      renderServices();
 
     } catch (error) {
 
