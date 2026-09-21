@@ -3981,6 +3981,129 @@ document.addEventListener("click", async function (event) {
 
 document.addEventListener("change", async function (event) {
 
+  /*
+   * Required checkbox for a locally-created
+   * free service.
+   */
+  const freeServiceRequired =
+    event.target.closest(
+      "[data-free-service-required]"
+    );
+
+  if (freeServiceRequired) {
+
+    if (!state.instructor?.id) {
+      return;
+    }
+
+
+    const serviceId =
+      freeServiceRequired.getAttribute(
+        "data-service-id"
+      );
+
+    const required =
+      freeServiceRequired.checked;
+
+
+    if (!serviceId) {
+      return;
+    }
+
+
+    freeServiceRequired.disabled =
+      true;
+
+
+    try {
+
+      const authHeaders =
+        await getAuthHeaders();
+
+
+      const response =
+        await fetch(
+          `${cfg.functionsBaseUrl}/stripe-products`,
+          {
+            method: "POST",
+            headers: authHeaders,
+            body: JSON.stringify({
+              action:
+                "update_free_service_required",
+
+              instructor_id:
+                state.instructor.id,
+
+              service_id:
+                serviceId,
+
+              required
+            })
+          }
+        );
+
+
+      const result =
+        await response.json();
+
+
+      if (
+        !response.ok ||
+        result.error
+      ) {
+        throw new Error(
+          result.error ||
+          "Unable to update free service."
+        );
+      }
+
+
+      const service =
+        state.services.find(
+          item =>
+            item.id === serviceId
+        );
+
+
+      if (service) {
+        service.required =
+          result.required === true;
+      }
+
+
+    } catch (error) {
+
+      console.error(
+        "FREE SERVICE REQUIRED ERROR:",
+        error
+      );
+
+
+      /*
+       * Restore the checkbox to its previous
+       * value if the save failed.
+       */
+      freeServiceRequired.checked =
+        !required;
+
+
+      showCustomAlert(
+        error.message ||
+        "Unable to update free service."
+      );
+
+
+    } finally {
+
+      freeServiceRequired.disabled =
+        false;
+    }
+
+
+    return;
+  }
+
+
   const allowCustomerServiceSelection =
     event.target.closest(
       "#allowCustomerServiceSelection"
