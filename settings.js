@@ -1575,10 +1575,18 @@ function renderServices() {
   const container =
     $("servicesList");
 
+  const allowCustomerServiceSelection =
+    $("allowCustomerServiceSelection");
+
+  if (allowCustomerServiceSelection) {
+    allowCustomerServiceSelection.checked =
+      state.instructor
+        ?.allow_customer_service_selection === true;
+  }
+
   if (!container) {
     return;
   }
-
 
   if (!state.instructor?.id) {
 
@@ -1862,7 +1870,8 @@ async function loadAllInstructors() {
   booking_horizon_days,
   minimum_booking_notice_hours,
   cancellation_hours,
-  reschedule_hours
+  reschedule_hours,
+  allow_customer_service_selection
 `)
       .order("name");
 
@@ -3799,7 +3808,8 @@ const { data: selectedInstructor, error: instructorError } =
       booking_horizon_days,
       minimum_booking_notice_hours,
       cancellation_hours,
-      reschedule_hours
+      reschedule_hours,
+      allow_customer_service_selection
     `)
     .eq("id", instructorId)
     .single();
