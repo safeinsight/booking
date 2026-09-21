@@ -1042,7 +1042,9 @@ body: JSON.stringify({
   start_time: first.start,
   end_time: last.end,
   student: state.student,
-  student_timezone: state.studentTimezone
+  student_timezone: state.studentTimezone,
+  selected_service_price_ids:
+    state.selectedServicePriceIds
 })
 });
 
