@@ -3998,27 +3998,23 @@ state.instructor =
 
 updateBookingUrlDisplay();
 
+const calendarSelectedName =
+  $("calendarSelectedName");
 
+if (calendarSelectedName) {
+  calendarSelectedName.textContent =
+    selectedInstructor.name;
+}
 
-    const calendarSelectedName =
-      $("calendarSelectedName");
+await loadLocationIntoForm(
+  state.location
+);
 
-    if (calendarSelectedName) {
-      calendarSelectedName.textContent =
-        selectedInstructor.name;
-    }
+await loadServices();
 
+renderInstructorList();
 
-
-    await loadLocationIntoForm(
-      state.location
-    );
-
-    renderInstructorList();
-
-
-
-    return;
+return;
   }
 
   const select =
