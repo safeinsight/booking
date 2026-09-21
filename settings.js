@@ -1707,6 +1707,17 @@ function renderServices() {
 
                   </label>
 
+
+                  <button
+                    type="button"
+                    class="secondary"
+                    data-deactivate-free-service
+                    data-service-id="${escapeAttr(service.id)}"
+                    style="margin-top:12px;"
+                  >
+                    Remove Free Service
+                  </button>
+
                 </span>
 
               </div>
@@ -1867,6 +1878,132 @@ function setupServiceTypeSelector() {
 document.addEventListener(
   "click",
   async event => {
+
+    /*
+     * Remove/deactivate a locally-created
+     * free service.
+     */
+    const deactivateButton =
+      event.target.closest(
+        "[data-deactivate-free-service]"
+      );
+
+    if (deactivateButton) {
+
+      if (!state.instructor?.id) {
+        showCustomAlert(
+          "Please select an instructor first."
+        );
+        return;
+      }
+
+
+      const serviceId =
+        deactivateButton.getAttribute(
+          "data-service-id"
+        );
+
+
+      if (!serviceId) {
+        return;
+      }
+
+
+      const confirmed =
+        await showCustomConfirm(
+          "Remove this free service?"
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
+
+
+      const originalText =
+        deactivateButton.textContent;
+
+      deactivateButton.disabled = true;
+      deactivateButton.textContent =
+        "Removing...";
+
+
+      try {
+
+        const authHeaders =
+          await getAuthHeaders();
+
+
+        const response =
+          await fetch(
+            `${cfg.functionsBaseUrl}/stripe-products`,
+            {
+              method: "POST",
+              headers: authHeaders,
+              body: JSON.stringify({
+                action:
+                  "deactivate_free_service",
+
+                instructor_id:
+                  state.instructor.id,
+
+                service_id:
+                  serviceId
+              })
+            }
+          );
+
+
+        const result =
+          await response.json();
+
+
+        if (
+          !response.ok ||
+          result.error
+        ) {
+          throw new Error(
+            result.error ||
+            "Unable to remove free service."
+          );
+        }
+
+
+        await loadServices();
+
+
+        showCustomAlert(
+          "Free service removed successfully."
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "REMOVE FREE SERVICE ERROR:",
+          error
+        );
+
+
+        showCustomAlert(
+          error.message ||
+          "Unable to remove free service."
+        );
+
+
+      } finally {
+
+        deactivateButton.disabled =
+          false;
+
+        deactivateButton.textContent =
+          originalText;
+      }
+
+
+      return;
+    }
+
 
     const button =
       event.target.closest(
