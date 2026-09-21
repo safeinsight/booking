@@ -1111,8 +1111,119 @@
     <h2>Services</h2>
 
     <p class="muted">
-      Choose which Stripe products are offered by the selected instructor.
+      Manage the paid and free services offered by the selected instructor.
     </p>
+
+
+    <!-- CREATE SERVICE -->
+
+    <div
+      style="
+        margin-top:20px;
+        padding:15px;
+        border:1px solid #ddd;
+        border-radius:8px;
+        background:#fafafa;
+      "
+    >
+
+      <h3 style="margin-top:0;">
+        Create Service
+      </h3>
+
+      <p class="muted">
+        Paid services are managed through Stripe.
+        Free services are created directly inside Booking Settings
+        and do not require a Stripe Product or Price.
+      </p>
+
+
+      <label for="newServiceType">
+        Service Type
+      </label>
+
+      <select id="newServiceType">
+        <option value="paid">
+          Paid Service — Stripe
+        </option>
+
+        <option value="free">
+          Free Service — No Stripe
+        </option>
+      </select>
+
+
+      <div
+        id="paidServiceHelp"
+        style="margin-top:15px;"
+      >
+
+        <p class="muted" style="margin:0;">
+          Paid services are created and priced in Stripe.
+          Existing active Stripe products are available below
+          for assignment to this instructor.
+        </p>
+
+      </div>
+
+
+      <div
+        id="freeServiceFields"
+        class="hidden"
+        style="margin-top:15px;"
+      >
+
+        <label for="newFreeServiceName">
+          Service Name
+        </label>
+
+        <input
+          type="text"
+          id="newFreeServiceName"
+          maxlength="200"
+          placeholder="Qualifications"
+        >
+
+
+        <label for="newFreeServiceDescription">
+          Description
+        </label>
+
+        <textarea
+          id="newFreeServiceDescription"
+          rows="4"
+          maxlength="2000"
+          placeholder="Describe the free service."
+        ></textarea>
+
+
+        <label
+          for="newFreeServiceRequired"
+          style="margin-top:12px;"
+        >
+          <input
+            type="checkbox"
+            id="newFreeServiceRequired"
+          >
+          Required for booking
+        </label>
+
+
+        <button
+          type="button"
+          id="createFreeServiceBtn"
+          class="secondary"
+          style="margin-top:15px;"
+        >
+          Create Free Service
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- CUSTOMER SERVICE SELECTION -->
 
     <div
       style="
