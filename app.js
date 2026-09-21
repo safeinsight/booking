@@ -432,9 +432,21 @@ async function loadDates() {
 
   state.selectedServicePriceIds =
     json.allow_customer_service_selection === true
-      ? []
+      ? state.services
+          .filter(
+            service =>
+              service.required === true
+          )
+          .map(
+            service =>
+              service.price_id
+          )
+          .filter(Boolean)
       : state.services
-          .map(service => service.price_id)
+          .map(
+            service =>
+              service.price_id
+          )
           .filter(Boolean);
 
   const studentDays =
