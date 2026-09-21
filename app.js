@@ -943,8 +943,27 @@ ${formatTime(first.start, state.studentTimezone)} – ${formatTime(last.end, sta
     ${escapeHtml(state.student.email)}
   `;
 
-  if (l.payment_required) {
-    $("paymentNotice").textContent = "Payment will be collected securely before the booking is finalized.";
+  const selectedServices =
+    state.services.filter(
+      service =>
+        state.selectedServicePriceIds
+          .includes(service.price_id)
+    );
+
+  const selectedTotalCents =
+    selectedServices.reduce(
+      (sum, service) =>
+        sum + Number(service.price_cents || 0),
+      0
+    );
+
+  if (
+    l.payment_required &&
+    selectedTotalCents > 0
+  ) {
+    $("paymentNotice").textContent =
+      "Payment will be collected securely before the booking is finalized.";
+
     $("paymentNotice").classList.remove("hidden");
   } else {
     $("paymentNotice").classList.add("hidden");
