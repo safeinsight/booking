@@ -1628,6 +1628,98 @@ function renderServices() {
           ).toUpperCase();
 
 
+        /*
+         * Local free services do not have Stripe
+         * Product or Price IDs.
+         */
+        if (
+          service.service_type === "free"
+        ) {
+
+          return `
+            <div
+              style="
+                padding:15px;
+                border:1px solid #ddd;
+                border-radius:8px;
+                margin-bottom:10px;
+              "
+            >
+
+              <div
+                style="
+                  display:flex;
+                  align-items:flex-start;
+                  gap:12px;
+                "
+              >
+
+                <span>
+
+                  <strong>
+                    ${escapeHtml(service.product_name)}
+                  </strong>
+
+                  <div style="margin-top:5px;">
+                    Free
+                  </div>
+
+                  ${
+                    service.product_description
+                      ? `
+                        <div
+                          class="muted"
+                          style="margin-top:5px;"
+                        >
+                          ${escapeHtml(service.product_description)}
+                        </div>
+                      `
+                      : ""
+                  }
+
+                  <div
+                    class="muted"
+                    style="margin-top:10px;"
+                  >
+                    Local service — no Stripe product required
+                  </div>
+
+                  <label
+                    style="
+                      display:flex;
+                      align-items:center;
+                      gap:8px;
+                      margin-top:10px;
+                      cursor:pointer;
+                    "
+                  >
+
+                    <input
+                      type="checkbox"
+                      data-free-service-required
+                      data-service-id="${escapeAttr(service.id)}"
+                      ${service.required ? "checked" : ""}
+                    >
+
+                    <span>
+                      Required for booking
+                    </span>
+
+                  </label>
+
+                </span>
+
+              </div>
+
+            </div>
+          `;
+        }
+
+
+        /*
+         * Paid services continue using the existing
+         * Stripe assignment controls.
+         */
         return `
           <div
             style="
@@ -1717,6 +1809,218 @@ function renderServices() {
       .join("");
 }
 
+function setupServiceTypeSelector() {
+
+  const typeSelect =
+    document.getElementById(
+      "newServiceType"
+    );
+
+  const paidHelp =
+    document.getElementById(
+      "paidServiceHelp"
+    );
+
+  const freeFields =
+    document.getElementById(
+      "freeServiceFields"
+    );
+
+
+  if (
+    !typeSelect ||
+    !paidHelp ||
+    !freeFields
+  ) {
+    return;
+  }
+
+
+  function updateServiceTypeDisplay() {
+
+    const isFree =
+      typeSelect.value === "free";
+
+
+    paidHelp.classList.toggle(
+      "hidden",
+      isFree
+    );
+
+    freeFields.classList.toggle(
+      "hidden",
+      !isFree
+    );
+  }
+
+
+  typeSelect.addEventListener(
+    "change",
+    updateServiceTypeDisplay
+  );
+
+
+  updateServiceTypeDisplay();
+}
+
+
+document.addEventListener(
+  "click",
+  async event => {
+
+    const button =
+      event.target.closest(
+        "#createFreeServiceBtn"
+      );
+
+    if (!button) {
+      return;
+    }
+
+
+    if (!state.instructor?.id) {
+      showCustomAlert(
+        "Please select an instructor first."
+      );
+      return;
+    }
+
+
+    const nameInput =
+      document.getElementById(
+        "newFreeServiceName"
+      );
+
+    const descriptionInput =
+      document.getElementById(
+        "newFreeServiceDescription"
+      );
+
+    const requiredInput =
+      document.getElementById(
+        "newFreeServiceRequired"
+      );
+
+
+    const name =
+      nameInput?.value.trim() || "";
+
+    const description =
+      descriptionInput?.value.trim() || "";
+
+    const required =
+      requiredInput?.checked === true;
+
+
+    if (!name) {
+      showCustomAlert(
+        "Please enter a service name."
+      );
+      return;
+    }
+
+
+    const originalText =
+      button.textContent;
+
+    button.disabled = true;
+    button.textContent =
+      "Creating...";
+
+
+    try {
+
+      const authHeaders =
+        await getAuthHeaders();
+
+
+      const response =
+        await fetch(
+          `${cfg.functionsBaseUrl}/stripe-products`,
+          {
+            method: "POST",
+            headers: authHeaders,
+            body: JSON.stringify({
+              action:
+                "create_free_service",
+
+              instructor_id:
+                state.instructor.id,
+
+              name,
+
+              description,
+
+              required
+            })
+          }
+        );
+
+
+      const result =
+        await response.json();
+
+
+      if (
+        !response.ok ||
+        result.error
+      ) {
+        throw new Error(
+          result.error ||
+          "Unable to create free service."
+        );
+      }
+
+
+      /*
+       * Clear the form after successful creation.
+       */
+      if (nameInput) {
+        nameInput.value = "";
+      }
+
+      if (descriptionInput) {
+        descriptionInput.value = "";
+      }
+
+      if (requiredInput) {
+        requiredInput.checked = false;
+      }
+
+
+      /*
+       * Reload the service list so the new local
+       * service appears immediately.
+       */
+      await loadServices();
+
+
+      showCustomAlert(
+        "Free service created successfully."
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "CREATE FREE SERVICE ERROR:",
+        error
+      );
+
+      showCustomAlert(
+        error.message ||
+        "Unable to create free service."
+      );
+
+
+    } finally {
+
+      button.disabled = false;
+      button.textContent =
+        originalText;
+    }
+  }
+);
 
 
 async function loadServices() {
@@ -4625,6 +4929,8 @@ $("logoutBtn").addEventListener(
       state.role;
 
     applyRolePermissions();
+
+    setupServiceTypeSelector();
 
     await loadAllInstructors();
     await loadLocations();
