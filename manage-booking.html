@@ -552,6 +552,17 @@
 
       <div class="detail-row">
         <div class="detail-label">
+          Services
+        </div>
+
+        <div
+          id="bookingServices"
+          class="detail-value"
+        ></div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
           Status
         </div>
 
@@ -816,6 +827,9 @@
 
     const locationName =
       document.getElementById("locationName");
+
+    const bookingServices =
+      document.getElementById("bookingServices");
 
     const bookingStatus =
       document.getElementById("bookingStatus");
@@ -1109,6 +1123,56 @@ function groupRescheduleAvailabilityByStudentTimezone(
 
         locationName.textContent =
           data.booking.location_name || "";
+
+        const services =
+          Array.isArray(data.booking.services)
+            ? data.booking.services
+            : [];
+
+        bookingServices.innerHTML =
+          "";
+
+        if (services.length) {
+
+          services.forEach(
+            service => {
+
+              const serviceLine =
+                document.createElement("div");
+
+              const price =
+                new Intl.NumberFormat(
+                  "en-US",
+                  {
+                    style: "currency",
+                    currency:
+                      (
+                        service.currency ||
+                        "USD"
+                      ).toUpperCase(),
+                  }
+                ).format(
+                  Number(
+                    service.price_cents || 0
+                  ) / 100
+                );
+
+              serviceLine.textContent =
+                `${service.service_name || "Service"} — ${price}`;
+
+              bookingServices.appendChild(
+                serviceLine
+              );
+
+            }
+          );
+
+        } else {
+
+          bookingServices.textContent =
+            "None";
+
+        }
 
         bookingStatus.textContent =
           data.booking.status || "";
