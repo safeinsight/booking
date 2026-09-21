@@ -1758,28 +1758,49 @@ function renderServices() {
     return;
   }
 
-  if (!state.services.length) {
+
+  if (!state.instructor?.id) {
 
     container.innerHTML = `
       <p class="muted">
-        No services have been created yet.
+        Select an instructor to manage services.
       </p>
     `;
 
     return;
   }
 
+
+  if (!state.services.length) {
+
+    container.innerHTML = `
+      <p class="muted">
+        No active Stripe products with an active
+        one-time default price were found.
+      </p>
+    `;
+
+    return;
+  }
+
+
   container.innerHTML =
     state.services
       .map(service => {
 
         const price =
-          (service.price_cents / 100)
-            .toFixed(2);
+          (
+            service.price_cents / 100
+          ).toFixed(2);
+
+        const currency =
+          String(
+            service.currency || "usd"
+          ).toUpperCase();
+
 
         return `
           <div
-            data-service-row="${escapeAttr(service.id)}"
             style="
               padding:15px;
               border:1px solid #ddd;
@@ -1788,110 +1809,53 @@ function renderServices() {
             "
           >
 
-            <div data-service-display>
-
-              <strong>
-                ${escapeHtml(service.name)}
-              </strong>
-
-              <div style="margin-top:5px;">
-                $${price}
-              </div>
-
-              <div
-                class="muted"
-                style="margin-top:5px;"
-              >
-                ${service.active
-                  ? "Active"
-                  : "Inactive"}
-              </div>
-
-              <button
-                type="button"
-                class="secondary"
-                data-edit-service="${escapeAttr(service.id)}"
-                style="margin-top:10px;"
-              >
-                Edit
-              </button>
-
-            </div>
-
-
-            <div
-              data-service-edit
-              class="hidden"
+            <label
+              style="
+                display:flex;
+                align-items:flex-start;
+                gap:12px;
+                cursor:pointer;
+              "
             >
 
-              <div class="form-group">
-
-                <label>
-                  Service Name
-                </label>
-
-                <input
-                  type="text"
-                  data-service-name
-                  value="${escapeAttr(service.name)}"
-                >
-
-              </div>
-
-              <div class="form-group">
-
-                <label>
-                  Price
-                </label>
-
-                <input
-                  type="number"
-                  data-service-price
-                  min="0"
-                  step="0.01"
-                  value="${price}"
-                >
-
-              </div>
-
-              <label
+              <input
+                type="checkbox"
+                data-stripe-service
+                data-product-id="${escapeAttr(service.product_id)}"
+                data-price-id="${escapeAttr(service.price_id)}"
+                ${service.assigned ? "checked" : ""}
                 style="
-                  display:flex;
-                  align-items:center;
-                  gap:8px;
-                  margin-top:10px;
+                  margin-top:4px;
+                  flex:0 0 auto;
                 "
               >
-                <input
-                  type="checkbox"
-                  data-service-active
-                  ${service.active ? "checked" : ""}
-                >
-                Active
-              </label>
 
-              <div style="margin-top:15px;">
+              <span>
 
-                <button
-                  type="button"
-                  class="primary"
-                  data-save-service="${escapeAttr(service.id)}"
-                >
-                  Save
-                </button>
+                <strong>
+                  ${escapeHtml(service.product_name)}
+                </strong>
 
-                <button
-                  type="button"
-                  class="secondary"
-                  data-cancel-service="${escapeAttr(service.id)}"
-                  style="margin-left:8px;"
-                >
-                  Cancel
-                </button>
+                <div style="margin-top:5px;">
+                  $${price} ${escapeHtml(currency)}
+                </div>
 
-              </div>
+                ${
+                  service.product_description
+                    ? `
+                      <div
+                        class="muted"
+                        style="margin-top:5px;"
+                      >
+                        ${escapeHtml(service.product_description)}
+                      </div>
+                    `
+                    : ""
+                }
 
-            </div>
+              </span>
+
+            </label>
 
           </div>
         `;
@@ -1903,25 +1867,60 @@ function renderServices() {
 
 async function loadServices() {
 
-  const { data, error } =
-    await db
-      .from("services")
-      .select(`
-        id,
-        name,
-        price_cents,
-        active
-      `)
-      .order("name");
-
-  if (error) {
-    throw error;
+  if (!state.instructor?.id) {
+    state.services = [];
+    renderServices();
+    return;
   }
 
-  state.services =
-    data || [];
+  try {
 
-  renderServices();
+    const authHeaders =
+      await getAuthHeaders();
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/stripe-products?instructor_id=${encodeURIComponent(state.instructor.id)}`,
+        {
+          method: "GET",
+          headers: authHeaders
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if (
+      !response.ok ||
+      result.error
+    ) {
+      throw new Error(
+        result.error ||
+        "Unable to load Stripe products."
+      );
+    }
+
+    state.services =
+      result.products || [];
+
+    renderServices();
+
+  } catch (error) {
+
+    console.error(
+      "STRIPE PRODUCTS LOAD ERROR:",
+      error
+    );
+
+    state.services = [];
+
+    renderServices();
+
+    showCustomAlert(
+      error.message ||
+      "Unable to load Stripe products."
+    );
+  }
 }
 
 
