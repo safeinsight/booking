@@ -800,7 +800,6 @@ function renderBookingServices() {
                     <strong>${escapeHtml(service.product_name)}</strong>
                   </label>
                 `
-                `
                 : `
                   <strong>${escapeHtml(service.product_name)}</strong>
                 `
