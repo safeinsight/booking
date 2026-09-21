@@ -3651,8 +3651,104 @@ document.addEventListener("click", async function (event) {
 
 
 document.addEventListener("change", async function (event) {
-  
-    const stripeService =
+
+  const allowCustomerServiceSelection =
+    event.target.closest(
+      "#allowCustomerServiceSelection"
+    );
+
+  if (allowCustomerServiceSelection) {
+
+    if (!state.instructor?.id) {
+      return;
+    }
+
+    const enabled =
+      allowCustomerServiceSelection.checked;
+
+    allowCustomerServiceSelection.disabled =
+      true;
+
+    try {
+
+      const authHeaders =
+        await getAuthHeaders();
+
+      const response =
+        await fetch(
+          `${cfg.functionsBaseUrl}/stripe-products`,
+          {
+            method: "POST",
+            headers: authHeaders,
+            body: JSON.stringify({
+              action:
+                "update_customer_service_selection",
+
+              instructor_id:
+                state.instructor.id,
+
+              allow_customer_service_selection:
+                enabled
+            })
+          }
+        );
+
+      const result =
+        await response.json();
+
+      if (
+        !response.ok ||
+        result.error
+      ) {
+        throw new Error(
+          result.error ||
+          "Unable to update customer service selection."
+        );
+      }
+
+      state.instructor
+        .allow_customer_service_selection =
+          result.allow_customer_service_selection;
+
+      const instructor =
+        state.instructors.find(
+          item =>
+            item.id ===
+            state.instructor.id
+        );
+
+      if (instructor) {
+        instructor
+          .allow_customer_service_selection =
+            result.allow_customer_service_selection;
+      }
+
+    } catch (error) {
+
+      console.error(
+        "CUSTOMER SERVICE SELECTION ERROR:",
+        error
+      );
+
+      allowCustomerServiceSelection.checked =
+        !enabled;
+
+      showCustomAlert(
+        error.message ||
+        "Unable to update customer service selection."
+      );
+
+    } finally {
+
+      allowCustomerServiceSelection.disabled =
+        false;
+    }
+
+    return;
+  }
+
+
+  const stripeService =
     event.target.closest(
       "[data-stripe-service]"
     );
