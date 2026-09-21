@@ -14,6 +14,7 @@ const state = {
 
   services: [],
   selectedServicePriceIds: [],
+  selectedServiceIds: [],
 
   studentTimezone:
     Intl.DateTimeFormat().resolvedOptions().timeZone ||
@@ -430,6 +431,11 @@ async function loadDates() {
   state.services =
     json.services || [];
 
+
+  /*
+   * Paid Stripe services continue to be tracked
+   * by Stripe Price ID.
+   */
   state.selectedServicePriceIds =
     json.allow_customer_service_selection === true
       ? state.services
@@ -448,6 +454,36 @@ async function loadDates() {
               service.price_id
           )
           .filter(Boolean);
+
+
+  /*
+   * Local free services have no Stripe Price ID,
+   * so track them by their local service ID.
+   */
+  state.selectedServiceIds =
+    json.allow_customer_service_selection === true
+      ? state.services
+          .filter(
+            service =>
+              service.service_type === "free" &&
+              service.required === true
+          )
+          .map(
+            service =>
+              service.id
+          )
+          .filter(Boolean)
+      : state.services
+          .filter(
+            service =>
+              service.service_type === "free"
+          )
+          .map(
+            service =>
+              service.id
+          )
+          .filter(Boolean);
+
 
   const studentDays =
     groupAvailabilityByStudentTimezone(
@@ -771,9 +807,22 @@ function renderBookingServices() {
           );
 
 
+        const isFreeService =
+          service.service_type === "free";
+
+
+        const serviceValue =
+          isFreeService
+            ? service.id
+            : service.price_id;
+
+
         const checked =
-          state.selectedServicePriceIds
-            .includes(service.price_id);
+          isFreeService
+            ? state.selectedServiceIds
+                .includes(service.id)
+            : state.selectedServicePriceIds
+                .includes(service.price_id);
 
 
         return `
@@ -801,7 +850,8 @@ function renderBookingServices() {
                     <input
                       type="checkbox"
                       data-booking-service
-                      value="${escapeAttr(service.price_id)}"
+                      data-service-type="${isFreeService ? "free" : "paid"}"
+                      value="${escapeAttr(serviceValue)}"
                       ${checked ? "checked" : ""}
                       ${service.required === true ? "disabled" : ""}
                       style="
@@ -849,9 +899,19 @@ function renderBookingServices() {
 
   const selectedServices =
     state.services.filter(
-      service =>
-        state.selectedServicePriceIds
-          .includes(service.price_id)
+      service => {
+
+        if (
+          service.service_type === "free"
+        ) {
+          return state.selectedServiceIds
+            .includes(service.id);
+        }
+
+
+        return state.selectedServicePriceIds
+          .includes(service.price_id);
+      }
     );
 
 
@@ -898,11 +958,43 @@ $("bookingServicesList").addEventListener(
     }
 
 
-    state.selectedServicePriceIds =
+    const checkedServices =
       [...document.querySelectorAll(
         "[data-booking-service]:checked"
-      )]
-        .map(input => input.value)
+      )];
+
+
+    /*
+     * Paid services continue to use their
+     * Stripe Price IDs.
+     */
+    state.selectedServicePriceIds =
+      checkedServices
+        .filter(
+          input =>
+            input.dataset.serviceType === "paid"
+        )
+        .map(
+          input =>
+            input.value
+        )
+        .filter(Boolean);
+
+
+    /*
+     * Free services use their local
+     * services.id UUID instead.
+     */
+    state.selectedServiceIds =
+      checkedServices
+        .filter(
+          input =>
+            input.dataset.serviceType === "free"
+        )
+        .map(
+          input =>
+            input.value
+        )
         .filter(Boolean);
 
 
@@ -945,9 +1037,19 @@ ${formatTime(first.start, state.studentTimezone)} – ${formatTime(last.end, sta
 
   const selectedServices =
     state.services.filter(
-      service =>
-        state.selectedServicePriceIds
-          .includes(service.price_id)
+      service => {
+
+        if (
+          service.service_type === "free"
+        ) {
+          return state.selectedServiceIds
+            .includes(service.id);
+        }
+
+
+        return state.selectedServicePriceIds
+          .includes(service.price_id);
+      }
     );
 
   const selectedTotalCents =
@@ -1082,8 +1184,20 @@ body: JSON.stringify({
   end_time: last.end,
   student: state.student,
   student_timezone: state.studentTimezone,
+
+  /*
+   * Paid services are identified by their
+   * Stripe Price IDs.
+   */
   selected_service_price_ids:
-    state.selectedServicePriceIds
+    state.selectedServicePriceIds,
+
+  /*
+   * Local free services have no Stripe Price ID,
+   * so identify them by services.id instead.
+   */
+  selected_service_ids:
+    state.selectedServiceIds
 })
 });
 
