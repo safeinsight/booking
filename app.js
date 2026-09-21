@@ -776,15 +776,30 @@ function renderBookingServices() {
             ${
               allowSelection
                 ? `
-                  <label>
+                  <label
+                    style="
+                      display:flex;
+                      align-items:center;
+                      justify-content:flex-start;
+                      gap:8px;
+                      width:fit-content;
+                      cursor:pointer;
+                    "
+                  >
                     <input
                       type="checkbox"
                       data-booking-service
                       value="${escapeAttr(service.price_id)}"
                       ${checked ? "checked" : ""}
+                      style="
+                        width:auto;
+                        margin:0;
+                        flex:0 0 auto;
+                      "
                     >
                     <strong>${escapeHtml(service.product_name)}</strong>
                   </label>
+                `
                 `
                 : `
                   <strong>${escapeHtml(service.product_name)}</strong>
