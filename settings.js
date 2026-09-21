@@ -3947,11 +3947,17 @@ document.addEventListener("change", async function (event) {
 
       renderInstructorList();
 
-      await loadLocationIntoForm(
-        state.location
-      );
+    await loadLocationIntoForm(
+      state.location
+    );
 
-      return;
+    await loadServices();
+
+    renderInstructorList();
+
+
+
+    return;
     }
 
 const { data: selectedInstructor, error: instructorError } =
