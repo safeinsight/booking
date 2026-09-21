@@ -3435,6 +3435,8 @@ document.addEventListener("click", async function (event) {
     state.location
   );
 
+  await loadServices();
+
 
 
 
