@@ -3819,7 +3819,109 @@ document.addEventListener("click", async function (event) {
 
 
 document.addEventListener("change", async function (event) {
+  
+    const stripeService =
+    event.target.closest(
+      "[data-stripe-service]"
+    );
 
+  if (stripeService) {
+
+    if (!state.instructor?.id) {
+      return;
+    }
+
+    const productId =
+      stripeService.getAttribute(
+        "data-product-id"
+      );
+
+    const priceId =
+      stripeService.getAttribute(
+        "data-price-id"
+      );
+
+    const assigned =
+      stripeService.checked;
+
+    stripeService.disabled = true;
+
+    try {
+
+      const authHeaders =
+        await getAuthHeaders();
+
+      const response =
+        await fetch(
+          `${cfg.functionsBaseUrl}/stripe-products`,
+          {
+            method: "POST",
+            headers: authHeaders,
+            body: JSON.stringify({
+              instructor_id:
+                state.instructor.id,
+
+              product_id:
+                productId,
+
+              price_id:
+                priceId,
+
+              assigned:
+                assigned
+            })
+          }
+        );
+
+      const result =
+        await response.json();
+
+      if (
+        !response.ok ||
+        result.error
+      ) {
+        throw new Error(
+          result.error ||
+          "Unable to update service assignment."
+        );
+      }
+
+      const service =
+        state.services.find(
+          item =>
+            item.product_id ===
+            productId
+        );
+
+      if (service) {
+        service.assigned =
+          assigned;
+      }
+
+    } catch (error) {
+
+      console.error(
+        "SERVICE ASSIGNMENT ERROR:",
+        error
+      );
+
+      stripeService.checked =
+        !assigned;
+
+      showCustomAlert(
+        error.message ||
+        "Unable to update service assignment."
+      );
+
+    } finally {
+
+      stripeService.disabled =
+        false;
+    }
+
+    return;
+  }
+  
   const globalSelect =
     event.target.closest("#globalInstructorSelect");
 
