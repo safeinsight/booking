@@ -11,6 +11,10 @@ const state = {
   selectedEnd: null,
   student: null,
   calendarMonth: null,
+
+  services: [],
+  selectedServicePriceIds: [],
+
   studentTimezone:
     Intl.DateTimeFormat().resolvedOptions().timeZone ||
     "America/Los_Angeles"
@@ -356,7 +360,8 @@ async function loadInstructor() {
       booking_horizon_days,
       minimum_booking_notice_hours,
       cancellation_hours,
-      reschedule_hours
+      reschedule_hours,
+      allow_customer_service_selection
     `)
     .eq("slug", state.instructorSlug)
     .eq("location_id", state.location.id);
@@ -421,6 +426,16 @@ async function loadDates() {
   if (!res.ok) throw new Error(json.error || "Unable to load availability.");
 
   state.rawAvailability = json;
+
+  state.services =
+    json.services || [];
+
+  state.selectedServicePriceIds =
+    json.allow_customer_service_selection === true
+      ? []
+      : state.services
+          .map(service => service.price_id)
+          .filter(Boolean);
 
   const studentDays =
     groupAvailabilityByStudentTimezone(
@@ -690,6 +705,178 @@ function selectSlot(index) {
   }
 }
 
+function renderBookingServices() {
+  const container =
+    $("bookingServices");
+
+  const list =
+    $("bookingServicesList");
+
+  const total =
+    $("bookingServicesTotal");
+
+  if (
+    !container ||
+    !list ||
+    !total
+  ) {
+    return;
+  }
+
+
+  if (!state.services.length) {
+    container.classList.add("hidden");
+    list.innerHTML = "";
+    total.textContent = "";
+    return;
+  }
+
+
+  const allowSelection =
+    state.rawAvailability
+      ?.allow_customer_service_selection === true;
+
+
+  container.classList.remove("hidden");
+
+
+  list.innerHTML =
+    state.services
+      .map(service => {
+
+        const amount =
+          new Intl.NumberFormat(
+            "en-US",
+            {
+              style: "currency",
+              currency:
+                String(
+                  service.currency || "usd"
+                ).toUpperCase()
+            }
+          ).format(
+            (service.price_cents || 0) / 100
+          );
+
+
+        const checked =
+          state.selectedServicePriceIds
+            .includes(service.price_id);
+
+
+        return `
+          <div
+            style="
+              margin:12px 0;
+              padding:12px;
+              border:1px solid #ddd;
+              border-radius:6px;
+            "
+          >
+            ${
+              allowSelection
+                ? `
+                  <label>
+                    <input
+                      type="checkbox"
+                      data-booking-service
+                      value="${escapeAttr(service.price_id)}"
+                      ${checked ? "checked" : ""}
+                    >
+                    <strong>${escapeHtml(service.product_name)}</strong>
+                  </label>
+                `
+                : `
+                  <strong>${escapeHtml(service.product_name)}</strong>
+                `
+            }
+
+            ${
+              service.product_description
+                ? `
+                  <div
+                    class="muted"
+                    style="margin-top:5px;"
+                  >
+                    ${escapeHtml(service.product_description)}
+                  </div>
+                `
+                : ""
+            }
+
+            <div style="margin-top:5px;">
+              ${escapeHtml(amount)}
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+
+  const selectedServices =
+    state.services.filter(
+      service =>
+        state.selectedServicePriceIds
+          .includes(service.price_id)
+    );
+
+
+  const totalCents =
+    selectedServices.reduce(
+      (sum, service) =>
+        sum +
+        Number(service.price_cents || 0),
+      0
+    );
+
+
+  const currency =
+    selectedServices[0]?.currency ||
+    state.services[0]?.currency ||
+    "usd";
+
+
+  total.textContent =
+    `Total: ${
+      new Intl.NumberFormat(
+        "en-US",
+        {
+          style: "currency",
+          currency:
+            String(currency).toUpperCase()
+        }
+      ).format(totalCents / 100)
+    }`;
+}
+
+
+$("bookingServicesList").addEventListener(
+  "change",
+  event => {
+
+    const checkbox =
+      event.target.closest(
+        "[data-booking-service]"
+      );
+
+    if (!checkbox) {
+      return;
+    }
+
+
+    state.selectedServicePriceIds =
+      [...document.querySelectorAll(
+        "[data-booking-service]:checked"
+      )]
+        .map(input => input.value)
+        .filter(Boolean);
+
+
+    renderBookingServices();
+  }
+);
+
+
 function buildReview() {
   const day = state.availability.days.find(d => d.date === state.date);
   const first = day.slots[state.selectedStart];
@@ -813,7 +1000,10 @@ $("studentForm").addEventListener("submit", e => {
     phone: $("phone").value.trim(),
     email: $("email").value.trim()
   };
+
   buildReview();
+  renderBookingServices();
+
   showStep(4);
 });
 document.querySelectorAll(".back").forEach(b => b.addEventListener("click", () => showStep(Number(b.dataset.back))));
