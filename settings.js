@@ -460,6 +460,453 @@ function selectAppointmentHistoryRange(days) {
 }
 
 
+/* =========================================================
+   APPOINTMENTS DATA
+   ========================================================= */
+
+function formatAppointmentDateTime(
+  appointment
+) {
+
+  const start =
+    new Date(
+      appointment.start_time
+    );
+
+  const end =
+    new Date(
+      appointment.end_time
+    );
+
+
+  const timeZone =
+    state.instructor?.timezone ||
+    appointment.timezone ||
+    undefined;
+
+
+  const dateText =
+    new Intl.DateTimeFormat(
+      "en-US",
+      {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+        timeZone
+      }
+    ).format(start);
+
+
+  const startTime =
+    new Intl.DateTimeFormat(
+      "en-US",
+      {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone
+      }
+    ).format(start);
+
+
+  const endTime =
+    new Intl.DateTimeFormat(
+      "en-US",
+      {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone
+      }
+    ).format(end);
+
+
+  return {
+    dateText,
+    timeText:
+      `${startTime} – ${endTime}`
+  };
+
+}
+
+
+function renderAppointmentList(
+  containerId,
+  appointments
+) {
+
+  const container =
+    $(containerId);
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!appointments.length) {
+
+    container.innerHTML = `
+      <div
+        class="muted"
+        style="
+          padding:20px 0;
+        "
+      >
+        No appointments found.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    appointments
+      .map(appointment => {
+
+        const {
+          dateText,
+          timeText
+        } =
+          formatAppointmentDateTime(
+            appointment
+          );
+
+
+        const serviceName =
+          appointment.service_name ||
+          "Appointment";
+
+
+        const price =
+          appointment.service_price_cents == null
+            ? ""
+            : appointment.service_price_cents === 0
+              ? "Free"
+              : `$${(
+                  appointment.service_price_cents /
+                  100
+                ).toFixed(2)}`;
+
+
+        return `
+          <div
+            style="
+              border:1px solid #ddd;
+              border-radius:8px;
+              padding:16px;
+              margin-top:12px;
+            "
+          >
+
+            <div
+              style="
+                font-size:18px;
+                font-weight:700;
+              "
+            >
+              ${escapeHtml(dateText)}
+            </div>
+
+            <div
+              style="
+                margin-top:4px;
+                font-size:16px;
+              "
+            >
+              ${escapeHtml(timeText)}
+            </div>
+
+            <div
+              style="
+                margin-top:14px;
+              "
+            >
+              <strong>
+                ${escapeHtml(
+                  appointment.student_name ||
+                  "Student"
+                )}
+              </strong>
+            </div>
+
+            <div
+              class="muted"
+              style="
+                margin-top:4px;
+              "
+            >
+              ${escapeHtml(
+                appointment.student_email ||
+                ""
+              )}
+            </div>
+
+            ${
+              appointment.student_phone
+                ? `
+                  <div
+                    class="muted"
+                    style="margin-top:2px;"
+                  >
+                    ${escapeHtml(
+                      appointment.student_phone
+                    )}
+                  </div>
+                `
+                : ""
+            }
+
+            <div
+              style="
+                margin-top:14px;
+              "
+            >
+              <strong>
+                Service:
+              </strong>
+
+              ${escapeHtml(serviceName)}
+
+              ${
+                price
+                  ? ` — ${escapeHtml(price)}`
+                  : ""
+              }
+            </div>
+
+          </div>
+        `;
+
+      })
+      .join("");
+
+}
+
+
+function renderAppointments(
+  result
+) {
+
+  const counts =
+    result.counts || {};
+
+
+  const appointments =
+    result.appointments || {};
+
+
+  const upcoming =
+    appointments.upcoming || [];
+
+  const past =
+    appointments.past || [];
+
+  const cancelled =
+    appointments.cancelled || [];
+
+  const missed =
+    appointments.missed || [];
+
+
+  const upcomingCount =
+    $("upcomingAppointmentsCount");
+
+  const pastCount =
+    $("pastAppointmentsCount");
+
+  const cancelledCount =
+    $("cancelledAppointmentsCount");
+
+  const missedCount =
+    $("missedAppointmentsCount");
+
+
+  if (upcomingCount) {
+    upcomingCount.textContent =
+      `(${counts.upcoming ?? upcoming.length})`;
+  }
+
+
+  if (pastCount) {
+    pastCount.textContent =
+      `(${counts.past ?? past.length})`;
+  }
+
+
+  if (cancelledCount) {
+    cancelledCount.textContent =
+      `(${counts.cancelled ?? cancelled.length})`;
+  }
+
+
+  if (missedCount) {
+    missedCount.textContent =
+      `(${counts.missed ?? missed.length})`;
+  }
+
+
+  renderAppointmentList(
+    "upcomingAppointmentsList",
+    upcoming
+  );
+
+
+  renderAppointmentList(
+    "pastAppointmentsList",
+    past
+  );
+
+
+  renderAppointmentList(
+    "cancelledAppointmentsList",
+    cancelled
+  );
+
+
+  renderAppointmentList(
+    "missedAppointmentsList",
+    missed
+  );
+
+}
+
+
+async function loadAppointments() {
+
+  if (!state.instructor?.id) {
+
+    renderAppointments({
+      counts: {
+        upcoming: 0,
+        past: 0,
+        cancelled: 0,
+        missed: 0
+      },
+
+      appointments: {
+        upcoming: [],
+        past: [],
+        cancelled: [],
+        missed: []
+      }
+    });
+
+    return;
+  }
+
+
+  const listIds = [
+    "upcomingAppointmentsList",
+    "pastAppointmentsList",
+    "cancelledAppointmentsList",
+    "missedAppointmentsList"
+  ];
+
+
+  listIds.forEach(id => {
+
+    const container =
+      $(id);
+
+    if (container) {
+      container.innerHTML = `
+        <div
+          class="muted"
+          style="
+            padding:20px 0;
+          "
+        >
+          Loading appointments...
+        </div>
+      `;
+    }
+
+  });
+
+
+  try {
+
+    const authHeaders =
+      await getAuthHeaders();
+
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/get-appointments`,
+        {
+          method: "POST",
+          headers: authHeaders,
+
+          body: JSON.stringify({
+            instructor_id:
+              state.instructor.id,
+
+            history_days:
+              state.appointments.historyDays
+          })
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      result.error
+    ) {
+
+      throw new Error(
+        result.error ||
+        "Unable to load appointments."
+      );
+
+    }
+
+
+    renderAppointments(
+      result
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "APPOINTMENTS LOAD ERROR:",
+      error
+    );
+
+
+    listIds.forEach(id => {
+
+      const container =
+        $(id);
+
+      if (container) {
+        container.innerHTML = `
+          <div
+            class="state error"
+            style="
+              margin-top:12px;
+            "
+          >
+            ${escapeHtml(
+              error.message ||
+              "Unable to load appointments."
+            )}
+          </div>
+        `;
+      }
+
+    });
+
+  }
+
+}
+
+
 function showError(message) {
   $("loading")?.classList.add("hidden");
 
@@ -2691,20 +3138,24 @@ return {
     if (isAdministrator() || isManager()) {
       globalSelector.classList.remove("hidden");
 
-   globalSelect.innerHTML =
-  state.instructors.map(instructor => `
+      globalSelect.innerHTML =
+        state.instructors.map(instructor => `
           <option value="${escapeAttr(instructor.id)}">
             ${escapeHtml(instructor.name)}
           </option>
         `).join("");
 
-      globalSelect.value = state.instructor?.id || "";
-      
+      globalSelect.value =
+        state.instructor?.id || "";
+
     } else {
       globalSelector.classList.add("hidden");
       globalSelect.innerHTML = "";
     }
   }
+
+
+  await loadAppointments();
 }
 
 $("locationSelect").addEventListener("change", async event => {
