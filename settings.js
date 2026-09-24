@@ -3153,9 +3153,6 @@ return {
       globalSelect.innerHTML = "";
     }
   }
-
-
-  await loadAppointments();
 }
 
 $("locationSelect").addEventListener("change", async event => {
