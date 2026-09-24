@@ -253,8 +253,211 @@ const state = {
   instructor: null,
   services: [],
   user: null,
-  role: null
+  role: null,
+
+  appointments: {
+    activeTab: "upcoming",
+    historyDays: 60
+  }
 };
+
+
+/* =========================================================
+   APPOINTMENTS UI
+   ========================================================= */
+
+function updateAppointmentsInstructorBanner() {
+
+  const name =
+    $("appointmentsInstructorName");
+
+  const email =
+    $("appointmentsInstructorEmail");
+
+
+  if (!name || !email) {
+    return;
+  }
+
+
+  if (!state.instructor) {
+
+    name.textContent =
+      "No Instructor Selected";
+
+    email.textContent =
+      "";
+
+    return;
+  }
+
+
+  name.textContent =
+    state.instructor.name ||
+    "Selected Instructor";
+
+  email.textContent =
+    state.instructor.email ||
+    "";
+
+}
+
+
+function updateAppointmentsHistoryDescription() {
+
+  const description =
+    $("appointmentsHistoryDescription");
+
+  if (!description) {
+    return;
+  }
+
+
+  const days =
+    state.appointments.historyDays;
+
+
+  if (days === "all") {
+
+    description.textContent =
+      "Showing all appointments.";
+
+    return;
+  }
+
+
+  if (days === 365) {
+
+    description.textContent =
+      "Showing appointments from the last year.";
+
+    return;
+  }
+
+
+  description.textContent =
+    `Showing appointments from the last ${days} days.`;
+
+}
+
+
+function updateAppointmentsHistoryVisibility() {
+
+  const controls =
+    $("appointmentsHistoryControls");
+
+  if (!controls) {
+    return;
+  }
+
+
+  controls.style.display =
+    state.appointments.activeTab === "upcoming"
+      ? "none"
+      : "block";
+
+}
+
+
+function selectAppointmentTab(tabName) {
+
+  const validTabs = [
+    "upcoming",
+    "past",
+    "cancelled",
+    "missed"
+  ];
+
+
+  if (!validTabs.includes(tabName)) {
+    return;
+  }
+
+
+  state.appointments.activeTab =
+    tabName;
+
+
+  document
+    .querySelectorAll("[data-appointment-tab]")
+    .forEach(button => {
+
+      const target =
+        button.getAttribute(
+          "data-appointment-tab"
+        );
+
+      const expectedTarget =
+        `${tabName}AppointmentsTab`;
+
+      button.classList.toggle(
+        "active",
+        target === expectedTarget
+      );
+
+    });
+
+
+  document
+    .querySelectorAll(".appointment-tab-panel")
+    .forEach(panel => {
+
+      panel.classList.add("hidden");
+
+    });
+
+
+  const activePanel =
+    $(`${tabName}AppointmentsTab`);
+
+  if (activePanel) {
+    activePanel.classList.remove("hidden");
+  }
+
+
+  updateAppointmentsHistoryVisibility();
+  updateAppointmentsHistoryDescription();
+
+}
+
+
+function selectAppointmentHistoryRange(days) {
+
+  state.appointments.historyDays =
+    days;
+
+
+  document
+    .querySelectorAll(".appointment-range")
+    .forEach(button => {
+
+      const buttonValue =
+        button.getAttribute("data-days");
+
+      const selected =
+        String(days) === buttonValue;
+
+      button.classList.toggle(
+        "active",
+        selected
+      );
+
+      button.classList.toggle(
+        "primary",
+        selected
+      );
+
+      button.classList.toggle(
+        "secondary",
+        !selected
+      );
+
+    });
+
+
+  updateAppointmentsHistoryDescription();
+
+}
 
 
 function showError(message) {
@@ -2461,6 +2664,8 @@ return {
   }
 
   updateBookingUrlDisplay();
+
+  updateAppointmentsInstructorBanner();
   
   if (state.instructor) {
 
@@ -4628,6 +4833,8 @@ state.instructor =
 
 updateBookingUrlDisplay();
 
+updateAppointmentsInstructorBanner();
+
 const calendarSelectedName =
   $("calendarSelectedName");
 
@@ -5247,3 +5454,126 @@ $("copyBookingUrlBtn")?.addEventListener(
     }
   }
 );
+
+/* =========================================================
+   APPOINTMENTS TAB CONTROLS
+   ========================================================= */
+
+document.addEventListener(
+  "click",
+  function (event) {
+
+    const appointmentTab =
+      event.target.closest(
+        "[data-appointment-tab]"
+      );
+
+
+    if (appointmentTab) {
+
+      const target =
+        appointmentTab.getAttribute(
+          "data-appointment-tab"
+        );
+
+
+      if (!target) {
+        return;
+      }
+
+
+      const tabName =
+        target.replace(
+          "AppointmentsTab",
+          ""
+        );
+
+
+      selectAppointmentTab(
+        tabName
+      );
+
+      return;
+    }
+
+
+    const rangeButton =
+      event.target.closest(
+        ".appointment-range"
+      );
+
+
+    if (rangeButton) {
+
+      const value =
+        rangeButton.getAttribute(
+          "data-days"
+        );
+
+
+      const days =
+        value === "all"
+          ? "all"
+          : Number(value);
+
+
+      selectAppointmentHistoryRange(
+        days
+      );
+
+      return;
+    }
+
+
+    const olderButton =
+      event.target.closest(
+        "#viewOlderAppointmentsBtn"
+      );
+
+
+    if (olderButton) {
+
+      const current =
+        state.appointments.historyDays;
+
+
+      let next =
+        90;
+
+
+      if (current === 30) {
+        next = 60;
+      } else if (current === 60) {
+        next = 90;
+      } else if (current === 90) {
+        next = 365;
+      } else if (current === 365) {
+        next = "all";
+      } else {
+        next = "all";
+      }
+
+
+      selectAppointmentHistoryRange(
+        next
+      );
+
+    }
+
+  }
+);
+
+
+/*
+ * Establish the default Appointments view.
+ */
+
+selectAppointmentTab(
+  state.appointments.activeTab
+);
+
+selectAppointmentHistoryRange(
+  state.appointments.historyDays
+);
+
+updateAppointmentsInstructorBanner();
