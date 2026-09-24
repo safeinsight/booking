@@ -463,6 +463,14 @@
   Calendar
 </button>
 
+<button
+  type="button"
+  class="settings-tab"
+  data-tab="appointmentsTab"
+>
+  Appointments
+</button>
+
           <button
             type="button"
             class="settings-tab"
@@ -1330,9 +1338,226 @@
 </div>
 
 
+<!-- APPOINTMENTS TAB -->
+
+<div
+  id="appointmentsTab"
+  class="settings-tab-panel"
+>
+
+  <div class="settings-section">
+
+    <h2>Appointments</h2>
+
+    <!-- APPOINTMENT SUB-TABS -->
+
+    <div class="email-tabs" role="tablist">
+
+      <button
+        type="button"
+        class="email-tab active"
+        data-appointment-tab="upcomingAppointmentsTab"
+      >
+        Upcoming <span id="upcomingAppointmentsCount">(0)</span>
+      </button>
+
+      <button
+        type="button"
+        class="email-tab"
+        data-appointment-tab="pastAppointmentsTab"
+      >
+        Past <span id="pastAppointmentsCount">(0)</span>
+      </button>
+
+      <button
+        type="button"
+        class="email-tab"
+        data-appointment-tab="cancelledAppointmentsTab"
+      >
+        Cancelled <span id="cancelledAppointmentsCount">(0)</span>
+      </button>
+
+      <button
+        type="button"
+        class="email-tab"
+        data-appointment-tab="missedAppointmentsTab"
+      >
+        Missed <span id="missedAppointmentsCount">(0)</span>
+      </button>
+
+    </div>
 
 
-      
+    <!-- SELECTED INSTRUCTOR BANNER -->
+
+    <div
+      id="appointmentsInstructorBanner"
+      style="
+        margin:20px 0;
+        padding:18px 20px;
+        border:1px solid #ddd;
+        border-radius:8px;
+        background:#f8f8f8;
+      "
+    >
+
+      <div
+        class="muted"
+        style="
+          font-size:14px;
+          margin-bottom:4px;
+        "
+      >
+        Appointments for
+      </div>
+
+      <div
+        id="appointmentsInstructorName"
+        style="
+          font-size:22px;
+          font-weight:700;
+        "
+      >
+        Selected Instructor
+      </div>
+
+      <div
+        id="appointmentsInstructorEmail"
+        class="muted"
+        style="
+          margin-top:3px;
+        "
+      >
+      </div>
+
+    </div>
+
+
+    <!-- HISTORY RANGE -->
+
+    <div
+      id="appointmentsHistoryControls"
+      style="
+        margin:20px 0;
+      "
+    >
+
+      <div
+        style="
+          display:flex;
+          gap:8px;
+          flex-wrap:wrap;
+        "
+      >
+
+        <button
+          type="button"
+          class="secondary appointment-range"
+          data-days="30"
+        >
+          Last 30 Days
+        </button>
+
+        <button
+          type="button"
+          class="primary appointment-range active"
+          data-days="60"
+        >
+          Last 60 Days
+        </button>
+
+        <button
+          type="button"
+          class="secondary appointment-range"
+          data-days="90"
+        >
+          Last 90 Days
+        </button>
+
+        <button
+          type="button"
+          class="secondary appointment-range"
+          data-days="365"
+        >
+          Last Year
+        </button>
+
+        <button
+          type="button"
+          class="secondary appointment-range"
+          data-days="all"
+        >
+          All
+        </button>
+
+      </div>
+
+      <p
+        id="appointmentsHistoryDescription"
+        class="muted"
+        style="margin-top:10px;"
+      >
+        Showing appointments from the last 60 days.
+      </p>
+
+      <button
+        type="button"
+        id="viewOlderAppointmentsBtn"
+        class="secondary"
+      >
+        View Older Appointments
+      </button>
+
+    </div>
+
+
+    <!-- UPCOMING -->
+
+    <div
+      id="upcomingAppointmentsTab"
+      class="appointment-tab-panel"
+    >
+      <div id="upcomingAppointmentsList">
+        <p class="muted">
+          Appointment information will appear here.
+        </p>
+      </div>
+    </div>
+
+
+    <!-- PAST -->
+
+    <div
+      id="pastAppointmentsTab"
+      class="appointment-tab-panel hidden"
+    >
+      <div id="pastAppointmentsList"></div>
+    </div>
+
+
+    <!-- CANCELLED -->
+
+    <div
+      id="cancelledAppointmentsTab"
+      class="appointment-tab-panel hidden"
+    >
+      <div id="cancelledAppointmentsList"></div>
+    </div>
+
+
+    <!-- MISSED -->
+
+    <div
+      id="missedAppointmentsTab"
+      class="appointment-tab-panel hidden"
+    >
+      <div id="missedAppointmentsList"></div>
+    </div>
+
+  </div>
+
+</div>
+
 
 <!-- EMAILS TAB -->
 
