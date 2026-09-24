@@ -5853,6 +5853,7 @@ $("logoutBtn").addEventListener(
     await loadAllInstructors();
     await loadLocations();
     await loadServices();
+    await loadAppointments();
 
     updateBookingUrlDisplay();
 
