@@ -5912,7 +5912,7 @@ $("copyBookingUrlBtn")?.addEventListener(
 
 document.addEventListener(
   "click",
-  function (event) {
+  async function (event) {
 
     const appointmentTab =
       event.target.closest(
@@ -5972,6 +5972,8 @@ document.addEventListener(
         days
       );
 
+      await loadAppointments();
+
       return;
     }
 
@@ -6008,6 +6010,8 @@ document.addEventListener(
       selectAppointmentHistoryRange(
         next
       );
+
+      await loadAppointments();
 
     }
 
