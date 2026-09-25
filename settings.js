@@ -5297,6 +5297,8 @@ await loadLocationIntoForm(
 
 await loadServices();
 
+await loadAppointments();
+
 renderInstructorList();
 
 return;
