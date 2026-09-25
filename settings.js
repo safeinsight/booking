@@ -1369,6 +1369,9 @@ state.location = loc;
       instructorEmailSettings.cancel_email_message ??
       loc.cancel_email_message,
 
+    instructor_cancel_email:
+      instructorEmailSettings.instructor_cancel_email,
+
     instructor_cancel_subject:
       instructorEmailSettings.instructor_cancel_subject,
 
@@ -1518,6 +1521,10 @@ Appointment Time: {{TIME}}
 Location: {{LOCATION}}
 Student: {{STUDENT_NAME}}
 Instructor: {{INSTRUCTOR_NAME}}`;
+
+  $("instructorEmail").value =
+    emailSettings.instructor_cancel_email ||
+    "";
 
   $("instructorCancelSubject").value =
     emailSettings.instructor_cancel_subject ||
@@ -3246,6 +3253,7 @@ async function loadAllInstructors() {
   cancel_email_subject,
   cancel_email_message,
 
+  instructor_cancel_email,
   instructor_cancel_subject,
   instructor_cancel_message,
 
@@ -4224,6 +4232,9 @@ instructor_reschedule_message:
 
     cancel_email_message:
       $("studentCancelMessage").value.trim(),
+
+    instructor_cancel_email:
+      $("instructorEmail").value.trim(),
 
     instructor_cancel_subject:
       $("instructorCancelSubject").value.trim(),
@@ -5607,6 +5618,7 @@ const { data: selectedInstructor, error: instructorError } =
       cancel_email_subject,
       cancel_email_message,
 
+      instructor_cancel_email,
       instructor_cancel_subject,
       instructor_cancel_message,
 
