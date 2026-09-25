@@ -1230,13 +1230,154 @@ state.location = loc;
   $("rescheduleHoursInput").value =
     bookingRules.reschedule_hours ?? 12;
 
-    $("emailSubject").value =
-    loc.confirmation_email_subject ||
+
+  /*
+   * Email Settings
+   *
+   * Instructor values override Location defaults.
+   * NULL instructor values inherit from the Location.
+   */
+  const instructorEmailSettings =
+    state.instructor || {};
+
+  const emailSettings = {
+    confirmation_email_subject:
+      instructorEmailSettings.confirmation_email_subject ??
+      loc.confirmation_email_subject,
+
+    confirmation_email_message:
+      instructorEmailSettings.confirmation_email_message ??
+      loc.confirmation_email_message,
+
+    student_confirmation_enabled:
+      instructorEmailSettings.student_confirmation_enabled ??
+      loc.student_confirmation_enabled,
+
+    confirmation_button_enabled:
+      instructorEmailSettings.confirmation_button_enabled ??
+      loc.confirmation_button_enabled,
+
+    confirmation_button_text:
+      instructorEmailSettings.confirmation_button_text ??
+      loc.confirmation_button_text,
+
+    confirmation_button_url:
+      instructorEmailSettings.confirmation_button_url ??
+      loc.confirmation_button_url,
+
+    instructor_confirmation_email:
+      instructorEmailSettings.instructor_confirmation_email ??
+      loc.instructor_confirmation_email,
+
+    instructor_confirmation_subject:
+      instructorEmailSettings.instructor_confirmation_subject ??
+      loc.instructor_confirmation_subject,
+
+    instructor_confirmation_message:
+      instructorEmailSettings.instructor_confirmation_message ??
+      loc.instructor_confirmation_message,
+
+    reschedule_email_subject:
+      instructorEmailSettings.reschedule_email_subject ??
+      loc.reschedule_email_subject,
+
+    reschedule_email_message:
+      instructorEmailSettings.reschedule_email_message ??
+      loc.reschedule_email_message,
+
+    reschedule_button_enabled:
+      instructorEmailSettings.reschedule_button_enabled ??
+      loc.reschedule_button_enabled,
+
+    reschedule_button_text:
+      instructorEmailSettings.reschedule_button_text ??
+      loc.reschedule_button_text,
+
+    reschedule_button_url:
+      instructorEmailSettings.reschedule_button_url ??
+      loc.reschedule_button_url,
+
+    instructor_reschedule_email:
+      instructorEmailSettings.instructor_reschedule_email ??
+      loc.instructor_reschedule_email,
+
+    instructor_reschedule_subject:
+      instructorEmailSettings.instructor_reschedule_subject ??
+      loc.instructor_reschedule_subject,
+
+    instructor_reschedule_message:
+      instructorEmailSettings.instructor_reschedule_message ??
+      loc.instructor_reschedule_message,
+
+    reminder_enabled:
+      instructorEmailSettings.reminder_enabled ??
+      loc.reminder_enabled,
+
+    reminder_hours_before:
+      instructorEmailSettings.reminder_hours_before ??
+      loc.reminder_hours_before,
+
+    instructor_email:
+      instructorEmailSettings.instructor_email ??
+      loc.instructor_email,
+
+    student_reminder_subject:
+      instructorEmailSettings.student_reminder_subject ??
+      loc.student_reminder_subject,
+
+    student_reminder_message:
+      instructorEmailSettings.student_reminder_message ??
+      loc.student_reminder_message,
+
+    instructor_reminder_subject:
+      instructorEmailSettings.instructor_reminder_subject ??
+      loc.instructor_reminder_subject,
+
+    instructor_reminder_message:
+      instructorEmailSettings.instructor_reminder_message ??
+      loc.instructor_reminder_message,
+
+    cancel_email_subject:
+      instructorEmailSettings.cancel_email_subject ??
+      loc.cancel_email_subject,
+
+    cancel_email_message:
+      instructorEmailSettings.cancel_email_message ??
+      loc.cancel_email_message,
+
+    missed_email_subject:
+      instructorEmailSettings.missed_email_subject ??
+      loc.missed_email_subject,
+
+    missed_email_message:
+      instructorEmailSettings.missed_email_message ??
+      loc.missed_email_message,
+
+    followup_enabled:
+      instructorEmailSettings.followup_enabled ??
+      loc.followup_enabled,
+
+    followup_delay_minutes:
+      instructorEmailSettings.followup_delay_minutes ??
+      loc.followup_delay_minutes,
+
+    followup_subject:
+      instructorEmailSettings.followup_subject ??
+      loc.followup_subject,
+
+    followup_message:
+      instructorEmailSettings.followup_message ??
+      loc.followup_message
+  };
+
+
+  $("emailSubject").value =
+    emailSettings.confirmation_email_subject ||
     "Your appointment confirmation";
 
-$("emailMessage").value =
-  loc.confirmation_email_message ||
-  `Thank you for booking with us!
+  $("emailMessage").value =
+    emailSettings.confirmation_email_message ||
+    `Thank you for booking with us!
 
 Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
@@ -1246,17 +1387,17 @@ Location: {{LOCATION}}
 
 {{MANAGE_BUTTON}}`;
 
-$("instructorConfirmationEmail").value =
-  loc.instructor_confirmation_email ||
-  "";
+  $("instructorConfirmationEmail").value =
+    emailSettings.instructor_confirmation_email ||
+    "";
 
-$("instructorConfirmationSubject").value =
-  loc.instructor_confirmation_subject ||
-  "New appointment booking";
+  $("instructorConfirmationSubject").value =
+    emailSettings.instructor_confirmation_subject ||
+    "New appointment booking";
 
-$("instructorConfirmationMessage").value =
-  loc.instructor_confirmation_message ||
-  `A new appointment has been booked.
+  $("instructorConfirmationMessage").value =
+    emailSettings.instructor_confirmation_message ||
+    `A new appointment has been booked.
 
 Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
@@ -1264,27 +1405,31 @@ Location: {{LOCATION}}
 Student: {{STUDENT_NAME}}
 Instructor: {{INSTRUCTOR_NAME}}`;
 
-$("confirmationButtonEnabled").checked =
-  Boolean(loc.confirmation_button_enabled);
+  $("confirmationButtonEnabled").checked =
+    Boolean(
+      emailSettings.confirmation_button_enabled
+    );
 
-$("confirmationButtonText").value =
-  loc.confirmation_button_text || "Join Video Conference";
+  $("confirmationButtonText").value =
+    emailSettings.confirmation_button_text ||
+    "Join Video Conference";
 
-$("confirmationButtonUrl").value =
-  loc.confirmation_button_url || "";
+  $("confirmationButtonUrl").value =
+    emailSettings.confirmation_button_url ||
+    "";
 
 
-/*
- * Reschedule Email
- */
+  /*
+   * Reschedule Email
+   */
 
-$("rescheduleEmailSubject").value =
-  loc.reschedule_email_subject ||
-  "Your appointment has been rescheduled";
+  $("rescheduleEmailSubject").value =
+    emailSettings.reschedule_email_subject ||
+    "Your appointment has been rescheduled";
 
-$("rescheduleEmailMessage").value =
-  loc.reschedule_email_message ||
-  `Your appointment has been rescheduled.
+  $("rescheduleEmailMessage").value =
+    emailSettings.reschedule_email_message ||
+    `Your appointment has been rescheduled.
 
 Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
@@ -1294,45 +1439,30 @@ Location: {{LOCATION}}
 
 {{MANAGE_BUTTON}}`;
 
-$("rescheduleButtonEnabled").checked =
-  Boolean(loc.reschedule_button_enabled);
+  $("rescheduleButtonEnabled").checked =
+    Boolean(
+      emailSettings.reschedule_button_enabled
+    );
 
-$("rescheduleButtonText").value =
-  loc.reschedule_button_text ||
-  "Join Video Conference";
+  $("rescheduleButtonText").value =
+    emailSettings.reschedule_button_text ||
+    "Join Video Conference";
 
-$("rescheduleButtonUrl").value =
-  loc.reschedule_button_url || "";
+  $("rescheduleButtonUrl").value =
+    emailSettings.reschedule_button_url ||
+    "";
 
-$("instructorRescheduleEmail").value =
-  loc.instructor_reschedule_email || "";
+  $("instructorRescheduleEmail").value =
+    emailSettings.instructor_reschedule_email ||
+    "";
 
-$("instructorRescheduleSubject").value =
-  loc.instructor_reschedule_subject ||
-  "Appointment rescheduled";
+  $("instructorRescheduleSubject").value =
+    emailSettings.instructor_reschedule_subject ||
+    "Appointment rescheduled";
 
-$("instructorRescheduleMessage").value =
-  loc.instructor_reschedule_message ||
-  `An appointment has been rescheduled.
-
-Appointment Date: {{DATE}}
-Appointment Time: {{TIME}}
-Location: {{LOCATION}}
-Student: {{STUDENT_NAME}}
-Instructor: {{INSTRUCTOR_NAME}}`;
-
-
-/*
- * Cancel Email
- */
-
-$("studentCancelSubject").value =
-  loc.cancel_email_subject ||
-  "Your appointment has been cancelled";
-
-$("studentCancelMessage").value =
-  loc.cancel_email_message ||
-  `Your appointment has been cancelled.
+  $("instructorRescheduleMessage").value =
+    emailSettings.instructor_reschedule_message ||
+    `An appointment has been rescheduled.
 
 Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
@@ -1341,17 +1471,36 @@ Student: {{STUDENT_NAME}}
 Instructor: {{INSTRUCTOR_NAME}}`;
 
 
-/*
- * Missed Email
- */
+  /*
+   * Cancel Email
+   */
 
-$("studentMissedSubject").value =
-  loc.missed_email_subject ||
-  "You missed your appointment";
+  $("studentCancelSubject").value =
+    emailSettings.cancel_email_subject ||
+    "Your appointment has been cancelled";
 
-$("studentMissedMessage").value =
-  loc.missed_email_message ||
-  `You missed your appointment.
+  $("studentCancelMessage").value =
+    emailSettings.cancel_email_message ||
+    `Your appointment has been cancelled.
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+Student: {{STUDENT_NAME}}
+Instructor: {{INSTRUCTOR_NAME}}`;
+
+
+  /*
+   * Missed Email
+   */
+
+  $("studentMissedSubject").value =
+    emailSettings.missed_email_subject ||
+    "You missed your appointment";
+
+  $("studentMissedMessage").value =
+    emailSettings.missed_email_message ||
+    `You missed your appointment.
 
 Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
@@ -1362,26 +1511,27 @@ Instructor: {{INSTRUCTOR_NAME}}
 {{MANAGE_BUTTON}}`;
 
 
-/*
- * Reminder Email
- */
+  /*
+   * Reminder Email
+   */
 
-$("reminderEnabled").checked =
-  loc.reminder_enabled ?? true;
+  $("reminderEnabled").checked =
+    emailSettings.reminder_enabled ?? true;
 
-$("reminderHoursBefore").value =
-  loc.reminder_hours_before ?? 24;
+  $("reminderHoursBefore").value =
+    emailSettings.reminder_hours_before ?? 24;
 
-$("instructorEmail").value =
-  loc.instructor_email || "";
+  $("instructorEmail").value =
+    emailSettings.instructor_email ||
+    "";
 
-$("studentReminderSubject").value =
-  loc.student_reminder_subject ||
-  "Reminder: Your upcoming appointment";
+  $("studentReminderSubject").value =
+    emailSettings.student_reminder_subject ||
+    "Reminder: Your upcoming appointment";
 
-$("studentReminderMessage").value =
-  loc.student_reminder_message ||
-  `This is a reminder about your upcoming appointment.
+  $("studentReminderMessage").value =
+    emailSettings.student_reminder_message ||
+    `This is a reminder about your upcoming appointment.
 
 Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
@@ -1391,13 +1541,13 @@ Location: {{LOCATION}}
 
 {{MANAGE_BUTTON}}`;
 
-$("instructorReminderSubject").value =
-  loc.instructor_reminder_subject ||
-  "Upcoming appointment reminder";
+  $("instructorReminderSubject").value =
+    emailSettings.instructor_reminder_subject ||
+    "Upcoming appointment reminder";
 
-$("instructorReminderMessage").value =
-  loc.instructor_reminder_message ||
-  `This is a reminder about an upcoming appointment.
+  $("instructorReminderMessage").value =
+    emailSettings.instructor_reminder_message ||
+    `This is a reminder about an upcoming appointment.
 
 Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
@@ -1405,19 +1555,24 @@ Location: {{LOCATION}}
 Student: {{STUDENT_NAME}}
 Instructor: {{INSTRUCTOR_NAME}}`;
 
-$("followupEnabled").checked =
-  loc.followup_enabled ?? true;
 
-$("followupDelayMinutes").value =
-  loc.followup_delay_minutes ?? 15;
+  /*
+   * Follow-Up Email
+   */
 
-$("followupSubject").value =
-  loc.followup_subject ||
-  "Thank you for your appointment";
+  $("followupEnabled").checked =
+    emailSettings.followup_enabled ?? true;
 
-$("followupMessage").value =
-  loc.followup_message ||
-  `Thank you for completing your appointment.
+  $("followupDelayMinutes").value =
+    emailSettings.followup_delay_minutes ?? 15;
+
+  $("followupSubject").value =
+    emailSettings.followup_subject ||
+    "Thank you for your appointment";
+
+  $("followupMessage").value =
+    emailSettings.followup_message ||
+    `Thank you for completing your appointment.
 
 Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
@@ -2953,6 +3108,11 @@ async function loadLocations() {
       instructor_reschedule_subject,
       instructor_reschedule_message,
 
+      cancel_email_subject,
+      cancel_email_message,
+      missed_email_subject,
+      missed_email_message,
+
       student_confirmation_enabled,
       instructor_notification_enabled,
       reminder_enabled,
@@ -3027,7 +3187,45 @@ async function loadAllInstructors() {
   minimum_booking_notice_hours,
   cancellation_hours,
   reschedule_hours,
-  allow_customer_service_selection
+  allow_customer_service_selection,
+
+  confirmation_email_subject,
+  confirmation_email_message,
+  student_confirmation_enabled,
+  confirmation_button_enabled,
+  confirmation_button_text,
+  confirmation_button_url,
+  instructor_confirmation_email,
+  instructor_confirmation_subject,
+  instructor_confirmation_message,
+
+  reschedule_email_subject,
+  reschedule_email_message,
+  reschedule_button_enabled,
+  reschedule_button_text,
+  reschedule_button_url,
+  instructor_reschedule_email,
+  instructor_reschedule_subject,
+  instructor_reschedule_message,
+
+  reminder_enabled,
+  reminder_hours_before,
+  instructor_email,
+  student_reminder_subject,
+  student_reminder_message,
+  instructor_reminder_subject,
+  instructor_reminder_message,
+
+  cancel_email_subject,
+  cancel_email_message,
+
+  missed_email_subject,
+  missed_email_message,
+
+  followup_enabled,
+  followup_delay_minutes,
+  followup_subject,
+  followup_message
 `)
       .order("name");
 
@@ -3930,8 +4128,18 @@ async function saveEmailSettings(button) {
 
   try {
 
+    if (!state.instructor?.id) {
+      throw new Error(
+        "Please select an instructor before saving Email settings."
+      );
+    }
+
     const payload = {
-      location_id: state.location.id,
+      location_id:
+        state.location.id,
+
+      instructor_id:
+        state.instructor.id,
 
       confirmation_email_subject:
         $("emailSubject").value.trim(),
@@ -4053,10 +4261,28 @@ missed_email_message:
     }
 
 
-    state.location = {
-      ...state.location,
-      ...result.location
+    if (!result.instructor) {
+      throw new Error(
+        "The Email settings could not be saved because the selected instructor was not updated."
+      );
+    }
+
+
+    state.instructor = {
+      ...state.instructor,
+      ...result.instructor
     };
+
+
+    state.instructors =
+      state.instructors.map(instructor =>
+        instructor.id === state.instructor.id
+          ? {
+              ...instructor,
+              ...result.instructor
+            }
+          : instructor
+      );
 
 
     button.textContent = "Saved";
@@ -5313,7 +5539,45 @@ const { data: selectedInstructor, error: instructorError } =
       minimum_booking_notice_hours,
       cancellation_hours,
       reschedule_hours,
-      allow_customer_service_selection
+      allow_customer_service_selection,
+
+      confirmation_email_subject,
+      confirmation_email_message,
+      student_confirmation_enabled,
+      confirmation_button_enabled,
+      confirmation_button_text,
+      confirmation_button_url,
+      instructor_confirmation_email,
+      instructor_confirmation_subject,
+      instructor_confirmation_message,
+
+      reschedule_email_subject,
+      reschedule_email_message,
+      reschedule_button_enabled,
+      reschedule_button_text,
+      reschedule_button_url,
+      instructor_reschedule_email,
+      instructor_reschedule_subject,
+      instructor_reschedule_message,
+
+      reminder_enabled,
+      reminder_hours_before,
+      instructor_email,
+      student_reminder_subject,
+      student_reminder_message,
+      instructor_reminder_subject,
+      instructor_reminder_message,
+
+      cancel_email_subject,
+      cancel_email_message,
+
+      missed_email_subject,
+      missed_email_message,
+
+      followup_enabled,
+      followup_delay_minutes,
+      followup_subject,
+      followup_message
     `)
     .eq("id", instructorId)
     .single();
