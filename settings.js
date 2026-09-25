@@ -4124,23 +4124,20 @@ async function saveEmailSettings(button) {
       instructor_id:
         state.instructor.id,
 
-      confirmation_email_subject:
-        $("emailSubject").value.trim(),
+    confirmation_email_subject:
+      $("emailSubject").value.trim(),
 
-      confirmation_email_message:
-        $("emailMessage").value.trim(),
+    confirmation_email_message:
+      $("emailMessage").value.trim(),
 
-      student_confirmation_enabled:
-        $("studentConfirmationEnabled").checked,
+    instructor_confirmation_email:
+      $("instructorConfirmationEmail").value.trim(),
 
-      instructor_confirmation_email:
-        $("instructorConfirmationEmail").value.trim(),
+    instructor_confirmation_subject:
+      $("instructorConfirmationSubject").value.trim(),
 
-      instructor_confirmation_subject:
-        $("instructorConfirmationSubject").value.trim(),
-
-      instructor_confirmation_message:
-        $("instructorConfirmationMessage").value.trim(),
+    instructor_confirmation_message:
+      $("instructorConfirmationMessage").value.trim(),
 
       confirmation_button_enabled:
         $("confirmationButtonEnabled").checked,
