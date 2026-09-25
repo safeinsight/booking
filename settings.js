@@ -1387,6 +1387,9 @@ Location: {{LOCATION}}
 
 {{MANAGE_BUTTON}}`;
 
+  $("studentConfirmationEnabled").checked =
+    emailSettings.student_confirmation_enabled ?? true;
+
   $("instructorConfirmationEmail").value =
     emailSettings.instructor_confirmation_email ||
     "";
@@ -2234,24 +2237,7 @@ $("calendarInfo").innerHTML =
 
       });
 
-$("emailSubject").value =
-  loc.confirmation_email_subject ||
-  "Your appointment confirmation";
 
-$("emailMessage").value =
-  loc.confirmation_email_message ||
-  `Thank you for booking with us!
-
-Appointment Date: {{DATE}}
-Appointment Time: {{TIME}}
-Location: {{LOCATION}}
-
-{{CONFIRMATION_BUTTON}}
-
-{{MANAGE_BUTTON}}`;
-
-
-  
 const restoreEmailDefaultBtn =
   $("restoreEmailDefaultBtn");
 
@@ -4147,16 +4133,19 @@ async function saveEmailSettings(button) {
       confirmation_email_message:
         $("emailMessage").value.trim(),
 
-  instructor_confirmation_email:
-    $("instructorConfirmationEmail").value.trim(),
+      student_confirmation_enabled:
+        $("studentConfirmationEnabled").checked,
 
-  instructor_confirmation_subject:
-    $("instructorConfirmationSubject").value.trim(),
+      instructor_confirmation_email:
+        $("instructorConfirmationEmail").value.trim(),
 
-  instructor_confirmation_message:
-    $("instructorConfirmationMessage").value.trim(),
+      instructor_confirmation_subject:
+        $("instructorConfirmationSubject").value.trim(),
 
-  confirmation_button_enabled:
+      instructor_confirmation_message:
+        $("instructorConfirmationMessage").value.trim(),
+
+      confirmation_button_enabled:
         $("confirmationButtonEnabled").checked,
 
       confirmation_button_text:
