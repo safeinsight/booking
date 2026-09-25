@@ -675,6 +675,30 @@ function renderAppointmentList(
               }
             </div>
 
+            ${
+              containerId === "upcomingAppointmentsList"
+                ? `
+                  <div
+                    style="
+                      margin-top:16px;
+                      display:flex;
+                      justify-content:flex-end;
+                    "
+                  >
+                    <button
+                      type="button"
+                      class="secondary appointment-cancel-btn"
+                      data-appointment-id="${escapeHtml(
+                        appointment.id || ""
+                      )}"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                `
+                : ""
+            }
+
           </div>
         `;
 
@@ -6312,6 +6336,147 @@ document.addEventListener(
 
       await loadAppointments();
 
+      return;
+    }
+
+
+    /*
+     * CANCEL APPOINTMENT
+     */
+
+    const cancelButton =
+      event.target.closest(
+        ".appointment-cancel-btn"
+      );
+
+
+    if (cancelButton) {
+
+      const bookingId =
+        cancelButton.getAttribute(
+          "data-appointment-id"
+        );
+
+
+      if (
+        !bookingId ||
+        !state.instructor?.id
+      ) {
+
+        showCustomAlert(
+          "Unable to identify this appointment."
+        );
+
+        return;
+      }
+
+
+      const confirmed =
+        await showCustomConfirm(
+          "Cancel this appointment? The student will be notified and the appointment time will become available again."
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
+
+
+      const originalText =
+        cancelButton.textContent;
+
+
+      cancelButton.disabled =
+        true;
+
+      cancelButton.textContent =
+        "Cancelling...";
+
+
+      try {
+
+        const authHeaders =
+          await getAuthHeaders();
+
+
+        const response =
+          await fetch(
+            `${cfg.functionsBaseUrl}/admin-cancel-booking`,
+            {
+              method:
+                "POST",
+
+              headers:
+                authHeaders,
+
+              body:
+                JSON.stringify({
+                  booking_id:
+                    bookingId,
+
+                  instructor_id:
+                    state.instructor.id
+                })
+            }
+          );
+
+
+        const result =
+          await response.json();
+
+
+        if (
+          !response.ok ||
+          result.error
+        ) {
+
+          throw new Error(
+            result.error ||
+            "Unable to cancel appointment."
+          );
+
+        }
+
+
+        await loadAppointments();
+
+
+        if (
+          result.cancellation_email_sent ===
+          false
+        ) {
+
+          showCustomAlert(
+            "The appointment was cancelled, but the student cancellation email could not be sent."
+          );
+
+        }
+
+
+      } catch (error) {
+
+        console.error(
+          "APPOINTMENT CANCEL ERROR:",
+          error
+        );
+
+
+        cancelButton.disabled =
+          false;
+
+        cancelButton.textContent =
+          originalText;
+
+
+        showCustomAlert(
+          error.message ||
+          "Unable to cancel appointment."
+        );
+
+      }
+
+
+      return;
     }
 
   }
