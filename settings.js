@@ -1387,9 +1387,6 @@ Location: {{LOCATION}}
 
 {{MANAGE_BUTTON}}`;
 
-  $("studentConfirmationEnabled").checked =
-    emailSettings.student_confirmation_enabled ?? true;
-
   $("instructorConfirmationEmail").value =
     emailSettings.instructor_confirmation_email ||
     "";
