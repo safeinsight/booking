@@ -1323,6 +1323,46 @@ Instructor: {{INSTRUCTOR_NAME}}`;
 
 
 /*
+ * Cancel Email
+ */
+
+$("studentCancelSubject").value =
+  loc.cancel_email_subject ||
+  "Your appointment has been cancelled";
+
+$("studentCancelMessage").value =
+  loc.cancel_email_message ||
+  `Your appointment has been cancelled.
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+Student: {{STUDENT_NAME}}
+Instructor: {{INSTRUCTOR_NAME}}`;
+
+
+/*
+ * Missed Email
+ */
+
+$("studentMissedSubject").value =
+  loc.missed_email_subject ||
+  "You missed your appointment";
+
+$("studentMissedMessage").value =
+  loc.missed_email_message ||
+  `You missed your appointment.
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+Student: {{STUDENT_NAME}}
+Instructor: {{INSTRUCTOR_NAME}}
+
+{{MANAGE_BUTTON}}`;
+
+
+/*
  * Reminder Email
  */
 
@@ -3940,6 +3980,18 @@ instructor_reschedule_subject:
 
 instructor_reschedule_message:
   $("instructorRescheduleMessage").value.trim(),
+
+cancel_email_subject:
+  $("studentCancelSubject").value.trim(),
+
+cancel_email_message:
+  $("studentCancelMessage").value.trim(),
+
+missed_email_subject:
+  $("studentMissedSubject").value.trim(),
+
+missed_email_message:
+  $("studentMissedMessage").value.trim(),
 
       reminder_enabled:
         $("reminderEnabled").checked,
