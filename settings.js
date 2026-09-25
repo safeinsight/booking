@@ -1369,6 +1369,12 @@ state.location = loc;
       instructorEmailSettings.cancel_email_message ??
       loc.cancel_email_message,
 
+    instructor_cancel_subject:
+      instructorEmailSettings.instructor_cancel_subject,
+
+    instructor_cancel_message:
+      instructorEmailSettings.instructor_cancel_message,
+
     missed_email_subject:
       instructorEmailSettings.missed_email_subject ??
       loc.missed_email_subject,
@@ -1506,6 +1512,20 @@ Instructor: {{INSTRUCTOR_NAME}}`;
   $("studentCancelMessage").value =
     emailSettings.cancel_email_message ||
     `Your appointment has been cancelled.
+
+Appointment Date: {{DATE}}
+Appointment Time: {{TIME}}
+Location: {{LOCATION}}
+Student: {{STUDENT_NAME}}
+Instructor: {{INSTRUCTOR_NAME}}`;
+
+  $("instructorCancelSubject").value =
+    emailSettings.instructor_cancel_subject ||
+    "Appointment Cancellation";
+
+  $("instructorCancelMessage").value =
+    emailSettings.instructor_cancel_message ||
+    `An appointment has been cancelled.
 
 Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
@@ -3226,6 +3246,9 @@ async function loadAllInstructors() {
   cancel_email_subject,
   cancel_email_message,
 
+  instructor_cancel_subject,
+  instructor_cancel_message,
+
   missed_email_subject,
   missed_email_message,
 
@@ -4196,17 +4219,23 @@ instructor_reschedule_subject:
 instructor_reschedule_message:
   $("instructorRescheduleMessage").value.trim(),
 
-cancel_email_subject:
-  $("studentCancelSubject").value.trim(),
+    cancel_email_subject:
+      $("studentCancelSubject").value.trim(),
 
-cancel_email_message:
-  $("studentCancelMessage").value.trim(),
+    cancel_email_message:
+      $("studentCancelMessage").value.trim(),
 
-missed_email_subject:
-  $("studentMissedSubject").value.trim(),
+    instructor_cancel_subject:
+      $("instructorCancelSubject").value.trim(),
 
-missed_email_message:
-  $("studentMissedMessage").value.trim(),
+    instructor_cancel_message:
+      $("instructorCancelMessage").value.trim(),
+
+    missed_email_subject:
+      $("studentMissedSubject").value.trim(),
+
+    missed_email_message:
+      $("studentMissedMessage").value.trim(),
 
       reminder_enabled:
         $("reminderEnabled").checked,
@@ -5577,6 +5606,9 @@ const { data: selectedInstructor, error: instructorError } =
 
       cancel_email_subject,
       cancel_email_message,
+
+      instructor_cancel_subject,
+      instructor_cancel_message,
 
       missed_email_subject,
       missed_email_message,
