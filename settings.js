@@ -2724,11 +2724,191 @@ function renderScheduleAvailableDates(days = []) {
 }
 
 
+function updateScheduleCustomTimeSelection() {
+
+  const dateInput =
+    $("scheduleCustomDate");
+
+  const timeInput =
+    $("scheduleCustomStartTime");
+
+  const selection =
+    $("scheduleCustomTimeSelection");
+
+
+  if (
+    !dateInput ||
+    !timeInput ||
+    !selection
+  ) {
+    return;
+  }
+
+
+  const date =
+    dateInput.value;
+
+  const time =
+    timeInput.value;
+
+
+  selection.textContent =
+    "";
+
+  delete selection.dataset.date;
+  delete selection.dataset.startTime;
+  delete selection.dataset.endTime;
+
+
+  if (
+    !date ||
+    !time
+  ) {
+    return;
+  }
+
+
+  const appointmentLength =
+    Number(
+      state.instructor
+        ?.appointment_length_minutes
+    ) || 45;
+
+
+  const [
+    hour,
+    minute
+  ] =
+    time
+      .split(":")
+      .map(Number);
+
+
+  const startMinutes =
+    (hour * 60) +
+    minute;
+
+  const endMinutes =
+    startMinutes +
+    appointmentLength;
+
+
+  const endHour =
+    Math.floor(
+      endMinutes / 60
+    ) % 24;
+
+  const endMinute =
+    endMinutes % 60;
+
+
+  const endTime =
+    `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`;
+
+
+  const startLabel =
+    new Intl.DateTimeFormat(
+      "en-US",
+      {
+        hour:
+          "numeric",
+
+        minute:
+          "2-digit",
+
+        hour12:
+          true,
+
+        timeZone:
+          "UTC"
+      }
+    ).format(
+      new Date(
+        `2000-01-01T${time}:00Z`
+      )
+    );
+
+
+  const endLabel =
+    new Intl.DateTimeFormat(
+      "en-US",
+      {
+        hour:
+          "numeric",
+
+        minute:
+          "2-digit",
+
+        hour12:
+          true,
+
+        timeZone:
+          "UTC"
+      }
+    ).format(
+      new Date(
+        `2000-01-01T${endTime}:00Z`
+      )
+    );
+
+
+  const [
+    year,
+    month,
+    day
+  ] =
+    date
+      .split("-")
+      .map(Number);
+
+
+  const dateLabel =
+    new Intl.DateTimeFormat(
+      "en-US",
+      {
+        month:
+          "short",
+
+        day:
+          "numeric",
+
+        year:
+          "numeric",
+
+        timeZone:
+          "UTC"
+      }
+    ).format(
+      new Date(
+        Date.UTC(
+          year,
+          month - 1,
+          day
+        )
+      )
+    );
+
+
+  selection.dataset.date =
+    date;
+
+  selection.dataset.startTime =
+    time;
+
+  selection.dataset.endTime =
+    endTime;
+
+
+  selection.textContent =
+    `Selected: ${dateLabel} • ${startLabel} – ${endLabel}`;
+
+}
+
+
 function renderScheduleAvailableTimes(date) {
 
   const container =
     $("scheduleAvailableTimes");
-
   const selection =
     $("scheduleAvailableTimeSelection");
 
@@ -5683,6 +5863,23 @@ document.addEventListener("click", async function (event) {
 
 
 document.addEventListener("change", async function (event) {
+
+  /*
+   * Manual custom appointment
+   * date/time selection.
+   */
+  if (
+    event.target.id ===
+      "scheduleCustomDate" ||
+    event.target.id ===
+      "scheduleCustomStartTime"
+  ) {
+
+    updateScheduleCustomTimeSelection();
+
+    return;
+  }
+
 
   /*
    * Manual appointment available-date selection.
