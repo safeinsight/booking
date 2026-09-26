@@ -2688,59 +2688,84 @@ function renderScheduleServices(services = []) {
 
 
         return `
-          <label
+          <div
             style="
-              display:flex;
-              align-items:flex-start;
-              gap:12px;
               padding:15px;
               border:1px solid #ddd;
               border-radius:8px;
               margin-bottom:10px;
-              cursor:pointer;
             "
           >
 
-            <input
-              type="radio"
-              name="scheduleService"
-              class="schedule-service"
-              value="${escapeAttr(serviceId)}"
-              data-service-type="${escapeAttr(
-                service.service_type || "paid"
-              )}"
+            <label
               style="
-                margin-top:4px;
-                flex:0 0 auto;
+                display:grid;
+                grid-template-columns:auto minmax(0, 1fr);
+                gap:12px;
+                align-items:start;
+                margin:0;
+                width:100%;
+                cursor:pointer;
               "
             >
 
-            <span>
+              <input
+                type="radio"
+                name="scheduleService"
+                class="schedule-service"
+                value="${escapeAttr(serviceId)}"
+                data-service-type="${escapeAttr(
+                  service.service_type || "paid"
+                )}"
+                style="
+                  width:auto;
+                  min-width:0;
+                  margin:4px 0 0 0;
+                "
+              >
 
-              <strong>
-                ${escapeHtml(serviceName)}
-              </strong>
+              <span
+                style="
+                  display:block;
+                  min-width:0;
+                  width:auto;
+                "
+              >
 
-              <div style="margin-top:5px;">
-                ${escapeHtml(priceText)}
-              </div>
+                <strong
+                  style="
+                    display:block;
+                    overflow-wrap:anywhere;
+                  "
+                >
+                  ${escapeHtml(serviceName)}
+                </strong>
 
-              ${
-                description
-                  ? `
-                    <div
-                      class="muted"
-                      style="margin-top:5px;"
-                    >
-                      ${escapeHtml(description)}
-                    </div>
-                  `
-                  : ""
-              }
+                <div style="margin-top:5px;">
+                  ${escapeHtml(priceText)}
+                </div>
 
-            </span>
+                ${
+                  description
+                    ? `
+                      <div
+                        class="muted"
+                        style="
+                          margin-top:5px;
+                          overflow-wrap:anywhere;
+                        "
+                      >
+                        ${escapeHtml(description)}
+                      </div>
+                    `
+                    : ""
+                }
 
-          </label>
+              </span>
+
+            </label>
+
+          </div>
         `;
 
       })
