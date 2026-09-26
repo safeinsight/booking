@@ -2724,6 +2724,438 @@ function renderScheduleAvailableDates(days = []) {
 }
 
 
+async function checkScheduleCustomTimeConflict() {
+
+  const status =
+    $("scheduleCustomConflictStatus");
+
+  const selection =
+    $("scheduleCustomTimeSelection");
+
+
+  if (
+    !status ||
+    !selection
+  ) {
+    return;
+  }
+
+
+  const date =
+    selection.dataset.date;
+
+  const startTime =
+    selection.dataset.startTime;
+
+  const endTime =
+    selection.dataset.endTime;
+
+
+  if (
+    !date ||
+    !startTime ||
+    !endTime
+  ) {
+    status.classList.add(
+      "hidden"
+    );
+
+    status.innerHTML = "";
+
+    return;
+  }
+
+
+  const instructorId =
+    state.instructor?.id;
+
+
+  const instructorTimeZone =
+    state.instructor?.timezone;
+
+
+  if (
+    !instructorId ||
+    !instructorTimeZone
+  ) {
+    status.classList.remove(
+      "hidden"
+    );
+
+    status.innerHTML = `
+      <strong>
+        Unable to check conflicts.
+      </strong>
+
+      <div class="muted" style="margin-top:4px;">
+        The selected instructor or time zone is unavailable.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  /*
+   * Convert the instructor's manually
+   * entered local date/time into real
+   * UTC timestamps for the backend.
+   */
+  function localDateTimeToIso(
+    localDate,
+    localTime,
+    timeZone
+  ) {
+
+    const [
+      year,
+      month,
+      day
+    ] =
+      localDate
+        .split("-")
+        .map(Number);
+
+
+    const [
+      hour,
+      minute
+    ] =
+      localTime
+        .split(":")
+        .map(Number);
+
+
+    /*
+     * Start with the requested wall-clock
+     * values represented as UTC.
+     */
+    let guess =
+      Date.UTC(
+        year,
+        month - 1,
+        day,
+        hour,
+        minute,
+        0
+      );
+
+
+    /*
+     * Determine how that instant appears
+     * in the instructor's timezone, then
+     * correct the guess. Two passes handle
+     * normal timezone/DST offsets.
+     */
+    for (
+      let pass = 0;
+      pass < 2;
+      pass++
+    ) {
+
+      const parts =
+        new Intl.DateTimeFormat(
+          "en-US",
+          {
+            timeZone,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hourCycle: "h23"
+          }
+        )
+          .formatToParts(
+            new Date(guess)
+          );
+
+
+      const values = {};
+
+      parts.forEach(part => {
+        if (
+          part.type !== "literal"
+        ) {
+          values[part.type] =
+            Number(part.value);
+        }
+      });
+
+
+      const represented =
+        Date.UTC(
+          values.year,
+          values.month - 1,
+          values.day,
+          values.hour,
+          values.minute,
+          0
+        );
+
+
+      const desired =
+        Date.UTC(
+          year,
+          month - 1,
+          day,
+          hour,
+          minute,
+          0
+        );
+
+
+      guess +=
+        desired -
+        represented;
+
+    }
+
+
+    return new Date(
+      guess
+    ).toISOString();
+
+  }
+
+
+  let startIso;
+  let endIso;
+
+
+  try {
+
+    startIso =
+      localDateTimeToIso(
+        date,
+        startTime,
+        instructorTimeZone
+      );
+
+
+    /*
+     * Calculate the end from the real
+     * instant so appointments crossing
+     * midnight remain correct.
+     */
+    const appointmentLength =
+      Number(
+        state.instructor
+          ?.appointment_length_minutes
+      ) || 45;
+
+
+    endIso =
+      new Date(
+        new Date(
+          startIso
+        ).getTime() +
+        (
+          appointmentLength *
+          60 *
+          1000
+        )
+      ).toISOString();
+
+
+  } catch (error) {
+
+    console.error(
+      "CUSTOM TIME CONVERSION ERROR:",
+      error
+    );
+
+
+    status.classList.remove(
+      "hidden"
+    );
+
+    status.innerHTML = `
+      <strong>
+        Unable to check conflicts.
+      </strong>
+
+      <div class="muted" style="margin-top:4px;">
+        The custom appointment time could not be processed.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  /*
+   * Preserve the authoritative UTC
+   * timestamps for eventual booking.
+   */
+  selection.dataset.startIso =
+    startIso;
+
+  selection.dataset.endIso =
+    endIso;
+
+
+  status.classList.remove(
+    "hidden"
+  );
+
+  status.innerHTML = `
+    <strong>
+      Checking for conflicts...
+    </strong>
+  `;
+
+
+  try {
+
+    const session =
+      await getSession();
+
+
+    if (!session?.access_token) {
+      throw new Error(
+        "Your session has expired."
+      );
+    }
+
+
+    const response =
+      await fetch(
+        `${CONFIG.functionsBaseUrl}/check-manual-booking-conflict`,
+        {
+          method: "POST",
+
+          headers: {
+            "Authorization":
+              `Bearer ${session.access_token}`,
+
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+              instructor_id:
+                instructorId,
+
+              start_time:
+                startIso,
+
+              end_time:
+                endIso
+            })
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (!response.ok) {
+      throw new Error(
+        result?.error ||
+        "Unable to check appointment conflicts."
+      );
+    }
+
+
+    /*
+     * Protect against the user changing
+     * the date/time while this request
+     * was still running.
+     */
+    if (
+      selection.dataset.startIso !==
+        startIso ||
+      selection.dataset.endIso !==
+        endIso
+    ) {
+      return;
+    }
+
+
+    if (!result.conflict) {
+
+      status.innerHTML = `
+        <strong>
+          No conflicts found.
+        </strong>
+
+        <div class="muted" style="margin-top:4px;">
+          This custom appointment time is clear.
+        </div>
+      `;
+
+      return;
+    }
+
+
+    const conflictMessages =
+      [];
+
+
+    if (
+      result.booking_conflict
+    ) {
+      conflictMessages.push(
+        "an existing Safe Insight appointment"
+      );
+    }
+
+
+    if (
+      result.google_conflict
+    ) {
+      conflictMessages.push(
+        "a blocking Google Calendar event"
+      );
+    }
+
+
+    status.innerHTML = `
+      <strong>
+        Scheduling conflict found.
+      </strong>
+
+      <div class="muted" style="margin-top:4px;">
+        This time overlaps
+        ${escapeHtml(
+          conflictMessages.join(
+            " and "
+          )
+        )}.
+      </div>
+    `;
+
+
+  } catch (error) {
+
+    console.error(
+      "CUSTOM TIME CONFLICT CHECK ERROR:",
+      error
+    );
+
+
+    status.innerHTML = `
+      <strong>
+        Unable to check conflicts.
+      </strong>
+
+      <div class="muted" style="margin-top:4px;">
+        ${escapeHtml(
+          error instanceof Error
+            ? error.message
+            : String(error)
+        )}
+      </div>
+    `;
+
+  }
+
+}
+
+
 function updateScheduleCustomTimeSelection() {
 
   const dateInput =
@@ -2901,6 +3333,9 @@ function updateScheduleCustomTimeSelection() {
 
   selection.textContent =
     `Selected: ${dateLabel} • ${startLabel} – ${endLabel}`;
+
+
+  checkScheduleCustomTimeConflict();
 
 }
 
