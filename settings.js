@@ -3019,19 +3019,20 @@ async function checkScheduleCustomTimeConflict() {
     }
 
 
+  try {
+
+    const authHeaders =
+      await getAuthHeaders();
+
+
     const response =
       await fetch(
-        `${CONFIG.functionsBaseUrl}/check-manual-booking-conflict`,
+        `${cfg.functionsBaseUrl}/check-manual-booking-conflict`,
         {
           method: "POST",
 
-          headers: {
-            "Authorization":
-              `Bearer ${session.access_token}`,
-
-            "Content-Type":
-              "application/json"
-          },
+          headers:
+            authHeaders,
 
           body:
             JSON.stringify({
