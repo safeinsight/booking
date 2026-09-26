@@ -258,7 +258,9 @@ const state = {
   appointments: {
     activeTab: "upcoming",
     historyDays: 60
-  }
+  },
+
+  scheduleAvailability: null
 };
 
 
@@ -2594,6 +2596,9 @@ async function loadScheduleServices() {
       );
     }
 
+
+    state.scheduleAvailability =
+      result;
 
     renderScheduleServices(
       result.services || []
