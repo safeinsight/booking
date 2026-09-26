@@ -2524,6 +2524,134 @@ $("brandLogo").src =
 
 
 
+function renderScheduleServices(services = []) {
+
+  const container =
+    $("scheduleServicesList");
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!state.instructor?.id) {
+
+    container.innerHTML = `
+      <div class="muted">
+        Select an instructor to view available services.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  if (!services.length) {
+
+    container.innerHTML = `
+      <div class="muted">
+        No services are available for this instructor.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    services
+      .map(service => {
+
+        const serviceId =
+          service.id ||
+          service.product_id ||
+          "";
+
+        const serviceName =
+          service.product_name ||
+          service.name ||
+          "Service";
+
+        const description =
+          service.product_description ||
+          service.description ||
+          "";
+
+        const isFree =
+          service.service_type === "free" ||
+          Number(service.price_cents || 0) === 0;
+
+        const priceText =
+          isFree
+            ? "Free"
+            : `$${(
+                Number(service.price_cents || 0) / 100
+              ).toFixed(2)}`;
+
+
+        return `
+          <label
+            style="
+              display:flex;
+              align-items:flex-start;
+              gap:12px;
+              padding:15px;
+              border:1px solid #ddd;
+              border-radius:8px;
+              margin-bottom:10px;
+              cursor:pointer;
+            "
+          >
+
+            <input
+              type="radio"
+              name="scheduleService"
+              class="schedule-service"
+              value="${escapeAttr(serviceId)}"
+              data-service-type="${escapeAttr(
+                service.service_type || "paid"
+              )}"
+              style="
+                margin-top:4px;
+                flex:0 0 auto;
+              "
+            >
+
+            <span>
+
+              <strong>
+                ${escapeHtml(serviceName)}
+              </strong>
+
+              <div style="margin-top:5px;">
+                ${escapeHtml(priceText)}
+              </div>
+
+              ${
+                description
+                  ? `
+                    <div
+                      class="muted"
+                      style="margin-top:5px;"
+                    >
+                      ${escapeHtml(description)}
+                    </div>
+                  `
+                  : ""
+              }
+
+            </span>
+
+          </label>
+        `;
+
+      })
+      .join("");
+
+}
+
+
 function renderServices() {
 
   const container =
