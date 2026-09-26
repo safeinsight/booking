@@ -1074,6 +1074,20 @@ function applyRolePermissions() {
 const locationTabButton =
   document.querySelector('[data-tab="locationTab"]');
 
+function applyRolePermissions() {
+  const locationTab = $("locationTab");
+  const usersTab = $("usersTab");
+  const brandingTab = $("brandingTab");
+  const availabilityTab = $("availabilityTab");
+  const bookingRulesTab = $("bookingRulesTab");
+  const servicesTab = $("servicesTab");
+  const appointmentsTab = $("appointmentsTab");
+  const calendarTab = $("calendarTab");
+  const emailsTab = $("emailsTab");
+
+const locationTabButton =
+  document.querySelector('[data-tab="locationTab"]');
+
 const usersTabButton =
   document.querySelector('[data-tab="usersTab"]');
 
@@ -1085,6 +1099,9 @@ const availabilityTabButton =
 
 const servicesTabButton =
   document.querySelector('[data-tab="servicesTab"]');
+
+const appointmentsTabButton =
+  document.querySelector('[data-tab="appointmentsTab"]');
 
 const calendarTabButton =
   document.querySelector('[data-tab="calendarTab"]');
@@ -1158,8 +1175,8 @@ if (isManager()) {
 }
 
 if (isInstructor()) {
-  calendarTab?.classList.add("active");
-  calendarTabButton?.classList.add("active");
+  appointmentsTab?.classList.add("active");
+  appointmentsTabButton?.classList.add("active");
 }
 
 if (isBasic()) {
@@ -3101,6 +3118,16 @@ document.addEventListener(
 
 
 async function loadServices() {
+
+  /*
+   * Services are managed only by Administrators and Managers.
+   * Do not call the protected Services endpoint for roles that
+   * are not authorized to manage services.
+   */
+  if (!canManageServices()) {
+    state.services = [];
+    return;
+  }
 
   if (!state.instructor?.id) {
     state.services = [];
