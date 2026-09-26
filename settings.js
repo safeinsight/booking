@@ -2724,6 +2724,116 @@ function renderScheduleAvailableDates(days = []) {
 }
 
 
+function renderScheduleAvailableTimes(date) {
+
+  const container =
+    $("scheduleAvailableTimes");
+
+  const selection =
+    $("scheduleAvailableTimeSelection");
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (selection) {
+    selection.textContent =
+      "";
+  }
+
+
+  if (!date) {
+
+    container.innerHTML = `
+      <div class="muted">
+        Select a date to view available times.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  const day =
+    state.scheduleAvailability?.days?.find(
+      item =>
+        item.date === date
+    );
+
+
+  if (!day) {
+
+    container.innerHTML = `
+      <div class="muted">
+        No availability was found for this date.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  const availableSlots =
+    (day.slots || []).filter(
+      slot =>
+        slot.blocked !== true &&
+        Number(slot.remaining || 0) > 0
+    );
+
+
+  if (!availableSlots.length) {
+
+    container.innerHTML = `
+      <div class="muted">
+        No appointment times are currently available
+        for this date.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    availableSlots
+      .map(slot => {
+
+        const startTime =
+          slot.start_time ||
+          slot.start ||
+          "";
+
+        const endTime =
+          slot.end_time ||
+          slot.end ||
+          "";
+
+        const label =
+          slot.label ||
+          slot.time_label ||
+          startTime;
+
+
+        return `
+          <button
+            type="button"
+            class="secondary schedule-available-time"
+            data-start-time="${escapeAttr(startTime)}"
+            data-end-time="${escapeAttr(endTime)}"
+            data-time-label="${escapeAttr(label)}"
+          >
+            ${escapeHtml(label)}
+          </button>
+        `;
+
+      })
+      .join("");
+
+}
+
+
 function renderScheduleServices(services = []) {
 
   const container =
@@ -5534,6 +5644,22 @@ document.addEventListener("click", async function (event) {
 
 
 document.addEventListener("change", async function (event) {
+
+  /*
+   * Manual appointment available-date selection.
+   */
+  if (
+    event.target.id ===
+    "scheduleAvailableDate"
+  ) {
+
+    renderScheduleAvailableTimes(
+      event.target.value
+    );
+
+    return;
+  }
+
 
   /*
    * Manual appointment scheduling mode.
