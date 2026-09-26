@@ -5433,6 +5433,56 @@ document.addEventListener("click", async function (event) {
 document.addEventListener("change", async function (event) {
 
   /*
+   * Manual appointment scheduling mode.
+   *
+   * Available Time uses the instructor's normal
+   * student-bookable availability.
+   *
+   * Custom Time allows an authorized user to
+   * manually choose a date and time.
+   */
+  const scheduleTimeMode =
+    event.target.closest(
+      'input[name="scheduleTimeMode"]'
+    );
+
+  if (scheduleTimeMode) {
+
+    const availablePanel =
+      $("scheduleAvailableTimePanel");
+
+    const customPanel =
+      $("scheduleCustomTimePanel");
+
+
+    if (
+      !availablePanel ||
+      !customPanel
+    ) {
+      return;
+    }
+
+
+    const useCustomTime =
+      scheduleTimeMode.value === "custom";
+
+
+    availablePanel.classList.toggle(
+      "hidden",
+      useCustomTime
+    );
+
+    customPanel.classList.toggle(
+      "hidden",
+      !useCustomTime
+    );
+
+
+    return;
+  }
+
+
+  /*
    * Required checkbox for a locally-created
    * free service.
    */
