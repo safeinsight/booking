@@ -2599,6 +2599,9 @@ async function loadScheduleServices() {
       result.services || []
     );
 
+    renderScheduleAvailableDates(
+      result.days || []
+    );
 
   } catch (error) {
 
@@ -2616,6 +2619,101 @@ async function loadScheduleServices() {
       `;
     }
 
+  }
+
+}
+
+
+function renderScheduleAvailableDates(days = []) {
+
+  const dateSelect =
+    $("scheduleAvailableDate");
+
+  const timesContainer =
+    $("scheduleAvailableTimes");
+
+  const selection =
+    $("scheduleAvailableTimeSelection");
+
+
+  if (!dateSelect) {
+    return;
+  }
+
+
+  const availableDays =
+    days.filter(day =>
+      day.has_available === true
+    );
+
+
+  if (!availableDays.length) {
+
+    dateSelect.innerHTML = `
+      <option value="">
+        No available dates
+      </option>
+    `;
+
+    dateSelect.disabled =
+      true;
+
+
+    if (timesContainer) {
+      timesContainer.innerHTML = `
+        <div class="muted">
+          No appointment times are currently available.
+        </div>
+      `;
+    }
+
+
+    if (selection) {
+      selection.textContent =
+        "";
+    }
+
+
+    return;
+  }
+
+
+  dateSelect.disabled =
+    false;
+
+
+  dateSelect.innerHTML = `
+    <option value="">
+      Select a date
+    </option>
+
+    ${availableDays
+      .map(day => `
+        <option
+          value="${escapeAttr(day.date)}"
+        >
+          ${escapeHtml(
+            day.label ||
+            day.date
+          )}
+        </option>
+      `)
+      .join("")}
+  `;
+
+
+  if (timesContainer) {
+    timesContainer.innerHTML = `
+      <div class="muted">
+        Select a date to view available times.
+      </div>
+    `;
+  }
+
+
+  if (selection) {
+    selection.textContent =
+      "";
   }
 
 }
