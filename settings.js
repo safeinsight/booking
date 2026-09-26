@@ -388,10 +388,19 @@ function updateAppointmentsHistoryVisibility() {
   }
 
 
+  const historyTabs = [
+    "past",
+    "cancelled",
+    "missed"
+  ];
+
+
   controls.style.display =
-    state.appointments.activeTab === "upcoming"
-      ? "none"
-      : "block";
+    historyTabs.includes(
+      state.appointments.activeTab
+    )
+      ? "block"
+      : "none";
 
 }
 
