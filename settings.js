@@ -6931,6 +6931,82 @@ document.addEventListener(
     }
 
 
+    /*
+     * SELECT AVAILABLE TIME FOR
+     * MANUAL APPOINTMENT.
+     */
+    const scheduleTimeButton =
+      event.target.closest(
+        ".schedule-available-time"
+      );
+
+
+    if (scheduleTimeButton) {
+
+      const startTime =
+        scheduleTimeButton.getAttribute(
+          "data-start-time"
+        ) || "";
+
+      const endTime =
+        scheduleTimeButton.getAttribute(
+          "data-end-time"
+        ) || "";
+
+      const timeLabel =
+        scheduleTimeButton.getAttribute(
+          "data-time-label"
+        ) || scheduleTimeButton.textContent.trim();
+
+
+      document
+        .querySelectorAll(
+          ".schedule-available-time"
+        )
+        .forEach(button => {
+
+          button.classList.remove(
+            "primary"
+          );
+
+          button.classList.add(
+            "secondary"
+          );
+
+        });
+
+
+      scheduleTimeButton.classList.remove(
+        "secondary"
+      );
+
+      scheduleTimeButton.classList.add(
+        "primary"
+      );
+
+
+      const selection =
+        $("scheduleAvailableTimeSelection");
+
+
+      if (selection) {
+
+        selection.dataset.startTime =
+          startTime;
+
+        selection.dataset.endTime =
+          endTime;
+
+        selection.textContent =
+          `Selected: ${timeLabel}`;
+
+      }
+
+
+      return;
+    }
+
+
     const rangeButton =
       event.target.closest(
         ".appointment-range"
