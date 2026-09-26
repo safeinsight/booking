@@ -1068,19 +1068,6 @@ function applyRolePermissions() {
   const availabilityTab = $("availabilityTab");
   const bookingRulesTab = $("bookingRulesTab");
   const servicesTab = $("servicesTab");
-  const calendarTab = $("calendarTab");
-  const emailsTab = $("emailsTab");
-
-const locationTabButton =
-  document.querySelector('[data-tab="locationTab"]');
-
-function applyRolePermissions() {
-  const locationTab = $("locationTab");
-  const usersTab = $("usersTab");
-  const brandingTab = $("brandingTab");
-  const availabilityTab = $("availabilityTab");
-  const bookingRulesTab = $("bookingRulesTab");
-  const servicesTab = $("servicesTab");
   const appointmentsTab = $("appointmentsTab");
   const calendarTab = $("calendarTab");
   const emailsTab = $("emailsTab");
