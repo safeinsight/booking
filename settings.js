@@ -462,6 +462,11 @@ function selectAppointmentTab(tabName) {
   }
 
 
+  if (tabName === "schedule") {
+    loadScheduleServices();
+  }
+
+
   updateAppointmentsHistoryVisibility();
   updateAppointmentsHistoryDescription();
 
@@ -2522,6 +2527,98 @@ $("brandLogo").src =
     `Booking powered by ${loc.name || "Safe Insight"}`;
 }
 
+
+
+async function loadScheduleServices() {
+
+  if (!state.instructor?.id) {
+    renderScheduleServices([]);
+    return;
+  }
+
+
+  const locationSlug =
+    state.location?.slug;
+
+  const instructorSlug =
+    state.instructor?.slug;
+
+
+  if (
+    !locationSlug ||
+    !instructorSlug
+  ) {
+    renderScheduleServices([]);
+    return;
+  }
+
+
+  const container =
+    $("scheduleServicesList");
+
+
+  if (container) {
+    container.innerHTML = `
+      <div class="muted">
+        Loading services...
+      </div>
+    `;
+  }
+
+
+  try {
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/get-availability?location=${encodeURIComponent(locationSlug)}&instructor=${encodeURIComponent(instructorSlug)}`,
+        {
+          headers: {
+            "Authorization":
+              `Bearer ${cfg.supabaseAnonKey}`
+          }
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      result.error
+    ) {
+      throw new Error(
+        result.error ||
+        "Unable to load services."
+      );
+    }
+
+
+    renderScheduleServices(
+      result.services || []
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "SCHEDULE SERVICES LOAD ERROR:",
+      error
+    );
+
+
+    if (container) {
+      container.innerHTML = `
+        <div class="muted">
+          Unable to load services.
+        </div>
+      `;
+    }
+
+  }
+
+}
 
 
 function renderScheduleServices(services = []) {
