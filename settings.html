@@ -1675,6 +1675,174 @@
 
         </div>
 
+
+        <div
+          style="
+            margin-top:24px;
+            padding-top:20px;
+            border-top:1px solid #ddd;
+          "
+        >
+
+          <h3>Appointment Time</h3>
+
+          <p class="muted">
+            Choose an available booking time or manually select a custom time.
+          </p>
+
+
+          <div
+            style="
+              display:grid;
+              grid-template-columns:repeat(
+                auto-fit,
+                minmax(220px, 1fr)
+              );
+              gap:12px;
+              margin-top:16px;
+            "
+          >
+
+            <div
+              style="
+                padding:15px;
+                border:1px solid #ddd;
+                border-radius:8px;
+              "
+            >
+
+              <label
+                style="
+                  display:grid;
+                  grid-template-columns:auto minmax(0, 1fr);
+                  gap:12px;
+                  align-items:start;
+                  margin:0;
+                  width:100%;
+                  cursor:pointer;
+                "
+              >
+
+                <input
+                  type="radio"
+                  name="scheduleTimeMode"
+                  id="scheduleTimeModeAvailable"
+                  value="available"
+                  checked
+                  style="
+                    width:auto;
+                    min-width:0;
+                    margin:4px 0 0 0;
+                  "
+                >
+
+                <span
+                  style="
+                    display:block;
+                    min-width:0;
+                    width:auto;
+                  "
+                >
+                  <strong>
+                    Available Time
+                  </strong>
+
+                  <div
+                    class="muted"
+                    style="margin-top:5px;"
+                  >
+                    Choose from times currently available
+                    for student booking.
+                  </div>
+                </span>
+
+              </label>
+
+            </div>
+
+
+            <div
+              style="
+                padding:15px;
+                border:1px solid #ddd;
+                border-radius:8px;
+              "
+            >
+
+              <label
+                style="
+                  display:grid;
+                  grid-template-columns:auto minmax(0, 1fr);
+                  gap:12px;
+                  align-items:start;
+                  margin:0;
+                  width:100%;
+                  cursor:pointer;
+                "
+              >
+
+                <input
+                  type="radio"
+                  name="scheduleTimeMode"
+                  id="scheduleTimeModeCustom"
+                  value="custom"
+                  style="
+                    width:auto;
+                    min-width:0;
+                    margin:4px 0 0 0;
+                  "
+                >
+
+                <span
+                  style="
+                    display:block;
+                    min-width:0;
+                    width:auto;
+                  "
+                >
+                  <strong>
+                    Custom Time
+                  </strong>
+
+                  <div
+                    class="muted"
+                    style="margin-top:5px;"
+                  >
+                    Manually select a date and time,
+                    including times outside normal
+                    student availability.
+                  </div>
+                </span>
+
+              </label>
+
+            </div>
+
+          </div>
+
+
+          <div
+            id="scheduleAvailableTimePanel"
+            style="margin-top:20px;"
+          >
+            <div class="muted">
+              Available appointment times will appear here.
+            </div>
+          </div>
+
+
+          <div
+            id="scheduleCustomTimePanel"
+            class="hidden"
+            style="margin-top:20px;"
+          >
+            <div class="muted">
+              Custom date and time controls will appear here.
+            </div>
+          </div>
+
+        </div>
+
       </div>
 
     </div>
