@@ -303,6 +303,43 @@ function updateAppointmentsInstructorBanner() {
 }
 
 
+function updateEmailsInstructorBanner() {
+
+  const name =
+    $("emailsInstructorName");
+
+  const email =
+    $("emailsInstructorEmail");
+
+
+  if (!name || !email) {
+    return;
+  }
+
+
+  if (!state.instructor) {
+
+    name.textContent =
+      "No Instructor Selected";
+
+    email.textContent =
+      "";
+
+    return;
+  }
+
+
+  name.textContent =
+    state.instructor.name ||
+    "Selected Instructor";
+
+  email.textContent =
+    state.instructor.email ||
+    "";
+
+}
+
+
 function updateAppointmentsHistoryDescription() {
 
   const description =
@@ -3413,6 +3450,7 @@ return {
   updateBookingUrlDisplay();
 
   updateAppointmentsInstructorBanner();
+  updateEmailsInstructorBanner();
   
   if (state.instructor) {
 
@@ -5673,6 +5711,7 @@ state.instructor =
 updateBookingUrlDisplay();
 
 updateAppointmentsInstructorBanner();
+updateEmailsInstructorBanner();
 
 const calendarSelectedName =
   $("calendarSelectedName");
@@ -6692,3 +6731,4 @@ selectAppointmentHistoryRange(
 );
 
 updateAppointmentsInstructorBanner();
+updateEmailsInstructorBanner();
