@@ -3008,19 +3008,6 @@ async function checkScheduleCustomTimeConflict() {
 
   try {
 
-    const session =
-      await getSession();
-
-
-    if (!session?.access_token) {
-      throw new Error(
-        "Your session has expired."
-      );
-    }
-
-
-  try {
-
     const authHeaders =
       await getAuthHeaders();
 
