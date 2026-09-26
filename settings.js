@@ -402,7 +402,8 @@ function selectAppointmentTab(tabName) {
     "upcoming",
     "past",
     "cancelled",
-    "missed"
+    "missed",
+    "schedule"
   ];
 
 
