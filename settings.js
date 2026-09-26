@@ -699,6 +699,30 @@ function renderAppointmentList(
                 : ""
             }
 
+            ${
+              containerId === "pastAppointmentsList"
+                ? `
+                  <div
+                    style="
+                      margin-top:16px;
+                      display:flex;
+                      justify-content:flex-end;
+                    "
+                  >
+                    <button
+                      type="button"
+                      class="secondary appointment-missed-btn"
+                      data-appointment-id="${escapeHtml(
+                        appointment.id || ""
+                      )}"
+                    >
+                      Mark Missed
+                    </button>
+                  </div>
+                `
+                : ""
+            }
+
           </div>
         `;
 
@@ -6515,6 +6539,134 @@ document.addEventListener(
         showCustomAlert(
           error.message ||
           "Unable to cancel appointment."
+        );
+
+      }
+
+
+      return;
+    }
+
+
+    /*
+     * MARK APPOINTMENT MISSED
+     */
+
+    const missedButton =
+      event.target.closest(
+        ".appointment-missed-btn"
+      );
+
+
+    if (missedButton) {
+
+      const bookingId =
+        missedButton.getAttribute(
+          "data-appointment-id"
+        );
+
+
+      if (
+        !bookingId ||
+        !state.instructor?.id
+      ) {
+
+        showCustomAlert(
+          "Unable to identify this appointment."
+        );
+
+        return;
+      }
+
+
+      const confirmed =
+        await showCustomConfirm(
+          "Mark this appointment as missed?"
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
+
+
+      const originalText =
+        missedButton.textContent;
+
+
+      missedButton.disabled =
+        true;
+
+      missedButton.textContent =
+        "Marking...";
+
+
+      try {
+
+        const authHeaders =
+          await getAuthHeaders();
+
+
+        const response =
+          await fetch(
+            `${cfg.functionsBaseUrl}/mark-booking-missed`,
+            {
+              method:
+                "POST",
+
+              headers:
+                authHeaders,
+
+              body:
+                JSON.stringify({
+                  booking_id:
+                    bookingId,
+
+                  instructor_id:
+                    state.instructor.id
+                })
+            }
+          );
+
+
+        const result =
+          await response.json();
+
+
+        if (
+          !response.ok ||
+          result.error
+        ) {
+
+          throw new Error(
+            result.error ||
+            "Unable to mark appointment missed."
+          );
+
+        }
+
+
+        await loadAppointments();
+
+
+      } catch (error) {
+
+        console.error(
+          "APPOINTMENT MARK MISSED ERROR:",
+          error
+        );
+
+
+        missedButton.disabled =
+          false;
+
+        missedButton.textContent =
+          originalText;
+
+
+        showCustomAlert(
+          error.message ||
+          "Unable to mark appointment missed."
         );
 
       }
