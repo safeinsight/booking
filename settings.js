@@ -2530,6 +2530,174 @@ $("brandLogo").src =
 }
 
 
+function validateManualAppointment() {
+
+  const studentName =
+    $("scheduleStudentName")?.value.trim() || "";
+
+  const studentEmail =
+    $("scheduleStudentEmail")?.value.trim() || "";
+
+  const studentPhone =
+    $("scheduleStudentPhone")?.value.trim() || "";
+
+  const selectedService =
+    document.querySelector(
+      'input[name="scheduleService"]:checked'
+    );
+
+  const selectedTimeMode =
+    document.querySelector(
+      'input[name="scheduleTimeMode"]:checked'
+    )?.value;
+
+
+  if (!studentName) {
+    return {
+      valid: false,
+      message:
+        "Enter the student's name."
+    };
+  }
+
+
+  if (!studentEmail) {
+    return {
+      valid: false,
+      message:
+        "Enter the student's email address."
+    };
+  }
+
+
+  if (
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+      studentEmail
+    )
+  ) {
+    return {
+      valid: false,
+      message:
+        "Enter a valid student email address."
+    };
+  }
+
+
+  if (!selectedService) {
+    return {
+      valid: false,
+      message:
+        "Select a service."
+    };
+  }
+
+
+  let startTime = "";
+  let endTime = "";
+  let conflictOverride = false;
+
+
+  if (selectedTimeMode === "available") {
+
+    const selection =
+      $("scheduleAvailableTimeSelection");
+
+    startTime =
+      selection?.dataset.startTime || "";
+
+    endTime =
+      selection?.dataset.endTime || "";
+
+
+    if (!startTime || !endTime) {
+      return {
+        valid: false,
+        message:
+          "Select an available appointment time."
+      };
+    }
+
+  } else if (
+    selectedTimeMode === "custom"
+  ) {
+
+    const selection =
+      $("scheduleCustomTimeSelection");
+
+    const conflictStatus =
+      $("scheduleCustomConflictStatus");
+
+
+    startTime =
+      selection?.dataset.startIso || "";
+
+    endTime =
+      selection?.dataset.endIso || "";
+
+
+    if (!startTime || !endTime) {
+      return {
+        valid: false,
+        message:
+          "Select a custom appointment date and time."
+      };
+    }
+
+
+    const conflict =
+      conflictStatus?.dataset.conflict ===
+      "true";
+
+    conflictOverride =
+      conflictStatus?.dataset.override ===
+      "true";
+
+
+    if (
+      conflict &&
+      !conflictOverride
+    ) {
+      return {
+        valid: false,
+        message:
+          "This appointment has a scheduling conflict. Approve the conflict override before continuing."
+      };
+    }
+
+  } else {
+
+    return {
+      valid: false,
+      message:
+        "Select an appointment time option."
+    };
+  }
+
+
+  return {
+    valid: true,
+
+    appointment: {
+      student: {
+        fullName: studentName,
+        email: studentEmail,
+        phone: studentPhone
+      },
+
+      serviceId:
+        selectedService.value,
+
+      timeMode:
+        selectedTimeMode,
+
+      startTime,
+      endTime,
+
+      conflictOverride
+    }
+  };
+}
+
 
 async function loadScheduleServices() {
 
@@ -7613,6 +7781,46 @@ document.addEventListener(
       selectAppointmentTab(
         tabName
       );
+
+      return;
+    }
+
+
+    /*
+     * MANUAL APPOINTMENT
+     * VALIDATION.
+     */
+    const scheduleAppointmentButton =
+      event.target.closest(
+        "#scheduleAppointmentBtn"
+      );
+
+    if (scheduleAppointmentButton) {
+
+      const result =
+        validateManualAppointment();
+
+
+      if (!result.valid) {
+
+        showCustomAlert(
+          result.message
+        );
+
+        return;
+      }
+
+
+      console.log(
+        "MANUAL APPOINTMENT READY:",
+        result.appointment
+      );
+
+
+      showCustomAlert(
+        "Appointment information is complete and ready to schedule."
+      );
+
 
       return;
     }
