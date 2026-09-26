@@ -2810,10 +2810,49 @@ function renderScheduleAvailableTimes(date) {
           slot.end ||
           "";
 
-        const label =
-          slot.label ||
-          slot.time_label ||
+        const instructorTimeZone =
+          state.instructor?.timezone ||
+          "UTC";
+
+
+        let label =
           startTime;
+
+
+        if (startTime) {
+
+          try {
+
+            label =
+              new Intl.DateTimeFormat(
+                "en-US",
+                {
+                  timeZone:
+                    instructorTimeZone,
+
+                  hour:
+                    "numeric",
+
+                  minute:
+                    "2-digit",
+
+                  hour12:
+                    true
+                }
+              ).format(
+                new Date(startTime)
+              );
+
+          } catch (error) {
+
+            console.error(
+              "SCHEDULE TIME FORMAT ERROR:",
+              error
+            );
+
+          }
+
+        }
 
 
         return `
