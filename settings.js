@@ -7788,7 +7788,7 @@ document.addEventListener(
 
     /*
      * MANUAL APPOINTMENT
-     * VALIDATION.
+     * CREATE BOOKING.
      */
     const scheduleAppointmentButton =
       event.target.closest(
@@ -7811,15 +7811,182 @@ document.addEventListener(
       }
 
 
-      console.log(
-        "MANUAL APPOINTMENT READY:",
-        result.appointment
-      );
+      if (!state.instructor?.id) {
+
+        showCustomAlert(
+          "Select an instructor before scheduling an appointment."
+        );
+
+        return;
+      }
 
 
-      showCustomAlert(
-        "Appointment information is complete and ready to schedule."
-      );
+      const appointment =
+        result.appointment;
+
+      const status =
+        $("scheduleAppointmentStatus");
+
+
+      scheduleAppointmentButton.disabled =
+        true;
+
+      scheduleAppointmentButton.textContent =
+        "Scheduling...";
+
+
+      if (status) {
+
+        status.textContent =
+          "Creating appointment...";
+
+        status.classList.remove(
+          "hidden"
+        );
+
+      }
+
+
+      try {
+
+        const authHeaders =
+          await getAuthHeaders();
+
+
+        const response =
+          await fetch(
+            `${cfg.functionsBaseUrl}/create-manual-booking`,
+            {
+              method: "POST",
+
+              headers:
+                authHeaders,
+
+              body: JSON.stringify({
+                instructor_id:
+                  state.instructor.id,
+
+                student:
+                  appointment.student,
+
+                service_id:
+                  appointment.serviceId,
+
+                time_mode:
+                  appointment.timeMode,
+
+                start_time:
+                  appointment.startTime,
+
+                end_time:
+                  appointment.endTime,
+
+                conflict_override:
+                  appointment.conflictOverride
+              })
+            }
+          );
+
+
+        const responseText =
+          await response.text();
+
+
+        let createResult = {};
+
+
+        if (responseText) {
+
+          try {
+
+            createResult =
+              JSON.parse(
+                responseText
+              );
+
+          } catch {
+
+            throw new Error(
+              responseText
+            );
+
+          }
+
+        }
+
+
+        if (
+          !response.ok ||
+          createResult.error
+        ) {
+
+          throw new Error(
+            createResult.error ||
+            "Unable to schedule the appointment."
+          );
+
+        }
+
+
+        console.log(
+          "MANUAL APPOINTMENT CREATED:",
+          createResult
+        );
+
+
+        if (status) {
+
+          status.textContent =
+            "Appointment scheduled successfully.";
+
+        }
+
+
+        await showCustomAlert(
+          "Appointment scheduled successfully."
+        );
+
+
+        /*
+         * Refresh the appointment lists so the newly
+         * created appointment immediately appears under
+         * Upcoming.
+         */
+        await loadAppointments();
+
+
+      } catch (error) {
+
+        console.error(
+          "CREATE MANUAL APPOINTMENT ERROR:",
+          error
+        );
+
+
+        if (status) {
+
+          status.textContent =
+            error.message ||
+            "Unable to schedule the appointment.";
+
+        }
+
+
+        showCustomAlert(
+          error.message ||
+          "Unable to schedule the appointment."
+        );
+
+
+      } finally {
+
+        scheduleAppointmentButton.disabled =
+          false;
+
+        scheduleAppointmentButton.textContent =
+          "Schedule Appointment";
+
+      }
 
 
       return;
