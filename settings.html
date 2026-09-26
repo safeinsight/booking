@@ -1882,9 +1882,79 @@
             class="hidden"
             style="margin-top:20px;"
           >
-            <div class="muted">
-              Custom date and time controls will appear here.
+
+            <div
+              style="
+                padding:16px;
+                border:1px solid #ddd;
+                border-radius:8px;
+              "
+            >
+
+              <strong>
+                Custom Appointment Time
+              </strong>
+
+              <p
+                class="muted"
+                style="margin-top:6px;"
+              >
+                Choose a date and time manually. This may be outside
+                the times normally available for student booking.
+              </p>
+
+
+              <div
+                style="
+                  display:grid;
+                  grid-template-columns:repeat(
+                    auto-fit,
+                    minmax(220px, 1fr)
+                  );
+                  gap:16px;
+                  margin-top:16px;
+                "
+              >
+
+                <label>
+                  Date
+
+                  <input
+                    type="date"
+                    id="scheduleCustomDate"
+                  >
+                </label>
+
+
+                <label>
+                  Start Time
+
+                  <input
+                    type="time"
+                    id="scheduleCustomStartTime"
+                  >
+                </label>
+
+              </div>
+
+
+              <div
+                class="muted"
+                style="margin-top:16px;"
+              >
+                Times are entered in the selected instructor's
+                time zone.
+              </div>
+
+
+              <div
+                id="scheduleCustomTimeSelection"
+                class="muted"
+                style="margin-top:10px;"
+              ></div>
+
             </div>
+
           </div>
 
         </div>
