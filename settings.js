@@ -7137,6 +7137,12 @@ await loadServices();
 
 await loadAppointments();
 
+/*
+ * Refresh Schedule availability/services for
+ * the newly selected instructor.
+ */
+await loadScheduleServices();
+
 renderInstructorList();
 
 return;
