@@ -1522,7 +1522,7 @@ Location: {{LOCATION}}
 Student: {{STUDENT_NAME}}
 Instructor: {{INSTRUCTOR_NAME}}`;
 
-  $("instructorEmail").value =
+  $("instructorCancelEmail").value =
     emailSettings.instructor_cancel_email ||
     "";
 
@@ -4234,7 +4234,7 @@ instructor_reschedule_message:
       $("studentCancelMessage").value.trim(),
 
     instructor_cancel_email:
-      $("instructorEmail").value.trim(),
+      $("instructorCancelEmail").value.trim(),
 
     instructor_cancel_subject:
       $("instructorCancelSubject").value.trim(),
