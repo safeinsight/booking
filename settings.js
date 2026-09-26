@@ -3065,6 +3065,12 @@ async function checkScheduleCustomTimeConflict() {
 
     if (!result.conflict) {
 
+      status.dataset.conflict =
+        "false";
+
+      status.dataset.override =
+        "false";
+
       status.innerHTML = `
         <strong>
           No conflicts found.
@@ -3101,18 +3107,40 @@ async function checkScheduleCustomTimeConflict() {
     }
 
 
+    status.dataset.conflict =
+      "true";
+
+    status.dataset.override =
+      "false";
+
+
     status.innerHTML = `
       <strong>
         Scheduling conflict found.
       </strong>
 
-      <div class="muted" style="margin-top:4px;">
+      <div
+        class="muted"
+        style="margin-top:4px;"
+      >
         This time overlaps
         ${escapeHtml(
           conflictMessages.join(
             " and "
           )
         )}.
+      </div>
+
+      <div
+        style="margin-top:14px;"
+      >
+        <button
+          type="button"
+          class="secondary"
+          id="scheduleOverrideConflictBtn"
+        >
+          Override Conflict
+        </button>
       </div>
     `;
 
@@ -7591,6 +7619,59 @@ document.addEventListener(
 
 
     /*
+     * MANUAL APPOINTMENT
+     * CONFLICT OVERRIDE.
+     */
+    const overrideConflictButton =
+      event.target.closest(
+        "#scheduleOverrideConflictBtn"
+      );
+
+    if (overrideConflictButton) {
+
+      const confirmed =
+        await showCustomConfirm(
+          "This appointment conflicts with an existing appointment or calendar event. Continue with the override?"
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
+
+
+      const status =
+        $("scheduleCustomConflictStatus");
+
+
+      if (!status) {
+        return;
+      }
+
+
+      status.dataset.override =
+        "true";
+
+
+      status.innerHTML = `
+        <strong>
+          Conflict override approved.
+        </strong>
+
+        <div
+          class="muted"
+          style="margin-top:4px;"
+        >
+          This appointment may be scheduled despite the detected conflict.
+        </div>
+      `;
+
+
+      return;
+    }
+
+
+    /*
      * SELECT AVAILABLE TIME FOR
      * MANUAL APPOINTMENT.
      */
@@ -7598,7 +7679,6 @@ document.addEventListener(
       event.target.closest(
         ".schedule-available-time"
       );
-
 
     if (scheduleTimeButton) {
 
