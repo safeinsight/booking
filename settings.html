@@ -1825,9 +1825,55 @@
             id="scheduleAvailableTimePanel"
             style="margin-top:20px;"
           >
-            <div class="muted">
-              Available appointment times will appear here.
+
+            <label
+              for="scheduleAvailableDate"
+              style="margin-bottom:8px;"
+            >
+              Available Date
+            </label>
+
+            <select
+              id="scheduleAvailableDate"
+              style="width:100%;"
+            >
+              <option value="">
+                Loading available dates...
+              </option>
+            </select>
+
+
+            <div
+              style="margin-top:20px;"
+            >
+
+              <strong>
+                Available Times
+              </strong>
+
+              <div
+                id="scheduleAvailableTimes"
+                style="
+                  display:flex;
+                  flex-wrap:wrap;
+                  gap:10px;
+                  margin-top:10px;
+                "
+              >
+                <div class="muted">
+                  Select a date to view available times.
+                </div>
+              </div>
+
             </div>
+
+
+            <div
+              id="scheduleAvailableTimeSelection"
+              class="muted"
+              style="margin-top:15px;"
+            ></div>
+
           </div>
 
 
