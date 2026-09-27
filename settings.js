@@ -5877,190 +5877,266 @@ function updateBookingUrlDisplay() {
 
 function renderInstructorList() {
 
-  const container = $("usersList");
+  const container =
+    $("usersList");
 
-  if (!container) return;
+  if (!container) {
+    return;
+  }
 
-  if (!state.instructors.length) {
+
+  /*
+   * User Management is driven by settingsUsers,
+   * NOT by instructors.
+   *
+   * Administrators therefore appear here even
+   * when they intentionally have no instructor
+   * record or public booking page.
+   */
+  if (!state.settingsUsers.length) {
+
     container.innerHTML =
       `<div class="muted">
         No users assigned.
       </div>`;
+
     return;
   }
 
+
   container.innerHTML =
-    state.instructors.map(instructor => {
+    state.settingsUsers
+      .map(settingsUser => {
 
-      const isSelected =
-        state.instructor &&
-        state.instructor.id === instructor.id;
+        /*
+         * A Booking Settings user may also have
+         * an instructor record.
+         *
+         * Match by user_id first. Email is retained
+         * as a safe fallback for older records.
+         */
+        const userEmail =
+          settingsUser.email
+            ?.trim()
+            .toLowerCase() || "";
 
-      let status = "Removed";
+        const instructor =
+          state.instructors.find(item =>
+            (
+              settingsUser.user_id &&
+              item.user_id === settingsUser.user_id
+            ) ||
+            (
+              userEmail &&
+              item.email
+                ?.trim()
+                .toLowerCase() === userEmail
+            )
+          ) || null;
 
-      if (instructor.user_id) {
 
-        if (
-          instructor.active &&
-          instructor.email_confirmed
-        ) {
-          status = "Active";
+        /*
+         * Instructor-backed users have a stored
+         * display name. Settings-only users such
+         * as Administrators currently do not.
+         *
+         * Use the email as their visible identity
+         * rather than pretending they are instructors.
+         */
+        const displayName =
+          instructor?.name ||
+          settingsUser.email ||
+          "Booking Settings User";
 
-        } else if (
-          instructor.active &&
-          !instructor.email_confirmed
-        ) {
-          status =
-            "Invited - Awaiting Confirmation";
+
+        let status =
+          "Removed";
+
+        if (settingsUser.user_id) {
+
+          if (
+            settingsUser.active &&
+            settingsUser.email_confirmed
+          ) {
+            status =
+              "Active";
+
+          } else if (
+            settingsUser.active &&
+            !settingsUser.email_confirmed
+          ) {
+            status =
+              "Invited - Awaiting Confirmation";
+          }
+
         }
 
-      }
 
-      return `
-        <div
-          data-select-instructor="${escapeAttr(instructor.id)}"
-          style="
-            padding:24px;
-            border:3px solid ${isSelected ? "#333" : "#ddd"};
-            margin-top:15px;
-            border-radius:10px;
-            cursor:pointer;
-          "
-        >
-
-          <!-- USER NAME -->
-
+        return `
           <div
+            ${
+              instructor?.id
+                ? `data-select-instructor="${escapeAttr(instructor.id)}"`
+                : ""
+            }
             style="
-              font-size:21px;
-              font-weight:700;
-              line-height:1.3;
-            "
-          >
-            ${escapeHtml(instructor.name)}
-          </div>
-
-
-          <!-- USER EMAIL -->
-
-          <div
-            style="
-              font-size:17px;
-              margin-top:3px;
-            "
-          >
-            ${escapeHtml(instructor.email || "")}
-          </div>
-
-
-          <!-- STATUS -->
-
-          <div
-            style="
-              font-size:16px;
-              margin-top:14px;
-            "
-          >
-            <strong>Status:</strong>
-            ${escapeHtml(status)}
-          </div>
-
-
-          <!-- ROLE -->
-
-          <div
-            style="
-              margin-top:12px;
+              padding:24px;
+              border:3px solid ${
+                instructor?.id &&
+                state.instructor?.id === instructor.id
+                  ? "#333"
+                  : "#ddd"
+              };
+              margin-top:15px;
+              border-radius:10px;
+              cursor:${
+                instructor?.id
+                  ? "pointer"
+                  : "default"
+              };
             "
           >
 
-            <label>
-              <strong>Role:</strong>
+            <!-- USER NAME -->
 
-              <select
-                data-role-instructor="${escapeAttr(instructor.id)}"
-                style="
-                  width:160px;
-                  margin-left:8px;
-                "
+            <div
+              style="
+                font-size:21px;
+                font-weight:700;
+                line-height:1.3;
+              "
+            >
+              ${escapeHtml(displayName)}
+            </div>
+
+
+            <!-- USER EMAIL -->
+
+            ${
+              instructor?.name
+                ? `
+                  <div
+                    style="
+                      font-size:17px;
+                      margin-top:3px;
+                    "
+                  >
+                    ${escapeHtml(settingsUser.email || "")}
+                  </div>
+                `
+                : ""
+            }
+
+
+            <!-- STATUS -->
+
+            <div
+              style="
+                font-size:16px;
+                margin-top:14px;
+              "
+            >
+              <strong>Status:</strong>
+              ${escapeHtml(status)}
+            </div>
+
+
+            <!-- ROLE -->
+
+            <div
+              style="
+                margin-top:12px;
+              "
+            >
+
+              <label>
+                <strong>Role:</strong>
+
+                <select
+                  data-role-user="${escapeAttr(settingsUser.user_id || "")}"
+                  style="
+                    width:160px;
+                    margin-left:8px;
+                  "
+                >
+
+                  <option
+                    value="Administrator"
+                    ${settingsUser.role === "Administrator" ? "selected" : ""}
+                  >
+                    Administrator
+                  </option>
+
+                  <option
+                    value="Manager"
+                    ${settingsUser.role === "Manager" ? "selected" : ""}
+                  >
+                    Manager
+                  </option>
+
+                  <option
+                    value="Instructor"
+                    ${settingsUser.role === "Instructor" ? "selected" : ""}
+                  >
+                    Instructor
+                  </option>
+
+                  <option
+                    value="Basic"
+                    ${settingsUser.role === "Basic" ? "selected" : ""}
+                  >
+                    Basic
+                  </option>
+
+                </select>
+
+              </label>
+
+            </div>
+
+
+            <!-- USER ACTIONS -->
+
+            <div
+              style="
+                display:flex;
+                gap:10px;
+                flex-wrap:wrap;
+                margin-top:24px;
+              "
+            >
+
+              <button
+                type="button"
+                class="secondary"
+                data-deactivate-user="${escapeAttr(settingsUser.user_id || "")}"
               >
+                Deactivate
+              </button>
 
-                <option
-                  value="Administrator"
-                  ${instructor.role === "Administrator" ? "selected" : ""}
-                >
-                  Administrator
-                </option>
+              <button
+                type="button"
+                class="secondary"
+                data-delete-user="${escapeAttr(settingsUser.user_id || "")}"
+              >
+                Delete
+              </button>
 
-                <option
-                  value="Manager"
-                  ${instructor.role === "Manager" ? "selected" : ""}
-                >
-                  Manager
-                </option>
+              <button
+                type="button"
+                class="secondary"
+                data-resend-invite="${escapeAttr(settingsUser.user_id || "")}"
+              >
+                Resend Invite
+              </button>
 
-                <option
-                  value="Instructor"
-                  ${instructor.role === "Instructor" ? "selected" : ""}
-                >
-                  Instructor
-                </option>
-
-                <option
-                  value="Basic"
-                  ${instructor.role === "Basic" ? "selected" : ""}
-                >
-                  Basic
-                </option>
-
-              </select>
-
-            </label>
+            </div>
 
           </div>
+        `;
 
-
-          <!-- USER ACTIONS -->
-
-          <div
-            style="
-              display:flex;
-              gap:10px;
-              flex-wrap:wrap;
-              margin-top:24px;
-            "
-          >
-
-            <button
-              type="button"
-              class="secondary"
-              data-deactivate-user="${escapeAttr(instructor.user_id || "")}"
-            >
-              Deactivate
-            </button>
-
-            <button
-              type="button"
-              class="secondary"
-              data-delete-user="${escapeAttr(instructor.user_id || "")}"
-            >
-              Delete
-            </button>
-
-            <button
-              type="button"
-              class="secondary"
-              data-resend-invite="${escapeAttr(instructor.user_id || "")}"
-            >
-              Resend Invite
-            </button>
-
-          </div>
-
-        </div>
-      `;
-
-    }).join("");
+      })
+      .join("");
 }
 
 document.addEventListener("click", async function (event) {
