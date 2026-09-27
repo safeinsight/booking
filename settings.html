@@ -1371,42 +1371,6 @@
     </div>
 
 
-    <!-- BOOKING URL -->
-
-    <div
-      id="bookingUrlDisplay"
-      class="settings-section"
-      style="
-        margin-top:20px;
-        padding:12px 15px;
-        border:1px solid #ddd;
-        border-radius:8px;
-        background:#f8f8f8;
-      "
-    >
-      <strong>Booking URL:</strong>
-
-      <span
-        id="bookingUrlText"
-        style="
-          margin-left:10px;
-          word-break:break-all;
-        "
-      ></span>
-
-      <br>
-      <br>
-
-      <button
-        type="button"
-        id="copyBookingUrlBtn"
-        class="secondary"
-      >
-        Copy URL
-      </button>
-    </div>
-
-
     <!-- CALENDAR INFORMATION -->
 
       <div
@@ -2826,15 +2790,47 @@
 
 <script>
 
+  /* =========================================================
+     MAIN SETTINGS TABS
+     ========================================================= */
+
+  const bookingUrlTabs = new Set([
+    "locationTab",
+    "availabilityTab",
+    "bookingRulesTab",
+    "calendarTab",
+    "appointmentsTab"
+  ]);
+
+
+  function updateBookingUrlVisibility(tabId) {
+
+    const bookingUrlDisplay =
+      document.getElementById("bookingUrlDisplay");
+
+    if (!bookingUrlDisplay) {
+      return;
+    }
+
+    bookingUrlDisplay.classList.toggle(
+      "hidden",
+      !bookingUrlTabs.has(tabId)
+    );
+
+  }
+
+
   document.addEventListener("click", function (event) {
 
-    const tab = event.target.closest(".settings-tab");
+    const tab =
+      event.target.closest(".settings-tab");
 
     if (!tab) {
       return;
     }
 
-    const target = tab.getAttribute("data-tab");
+    const target =
+      tab.getAttribute("data-tab");
 
     if (!target) {
       return;
@@ -2846,40 +2842,6 @@
         button.classList.remove("active");
       });
 
-    document.addEventListener("click", function (event) {
-  const tab = event.target.closest(".email-tab");
-
-  if (!tab) {
-    return;
-  }
-
-  const target = tab.getAttribute("data-email-tab");
-
-  if (!target) {
-    return;
-  }
-
-  document
-    .querySelectorAll(".email-tab")
-    .forEach(button => {
-      button.classList.remove("active");
-    });
-
-  document
-    .querySelectorAll(".email-tab-panel")
-    .forEach(panel => {
-      panel.classList.remove("active");
-    });
-
-  tab.classList.add("active");
-
-  const panel = document.getElementById(target);
-
-  if (panel) {
-    panel.classList.add("active");
-  }
-});
-
     document
       .querySelectorAll(".settings-tab-panel")
       .forEach(panel => {
@@ -2888,13 +2850,75 @@
 
     tab.classList.add("active");
 
-    const panel = document.getElementById(target);
+    const panel =
+      document.getElementById(target);
+
+    if (panel) {
+      panel.classList.add("active");
+    }
+
+    updateBookingUrlVisibility(target);
+
+  });
+
+
+  /* =========================================================
+     EMAIL SUB-TABS
+     ========================================================= */
+
+  document.addEventListener("click", function (event) {
+
+    const tab =
+      event.target.closest(".email-tab");
+
+    if (!tab) {
+      return;
+    }
+
+    const target =
+      tab.getAttribute("data-email-tab");
+
+    if (!target) {
+      return;
+    }
+
+    document
+      .querySelectorAll(".email-tab")
+      .forEach(button => {
+        button.classList.remove("active");
+      });
+
+    document
+      .querySelectorAll(".email-tab-panel")
+      .forEach(panel => {
+        panel.classList.remove("active");
+      });
+
+    tab.classList.add("active");
+
+    const panel =
+      document.getElementById(target);
 
     if (panel) {
       panel.classList.add("active");
     }
 
   });
+
+
+  /*
+   * Match the Booking URL box to whichever
+   * main tab is active when the page first loads.
+   */
+  const initialActiveTab =
+    document.querySelector(
+      ".settings-tab.active"
+    );
+
+  updateBookingUrlVisibility(
+    initialActiveTab?.getAttribute("data-tab") || ""
+  );
+
 </script>
 
 </body>
