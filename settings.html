@@ -2120,6 +2120,114 @@
 </div>
 
 
+<!-- OTHER USER EMAIL NOTIFICATION -->
+
+<div
+  id="otherUserEmailSection"
+  style="
+    margin:0 0 20px 0;
+  "
+>
+
+  <label for="otherUserEmailEnabled">
+    <input
+      id="otherUserEmailEnabled"
+      type="checkbox"
+    >
+    <strong>CC Other User(s)</strong>
+  </label>
+
+
+  <div
+    id="otherUserEmailOptions"
+    class="hidden"
+    style="
+      margin-top:15px;
+      padding:15px;
+      border:1px solid #ddd;
+      border-radius:8px;
+      background:#fafafa;
+    "
+  >
+
+    <label
+      style="
+        display:block;
+        font-weight:700;
+        margin-bottom:8px;
+      "
+    >
+      Recipients
+    </label>
+
+    <p
+      class="muted"
+      style="
+        margin:0 0 12px 0;
+      "
+    >
+      Select one or more Booking Settings users to receive this notification.
+    </p>
+
+    <div
+      id="otherUserEmailRecipients"
+      style="
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+      "
+    ></div>
+
+
+    <label
+      for="otherUserEmailSubject"
+      style="
+        display:block;
+        margin-top:20px;
+      "
+    >
+      Other User Email Subject
+    </label>
+
+    <input
+      id="otherUserEmailSubject"
+      type="text"
+      maxlength="200"
+      placeholder="Enter the subject for this notification"
+    >
+
+
+    <label
+      for="otherUserEmailMessage"
+      style="
+        display:block;
+        margin-top:15px;
+      "
+    >
+      Other User Message
+    </label>
+
+    <textarea
+      id="otherUserEmailMessage"
+      rows="8"
+      maxlength="5000"
+      placeholder="Enter the message to send to the selected user(s)..."
+    ></textarea>
+
+    <p class="muted">
+      Available placeholders:
+      <code>{{DATE}}</code>,
+      <code>{{TIME}}</code>,
+      <code>{{LOCATION}}</code>,
+      <code>{{STUDENT_NAME}}</code>,
+      <code>{{INSTRUCTOR_NAME}}</code>
+    </p>
+
+  </div>
+
+</div>
+
+
 <!-- CONFIRMATION EMAIL -->
 
         <div
