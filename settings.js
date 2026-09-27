@@ -5854,22 +5854,29 @@ function renderInstructorList() {
   container.innerHTML =
     state.instructors.map(instructor => {
 
-      const bookingUrl =
-        getBookingUrl(instructor);
-
       const isSelected =
         state.instructor &&
         state.instructor.id === instructor.id;
 
-let status = "Removed";
+      let status = "Removed";
 
-if (instructor.user_id) {
-  if (instructor.active && instructor.email_confirmed) {
-    status = "Active";
-  } else if (instructor.active && !instructor.email_confirmed) {
-    status = "Invited - Awaiting Confirmation";
-  }
-}
+      if (instructor.user_id) {
+
+        if (
+          instructor.active &&
+          instructor.email_confirmed
+        ) {
+          status = "Active";
+
+        } else if (
+          instructor.active &&
+          !instructor.email_confirmed
+        ) {
+          status =
+            "Invited - Awaiting Confirmation";
+        }
+
+      }
 
       return `
         <div
@@ -5973,41 +5980,6 @@ if (instructor.user_id) {
             </label>
 
           </div>
-
-
-          <!-- BOOKING URL -->
-
-          ${
-            bookingUrl
-              ? `
-                <div
-                  style="
-                    margin-top:18px;
-                    font-size:15px;
-                  "
-                >
-                  Booking URL:
-                  <code>${escapeHtml(bookingUrl)}</code>
-
-                  <button
-                    type="button"
-                    class="secondary user-booking-url-copy"
-                    data-booking-url="${escapeAttr(bookingUrl)}"
-                    style="margin-left:12px;"
-                  >
-                    Copy URL
-                  </button>
-                </div>
-              `
-              : `
-                <div
-                  class="muted"
-                  style="margin-top:18px;"
-                >
-                  No booking URL configured.
-                </div>
-              `
-          }
 
 
           <!-- USER ACTIONS -->
@@ -7760,54 +7732,6 @@ $("copyBookingUrlBtn")?.addEventListener(
         err
       );
     }
-  }
-);
-
-
-/* =========================================================
-   USER BOOKING URL COPY
-   ========================================================= */
-
-document.addEventListener(
-  "click",
-  async event => {
-
-    const button =
-      event.target.closest(
-        ".user-booking-url-copy"
-      );
-
-    if (!button) return;
-
-    const url =
-      button.dataset.bookingUrl || "";
-
-    if (!url) return;
-
-    try {
-
-      await navigator.clipboard.writeText(url);
-
-      const originalText =
-        button.textContent;
-
-      button.textContent =
-        "Copied!";
-
-      setTimeout(() => {
-        button.textContent =
-          originalText;
-      }, 1500);
-
-    } catch (err) {
-
-      console.error(
-        "Unable to copy Booking URL:",
-        err
-      );
-
-    }
-
   }
 );
 
