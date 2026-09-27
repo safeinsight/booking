@@ -7698,6 +7698,16 @@ $("logoutBtn").addEventListener(
 
     await loadAllInstructors();
     await loadLocations();
+
+    /*
+     * loadAllInstructors() initially renders the Users list
+     * before the location slug is available.
+     *
+     * Render it again now that state.location is loaded so
+     * each instructor's Booking URL can be generated.
+     */
+    renderInstructorList();
+
     await loadServices();
     await loadAppointments();
 
