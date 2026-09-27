@@ -461,34 +461,27 @@
   </div>
 
 
-  <!-- SELECTED INSTRUCTOR -->
+  <!-- SELECTED INSTRUCTOR DETAILS -->
 
   <div
     id="selectedInstructorBanner"
     style="
       margin:0 0 20px 0;
-      padding:18px 20px;
+      padding:16px 20px;
       border:1px solid #ddd;
       border-radius:8px;
       background:#f8f8f8;
     "
   >
 
-    <div
-      class="muted"
-      style="
-        font-size:14px;
-        margin-bottom:4px;
-      "
-    >
-      Selected Instructor
-    </div>
+    <!-- INSTRUCTOR IDENTITY -->
 
     <div
       id="selectedInstructorName"
       style="
         font-size:22px;
         font-weight:700;
+        line-height:1.2;
       "
     >
       Selected Instructor
@@ -505,43 +498,65 @@
       "
     ></div>
 
-  </div>
 
+    <!-- BOOKING URL -->
 
-  <!-- BOOKING URL -->
-
-  <div
-    id="bookingUrlDisplay"
-    class="settings-section"
-    style="
-      margin:0 0 20px 0;
-      padding:12px 15px;
-      border:1px solid #ddd;
-      border-radius:8px;
-      background:#f8f8f8;
-    "
-  >
-    <strong>Booking URL:</strong>
-
-    <span
-      id="bookingUrlText"
+    <div
+      id="bookingUrlDisplay"
       style="
-        margin-left:10px;
-        word-break:break-all;
+        margin-top:12px;
+        padding-top:12px;
+        border-top:1px solid #ddd;
       "
-    ></span>
-
-    <br>
-    <br>
-
-    <button
-      type="button"
-      id="copyBookingUrlBtn"
-      class="secondary"
     >
-      Copy URL
-    </button>
+
+      <div
+        style="
+          display:flex;
+          align-items:center;
+          gap:10px;
+          flex-wrap:wrap;
+        "
+      >
+
+        <strong
+          style="
+            flex:0 0 auto;
+          "
+        >
+          Booking URL:
+        </strong>
+
+        <span
+          id="bookingUrlText"
+          style="
+            flex:1 1 350px;
+            min-width:0;
+            overflow-wrap:anywhere;
+            word-break:break-word;
+          "
+        ></span>
+
+        <button
+          type="button"
+          id="copyBookingUrlBtn"
+          class="secondary"
+          style="
+            flex:0 0 auto;
+            margin:0;
+          "
+        >
+          Copy URL
+        </button>
+
+      </div>
+
+    </div>
+
   </div>
+
+
+<!-- USERS TAB -->
 
 
 <!-- USERS TAB -->
