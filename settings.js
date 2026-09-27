@@ -5775,6 +5775,42 @@ function escapeAttr(value) {
   return escapeHtml(value);
 }
 
+
+/* =========================================================
+   BOOKING URL
+   ========================================================= */
+
+function getBookingUrl(instructor) {
+
+  if (!instructor || !state.location?.slug) {
+    return "";
+  }
+
+  /*
+   * Normally the instructor in state.instructors already
+   * contains its slug.
+   *
+   * For the currently selected instructor, also allow the
+   * fully loaded state.instructor record to supply the slug.
+   * This keeps the Users display and Calendar display using
+   * the same source of truth.
+   */
+  const instructorSlug =
+    instructor.slug ||
+    (
+      state.instructor?.id === instructor.id
+        ? state.instructor.slug
+        : ""
+    );
+
+  if (!instructorSlug) {
+    return "";
+  }
+
+  return `${window.location.origin}/booking/?location=${encodeURIComponent(state.location.slug)}&instructor=${encodeURIComponent(instructorSlug)}`;
+}
+
+
 function updateBookingUrlDisplay() {
   const urlText = $("bookingUrlText");
   const copyButton = $("copyBookingUrlBtn");
@@ -5782,11 +5818,7 @@ function updateBookingUrlDisplay() {
   if (!urlText) return;
 
   const bookingUrl =
-    state.instructor &&
-    state.location?.slug &&
-    state.instructor.slug
-      ? `${window.location.origin}/booking/?location=${encodeURIComponent(state.location.slug)}&instructor=${encodeURIComponent(state.instructor.slug)}`
-      : "";
+    getBookingUrl(state.instructor);
 
   if (bookingUrl) {
     urlText.textContent = bookingUrl;
@@ -5823,10 +5855,7 @@ function renderInstructorList() {
     state.instructors.map(instructor => {
 
       const bookingUrl =
-        instructor.slug &&
-        state.location?.slug
-          ? `${window.location.origin}/booking/?location=${encodeURIComponent(state.location.slug)}&instructor=${encodeURIComponent(instructor.slug)}`
-          : "";
+        getBookingUrl(instructor);
 
       const isSelected =
         state.instructor &&
