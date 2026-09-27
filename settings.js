@@ -3815,31 +3815,322 @@ function renderServices() {
   const container =
     $("servicesList");
 
+  const requiredSection =
+    $("requiredServicesSection");
+
+  const requiredContainer =
+    $("requiredServicesList");
+
   const allowCustomerServiceSelection =
     $("allowCustomerServiceSelection");
 
+
   if (allowCustomerServiceSelection) {
+
     allowCustomerServiceSelection.checked =
       state.instructor
         ?.allow_customer_service_selection === true;
+
   }
+
+
+  /*
+   * Build one service card.
+   *
+   * The same card markup is used whether the service
+   * appears in Required Services or the normal list.
+   */
+  function renderServiceCard(service) {
+
+    const price =
+      (
+        service.price_cents / 100
+      ).toFixed(2);
+
+    const currency =
+      String(
+        service.currency || "usd"
+      ).toUpperCase();
+
+
+    /*
+     * Local free services do not have Stripe
+     * Product or Price IDs.
+     */
+    if (
+      service.service_type === "free"
+    ) {
+
+      return `
+        <div
+          style="
+            padding:15px;
+            border:1px solid #ddd;
+            border-radius:8px;
+            margin-bottom:10px;
+          "
+        >
+
+          <div
+            style="
+              display:flex;
+              align-items:flex-start;
+              gap:12px;
+            "
+          >
+
+            <span>
+
+              <strong>
+                ${escapeHtml(service.product_name)}
+              </strong>
+
+              <div style="margin-top:5px;">
+                Free
+              </div>
+
+              ${
+                service.product_description
+                  ? `
+                    <div
+                      class="muted"
+                      style="margin-top:5px;"
+                    >
+                      ${escapeHtml(service.product_description)}
+                    </div>
+                  `
+                  : ""
+              }
+
+              <div
+                class="muted"
+                style="margin-top:10px;"
+              >
+                Local service — no Stripe product required
+              </div>
+
+              <label
+                style="
+                  display:flex;
+                  align-items:center;
+                  gap:8px;
+                  margin-top:10px;
+                  cursor:pointer;
+                "
+              >
+
+                <input
+                  type="checkbox"
+                  data-free-service-required
+                  data-service-id="${escapeAttr(service.id)}"
+                  ${service.required ? "checked" : ""}
+                >
+
+                <span>
+                  Required for booking
+                </span>
+
+              </label>
+
+
+              <button
+                type="button"
+                class="secondary"
+                data-deactivate-free-service
+                data-service-id="${escapeAttr(service.id)}"
+                style="margin-top:12px;"
+              >
+                Remove Free Service
+              </button>
+
+            </span>
+
+          </div>
+
+        </div>
+      `;
+    }
+
+
+    /*
+     * Paid services continue using the existing
+     * Stripe assignment controls.
+     */
+    return `
+      <div
+        style="
+          padding:15px;
+          border:1px solid #ddd;
+          border-radius:8px;
+          margin-bottom:10px;
+        "
+      >
+
+        <label
+          style="
+            display:flex;
+            align-items:flex-start;
+            gap:12px;
+            cursor:pointer;
+          "
+        >
+
+          <input
+            type="checkbox"
+            data-stripe-service
+            data-product-id="${escapeAttr(service.product_id)}"
+            data-price-id="${escapeAttr(service.price_id)}"
+            ${service.assigned ? "checked" : ""}
+            style="
+              margin-top:4px;
+              flex:0 0 auto;
+            "
+          >
+
+          <span>
+
+            <strong>
+              ${escapeHtml(service.product_name)}
+            </strong>
+
+            <div style="margin-top:5px;">
+              $${price} ${escapeHtml(currency)}
+            </div>
+
+            ${
+              service.product_description
+                ? `
+                  <div
+                    class="muted"
+                    style="margin-top:5px;"
+                  >
+                    ${escapeHtml(service.product_description)}
+                  </div>
+                `
+                : ""
+            }
+
+            <label
+              style="
+                display:flex;
+                align-items:center;
+                gap:8px;
+                margin-top:10px;
+                cursor:${service.assigned ? "pointer" : "default"};
+              "
+            >
+
+              <input
+                type="checkbox"
+                data-stripe-service-required
+                data-product-id="${escapeAttr(service.product_id)}"
+                data-price-id="${escapeAttr(service.price_id)}"
+                ${service.required ? "checked" : ""}
+                ${service.assigned ? "" : "disabled"}
+              >
+
+              <span>
+                Required for booking
+              </span>
+
+            </label>
+
+          </span>
+
+        </label>
+
+      </div>
+    `;
+
+  }
+
+
+  /*
+   * No instructor selected.
+   */
+  if (!state.instructor?.id) {
+
+    if (requiredSection) {
+      requiredSection.classList.add(
+        "hidden"
+      );
+    }
+
+    if (requiredContainer) {
+      requiredContainer.innerHTML = "";
+    }
+
+    if (container) {
+      container.innerHTML = `
+        <p class="muted">
+          Select an instructor to manage services.
+        </p>
+      `;
+    }
+
+    return;
+  }
+
+
+  /*
+   * Separate services that are required for this
+   * instructor from all remaining services.
+   */
+  const requiredServices =
+    state.services.filter(
+      service =>
+        service.required === true
+    );
+
+  const otherServices =
+    state.services.filter(
+      service =>
+        service.required !== true
+    );
+
+
+  /*
+   * Required services appear above Create Service.
+   * Hide the entire section when none are required.
+   */
+  if (
+    requiredSection &&
+    requiredContainer
+  ) {
+
+    if (requiredServices.length) {
+
+      requiredSection.classList.remove(
+        "hidden"
+      );
+
+      requiredContainer.innerHTML =
+        requiredServices
+          .map(renderServiceCard)
+          .join("");
+
+    } else {
+
+      requiredSection.classList.add(
+        "hidden"
+      );
+
+      requiredContainer.innerHTML =
+        "";
+
+    }
+
+  }
+
 
   if (!container) {
     return;
   }
 
-  if (!state.instructor?.id) {
 
-    container.innerHTML = `
-      <p class="muted">
-        Select an instructor to manage services.
-      </p>
-    `;
-
-    return;
-  }
-
-
+  /*
+   * Preserve the existing empty-state behavior.
+   */
   if (!state.services.length) {
 
     container.innerHTML = `
@@ -3853,211 +4144,28 @@ function renderServices() {
   }
 
 
+  /*
+   * Everything that is not required remains in the
+   * normal Services list below Create Service and
+   * Allow User to Select.
+   */
+  if (!otherServices.length) {
+
+    container.innerHTML = `
+      <p class="muted">
+        All assigned services are currently required for booking.
+      </p>
+    `;
+
+    return;
+  }
+
+
   container.innerHTML =
-    state.services
-      .map(service => {
-
-        const price =
-          (
-            service.price_cents / 100
-          ).toFixed(2);
-
-        const currency =
-          String(
-            service.currency || "usd"
-          ).toUpperCase();
-
-
-        /*
-         * Local free services do not have Stripe
-         * Product or Price IDs.
-         */
-        if (
-          service.service_type === "free"
-        ) {
-
-          return `
-            <div
-              style="
-                padding:15px;
-                border:1px solid #ddd;
-                border-radius:8px;
-                margin-bottom:10px;
-              "
-            >
-
-              <div
-                style="
-                  display:flex;
-                  align-items:flex-start;
-                  gap:12px;
-                "
-              >
-
-                <span>
-
-                  <strong>
-                    ${escapeHtml(service.product_name)}
-                  </strong>
-
-                  <div style="margin-top:5px;">
-                    Free
-                  </div>
-
-                  ${
-                    service.product_description
-                      ? `
-                        <div
-                          class="muted"
-                          style="margin-top:5px;"
-                        >
-                          ${escapeHtml(service.product_description)}
-                        </div>
-                      `
-                      : ""
-                  }
-
-                  <div
-                    class="muted"
-                    style="margin-top:10px;"
-                  >
-                    Local service — no Stripe product required
-                  </div>
-
-                  <label
-                    style="
-                      display:flex;
-                      align-items:center;
-                      gap:8px;
-                      margin-top:10px;
-                      cursor:pointer;
-                    "
-                  >
-
-                    <input
-                      type="checkbox"
-                      data-free-service-required
-                      data-service-id="${escapeAttr(service.id)}"
-                      ${service.required ? "checked" : ""}
-                    >
-
-                    <span>
-                      Required for booking
-                    </span>
-
-                  </label>
-
-
-                  <button
-                    type="button"
-                    class="secondary"
-                    data-deactivate-free-service
-                    data-service-id="${escapeAttr(service.id)}"
-                    style="margin-top:12px;"
-                  >
-                    Remove Free Service
-                  </button>
-
-                </span>
-
-              </div>
-
-            </div>
-          `;
-        }
-
-
-        /*
-         * Paid services continue using the existing
-         * Stripe assignment controls.
-         */
-        return `
-          <div
-            style="
-              padding:15px;
-              border:1px solid #ddd;
-              border-radius:8px;
-              margin-bottom:10px;
-            "
-          >
-
-            <label
-              style="
-                display:flex;
-                align-items:flex-start;
-                gap:12px;
-                cursor:pointer;
-              "
-            >
-
-              <input
-                type="checkbox"
-                data-stripe-service
-                data-product-id="${escapeAttr(service.product_id)}"
-                data-price-id="${escapeAttr(service.price_id)}"
-                ${service.assigned ? "checked" : ""}
-                style="
-                  margin-top:4px;
-                  flex:0 0 auto;
-                "
-              >
-
-              <span>
-
-                <strong>
-                  ${escapeHtml(service.product_name)}
-                </strong>
-
-                <div style="margin-top:5px;">
-                  $${price} ${escapeHtml(currency)}
-                </div>
-
-                ${
-                  service.product_description
-                    ? `
-                      <div
-                        class="muted"
-                        style="margin-top:5px;"
-                      >
-                        ${escapeHtml(service.product_description)}
-                      </div>
-                    `
-                    : ""
-                }
-
-                <label
-                  style="
-                    display:flex;
-                    align-items:center;
-                    gap:8px;
-                    margin-top:10px;
-                    cursor:${service.assigned ? "pointer" : "default"};
-                  "
-                >
-
-                  <input
-                    type="checkbox"
-                    data-stripe-service-required
-                    data-product-id="${escapeAttr(service.product_id)}"
-                    data-price-id="${escapeAttr(service.price_id)}"
-                    ${service.required ? "checked" : ""}
-                    ${service.assigned ? "" : "disabled"}
-                  >
-
-                  <span>
-                    Required for booking
-                  </span>
-
-                </label>
-
-              </span>
-
-            </label>
-
-          </div>
-        `;
-      })
+    otherServices
+      .map(renderServiceCard)
       .join("");
+
 }
 
 function setupServiceTypeSelector() {
