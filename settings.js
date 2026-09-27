@@ -4906,6 +4906,9 @@ updateSelectedInstructorBanner();
 
   renderInstructorList();
 
+  renderOtherUserEmailRecipients();
+  updateOtherUserEmailVisibility();
+
   const globalSelector = $("globalInstructorSelector");
   const globalSelect = $("globalInstructorSelect");
 
@@ -4941,6 +4944,14 @@ $("locationSelect").addEventListener("change", async event => {
     await loadLocationIntoForm(selected);
   }
 });
+
+
+$("otherUserEmailEnabled")?.addEventListener(
+  "change",
+  () => {
+    updateOtherUserEmailVisibility();
+  }
+);
 
 
 $("logoUrl").addEventListener("input", () => {
@@ -5979,6 +5990,164 @@ function updateBookingUrlDisplay() {
       copyButton.classList.add("hidden");
     }
   }
+}
+
+
+/* =========================================================
+   OTHER USER EMAIL RECIPIENTS
+   ========================================================= */
+
+function updateOtherUserEmailVisibility() {
+
+  const enabled =
+    $("otherUserEmailEnabled");
+
+  const options =
+    $("otherUserEmailOptions");
+
+  if (!enabled || !options) {
+    return;
+  }
+
+  options.classList.toggle(
+    "hidden",
+    !enabled.checked
+  );
+}
+
+
+function renderOtherUserEmailRecipients() {
+
+  const container =
+    $("otherUserEmailRecipients");
+
+  if (!container) {
+    return;
+  }
+
+
+  const selectedInstructorUserId =
+    state.instructor?.user_id || null;
+
+  const selectedInstructorEmail =
+    state.instructor?.email
+      ?.trim()
+      .toLowerCase() || "";
+
+
+  const availableUsers =
+    state.settingsUsers.filter(user => {
+
+      if (
+        !user.user_id ||
+        !user.active ||
+        !user.email
+      ) {
+        return false;
+      }
+
+
+      /*
+       * The selected instructor already has their own
+       * Instructor email configuration. Do not offer
+       * them again as an Other User recipient.
+       */
+      if (
+        selectedInstructorUserId &&
+        user.user_id === selectedInstructorUserId
+      ) {
+        return false;
+      }
+
+
+      /*
+       * Email fallback protects older instructor records
+       * that may not yet have user_id populated.
+       */
+      if (
+        selectedInstructorEmail &&
+        user.email
+          .trim()
+          .toLowerCase() ===
+        selectedInstructorEmail
+      ) {
+        return false;
+      }
+
+
+      return true;
+
+    });
+
+
+  if (!availableUsers.length) {
+
+    container.innerHTML = `
+      <div class="muted">
+        No other active Booking Settings users are available.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    availableUsers
+      .map(user => {
+
+        const instructor =
+          state.instructors.find(item =>
+            (
+              user.user_id &&
+              item.user_id === user.user_id
+            ) ||
+            (
+              user.email &&
+              item.email
+                ?.trim()
+                .toLowerCase() ===
+              user.email
+                .trim()
+                .toLowerCase()
+            )
+          ) || null;
+
+
+        const displayName =
+          instructor?.name ||
+          user.email;
+
+
+        return `
+          <label
+            style="
+              display:flex;
+              align-items:flex-start;
+              gap:8px;
+            "
+          >
+            <input
+              type="checkbox"
+              class="other-user-email-recipient"
+              value="${escapeAttr(user.user_id)}"
+            >
+
+            <span>
+              <strong>
+                ${escapeHtml(displayName)}
+              </strong>
+
+              <span class="muted">
+                — ${escapeHtml(user.role || "User")}
+                — ${escapeHtml(user.email)}
+              </span>
+            </span>
+          </label>
+        `;
+
+      })
+      .join("");
 }
 
 
