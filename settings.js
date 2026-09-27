@@ -6143,7 +6143,7 @@ document.addEventListener("click", async function (event) {
 
   // Do not treat management controls as instructor selection.
   if (
-    event.target.closest("[data-role-instructor]") ||
+    event.target.closest("[data-role-user]") ||
     event.target.closest("[data-deactivate-user]") ||
     event.target.closest("[data-delete-user]") ||
     event.target.closest("[data-resend-invite]")
@@ -7238,30 +7238,25 @@ return;
   }
 
   const select =
-    event.target.closest("[data-role-instructor]");
+    event.target.closest("[data-role-user]");
 
   if (!select) return;
 
-  const instructorId =
-    select.getAttribute("data-role-instructor");
+  const userId =
+    select.getAttribute("data-role-user");
 
-  if (!instructorId) return;
+  if (!userId) return;
 
-  const instructor =
-    state.instructors.find(
-      item =>
-        item.id === instructorId
+  const settingsUser =
+    state.settingsUsers.find(
+      user =>
+        user.user_id === userId
     );
 
-  if (!instructor) return;
-
-  const newRole =
-    select.value;
-
-  if (!instructor.user_id) {
+  if (!settingsUser) {
 
     showCustomAlert(
-      "This instructor does not have a Booking Settings account yet."
+      "Unable to find this Booking Settings user."
     );
 
     renderInstructorList();
@@ -7269,8 +7264,11 @@ return;
     return;
   }
 
+  const newRole =
+    select.value;
+
   const previousRole =
-    instructor.role;
+    settingsUser.role;
 
   select.disabled = true;
 
@@ -7287,7 +7285,7 @@ return;
           headers: authHeaders,
           body: JSON.stringify({
             action: "update_role",
-            user_id: instructor.user_id,
+            user_id: userId,
             role: newRole
           })
         }
@@ -7312,39 +7310,77 @@ return;
 
       throw new Error(
         errorMessage ||
-        "Unable to update instructor role."
+        "Unable to update user role."
       );
     }
 
-    instructor.role =
+    /*
+     * Update the User Management source of truth.
+     */
+    settingsUser.role =
       result.user?.role ||
       newRole;
 
-    if (
-      state.instructor?.id ===
-      instructor.id
-    ) {
-      state.instructor =
-        instructor;
+
+    /*
+     * If this user also has an instructor record,
+     * keep that record synchronized.
+     */
+    const instructor =
+      state.instructors.find(
+        item =>
+          item.user_id === userId
+      );
+
+    if (instructor) {
+
+      instructor.role =
+        settingsUser.role;
+
+      if (
+        state.instructor?.id ===
+        instructor.id
+      ) {
+        state.instructor =
+          instructor;
+      }
+
     }
+
+
+    /*
+     * If an Administrator changes their own role,
+     * keep the current page permissions synchronized.
+     */
+    if (
+      state.user?.id === userId
+    ) {
+
+      state.role =
+        settingsUser.role;
+
+      applyRolePermissions();
+
+    }
+
 
     renderInstructorList();
 
   } catch (error) {
 
     console.error(
-      "UPDATE INSTRUCTOR ROLE ERROR:",
+      "UPDATE USER ROLE ERROR:",
       error
     );
 
-    instructor.role =
+    settingsUser.role =
       previousRole;
 
     renderInstructorList();
 
     showCustomAlert(
       error.message ||
-      "Unable to update instructor role."
+      "Unable to update user role."
     );
 
   }
