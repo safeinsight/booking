@@ -6236,6 +6236,17 @@ document.addEventListener("click", async function (event) {
   }
 
 
+  /*
+   * User Management is based on settingsUsers.
+   * The user may or may not also have an
+   * instructor record.
+   */
+  const settingsUser =
+    state.settingsUsers.find(
+      item =>
+        item.user_id === userId
+    );
+
   const instructor =
     state.instructors.find(
       item =>
@@ -6245,20 +6256,38 @@ document.addEventListener("click", async function (event) {
 
   const userName =
     instructor?.name ||
+    settingsUser?.email ||
     "this user";
 
 
-const confirmed =
-  await showCustomConfirm(
-    `Are you sure you want to permanently delete ${userName}?\n\n` +
-    `This will permanently remove their user account, instructor record, ` +
-    `bookings, and other associated data.\n\n` +
-    `This cannot be undone.`
-  );
+  /*
+   * Instructor-backed users may have booking data.
+   * Settings-only users such as Administrators do not
+   * require an instructor record.
+   */
+  const deleteWarning =
+    instructor
+      ? (
+          `Are you sure you want to permanently delete ${userName}?\n\n` +
+          `This will permanently remove their user account, instructor record, ` +
+          `bookings, and other associated data.\n\n` +
+          `This cannot be undone.`
+        )
+      : (
+          `Are you sure you want to permanently delete ${userName}?\n\n` +
+          `This will permanently remove their Booking Settings user account.\n\n` +
+          `This cannot be undone.`
+        );
 
-if (!confirmed) {
-  return;
-}
+
+  const confirmed =
+    await showCustomConfirm(
+      deleteWarning
+    );
+
+  if (!confirmed) {
+    return;
+  }
 
 
   const originalText =
@@ -6306,38 +6335,12 @@ if (!confirmed) {
 
 
     /*
-     * Remove the deleted instructor from the
-     * current page state immediately.
-     */
-    state.instructors =
-      state.instructors.filter(
-        item =>
-          item.user_id !== userId
-      );
-
-
-    /*
-     * If the deleted instructor was currently
-     * selected, clear the selection.
-     */
-    if (
-      state.instructor?.user_id ===
-      userId
-    ) {
-
-      state.instructor =
-        null;
-
-    }
-
-
-    renderInstructorList();
-
-
-    /*
-     * Reload the instructors so the User
-     * Management list and global instructor
-     * selector are rebuilt from the database.
+     * Reload both Settings users and actual
+     * instructors from the database.
+     *
+     * loadAllInstructors() now owns both collections
+     * and will automatically repair the selected
+     * instructor if the deleted user had one.
      */
     await loadAllInstructors();
 
@@ -6370,6 +6373,7 @@ if (!confirmed) {
 
 });
 
+
 // ------------------------------------------------------
 // DEACTIVATE USER
 // ------------------------------------------------------
@@ -6391,26 +6395,50 @@ document.addEventListener("click", async function (event) {
     return;
   }
 
-const confirmed =
-  await showCustomConfirm(
-    "Are you sure you want to deactivate this user?"
-  );
 
-if (!confirmed) {
-  return;
-}
+  const settingsUser =
+    state.settingsUsers.find(
+      item =>
+        item.user_id === userId
+    );
+
+  const instructor =
+    state.instructors.find(
+      item =>
+        item.user_id === userId
+    );
+
+
+  const userName =
+    instructor?.name ||
+    settingsUser?.email ||
+    "this user";
+
+
+  const confirmed =
+    await showCustomConfirm(
+      `Are you sure you want to deactivate ${userName}?`
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
 
   const originalText =
     button.textContent;
 
   button.disabled = true;
+
   button.textContent =
     "Deactivating...";
+
 
   try {
 
     const authHeaders =
       await getAuthHeaders();
+
 
     const response =
       await fetch(
@@ -6426,23 +6454,28 @@ if (!confirmed) {
         }
       );
 
+
     const result =
       await response.json();
 
+
     if (!response.ok || result.error) {
+
       throw new Error(
         result.error ||
         "Unable to deactivate user."
       );
+
     }
+
 
     await loadAllInstructors();
 
-    renderInstructorList();
 
     showCustomAlert(
-      "User deactivated successfully."
+      `${userName} has been deactivated successfully.`
     );
+
 
   } catch (error) {
 
@@ -6451,20 +6484,24 @@ if (!confirmed) {
       error
     );
 
+
     showCustomAlert(
       error.message ||
       "Unable to deactivate user."
     );
 
+
   } finally {
 
     button.disabled = false;
+
     button.textContent =
       originalText;
 
   }
 
 });
+
 
 // ------------------------------------------------------
 // RESEND INVITE
@@ -6487,27 +6524,41 @@ document.addEventListener("click", async function (event) {
     return;
   }
 
+
+  const settingsUser =
+    state.settingsUsers.find(
+      item =>
+        item.user_id === userId
+    );
+
   const instructor =
     state.instructors.find(
       item =>
         item.user_id === userId
     );
 
+
   const userName =
     instructor?.name ||
+    settingsUser?.email ||
     "this user";
+
 
   const originalText =
     button.textContent;
 
+
   button.disabled = true;
+
   button.textContent =
     "Sending...";
+
 
   try {
 
     const authHeaders =
       await getAuthHeaders();
+
 
     const response =
       await fetch(
@@ -6522,31 +6573,42 @@ document.addEventListener("click", async function (event) {
         }
       );
 
+
     const result =
       await response.json();
+
 
     if (
       !response.ok ||
       result.error
     ) {
+
       throw new Error(
         result.error ||
         "Unable to resend invitation."
       );
+
     }
+
 
     button.textContent =
       "Sent";
+
 
     showCustomAlert(
       `The invitation has been resent to ${userName}.`
     );
 
+
     setTimeout(() => {
+
       button.disabled = false;
+
       button.textContent =
         originalText;
+
     }, 1500);
+
 
   } catch (error) {
 
@@ -6555,17 +6617,22 @@ document.addEventListener("click", async function (event) {
       error
     );
 
+
     button.disabled = false;
+
     button.textContent =
       originalText;
+
 
     showCustomAlert(
       error.message ||
       "Unable to resend invitation."
     );
+
   }
 
 });
+
 
 // EXISTING ROLE CHANGE HANDLER
 // Leave this line exactly where it is.
