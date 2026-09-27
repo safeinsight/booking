@@ -5959,6 +5959,15 @@ if (instructor.user_id) {
                 >
                   Booking URL:
                   <code>${escapeHtml(bookingUrl)}</code>
+
+                  <button
+                    type="button"
+                    class="secondary user-booking-url-copy"
+                    data-booking-url="${escapeAttr(bookingUrl)}"
+                    style="margin-left:12px;"
+                  >
+                    Copy URL
+                  </button>
                 </div>
               `
               : `
@@ -7714,6 +7723,55 @@ $("copyBookingUrlBtn")?.addEventListener(
     }
   }
 );
+
+
+/* =========================================================
+   USER BOOKING URL COPY
+   ========================================================= */
+
+document.addEventListener(
+  "click",
+  async event => {
+
+    const button =
+      event.target.closest(
+        ".user-booking-url-copy"
+      );
+
+    if (!button) return;
+
+    const url =
+      button.dataset.bookingUrl || "";
+
+    if (!url) return;
+
+    try {
+
+      await navigator.clipboard.writeText(url);
+
+      const originalText =
+        button.textContent;
+
+      button.textContent =
+        "Copied!";
+
+      setTimeout(() => {
+        button.textContent =
+          originalText;
+      }, 1500);
+
+    } catch (err) {
+
+      console.error(
+        "Unable to copy Booking URL:",
+        err
+      );
+
+    }
+
+  }
+);
+
 
 /* =========================================================
    APPOINTMENTS TAB CONTROLS
