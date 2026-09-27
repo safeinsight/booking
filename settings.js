@@ -249,8 +249,26 @@ function canManageUsers() {
 const state = {
   locations: [],
   location: null,
+
+  /*
+   * Actual instructor records.
+   *
+   * These users participate in instructor-specific
+   * Booking Settings such as booking pages,
+   * availability, services, calendars, and appointments.
+   */
   instructors: [],
   instructor: null,
+
+  /*
+   * Every Booking Settings user.
+   *
+   * This is the source of truth for User Management
+   * and includes Administrators even when they do not
+   * have an instructor record or public booking page.
+   */
+  settingsUsers: [],
+
   services: [],
   user: null,
   role: null,
@@ -4636,8 +4654,6 @@ async function loadAllInstructors() {
   state.instructors =
     data || [];
 
-let settingsUsers = [];
-
 try {
 
   const authHeaders =
@@ -4662,7 +4678,14 @@ try {
     );
   }
 
-  settingsUsers =
+  /*
+   * User Management has its own source of truth.
+   *
+   * This list contains every Booking Settings user,
+   * including Administrators who intentionally do
+   * not have instructor records.
+   */
+  state.settingsUsers =
     result.users || [];
 
 } catch (error) {
@@ -4672,44 +4695,59 @@ try {
     error
   );
 
+  state.settingsUsers = [];
+
   throw error;
 }
 
-  state.instructors =
-    state.instructors.map(instructor => {
 
-      const instructorEmail =
-        instructor.email
-          ?.trim()
-          .toLowerCase();
+/*
+ * Enrich actual instructor records with their
+ * Booking Settings account information when one
+ * exists.
+ *
+ * This does NOT add Settings-only users to the
+ * instructor collection.
+ */
+state.instructors =
+  state.instructors.map(instructor => {
 
-      const settingsUser =
-        settingsUsers.find(
-          user =>
-            user.email
-              ?.trim()
-              .toLowerCase() ===
-            instructorEmail
-        );
+    const instructorEmail =
+      instructor.email
+        ?.trim()
+        .toLowerCase();
 
-return {
-  ...instructor,
-  user_id:
-    settingsUser?.user_id ||
-    instructor.user_id ||
-    null,
-  role:
-    settingsUser?.role ||
-    "Instructor",
-  active:
-    settingsUser?.active ??
-    false,
-  email_confirmed:
-    settingsUser?.email_confirmed ??
-    false
-};
+    const settingsUser =
+      state.settingsUsers.find(
+        user =>
+          user.email
+            ?.trim()
+            .toLowerCase() ===
+          instructorEmail
+      );
 
-    });
+    return {
+      ...instructor,
+
+      user_id:
+        settingsUser?.user_id ||
+        instructor.user_id ||
+        null,
+
+      role:
+        settingsUser?.role ||
+        "Instructor",
+
+      active:
+        settingsUser?.active ??
+        false,
+
+      email_confirmed:
+        settingsUser?.email_confirmed ??
+        false
+    };
+
+  });
 
   const loggedInInstructor =
     state.user?.id
