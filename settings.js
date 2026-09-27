@@ -265,16 +265,16 @@ const state = {
 
 
 /* =========================================================
-   APPOINTMENTS UI
+   SELECTED INSTRUCTOR UI
    ========================================================= */
 
-function updateAppointmentsInstructorBanner() {
+function updateSelectedInstructorBanner() {
 
   const name =
-    $("appointmentsInstructorName");
+    $("selectedInstructorName");
 
   const email =
-    $("appointmentsInstructorEmail");
+    $("selectedInstructorEmail");
 
 
   if (!name || !email) {
@@ -305,42 +305,9 @@ function updateAppointmentsInstructorBanner() {
 }
 
 
-function updateEmailsInstructorBanner() {
-
-  const name =
-    $("emailsInstructorName");
-
-  const email =
-    $("emailsInstructorEmail");
-
-
-  if (!name || !email) {
-    return;
-  }
-
-
-  if (!state.instructor) {
-
-    name.textContent =
-      "No Instructor Selected";
-
-    email.textContent =
-      "";
-
-    return;
-  }
-
-
-  name.textContent =
-    state.instructor.name ||
-    "Selected Instructor";
-
-  email.textContent =
-    state.instructor.email ||
-    "";
-
-}
-
+/* =========================================================
+   APPOINTMENTS UI
+   ========================================================= */
 
 function updateAppointmentsHistoryDescription() {
 
@@ -4774,8 +4741,7 @@ return {
 
   updateBookingUrlDisplay();
 
-  updateAppointmentsInstructorBanner();
-  updateEmailsInstructorBanner();
+updateSelectedInstructorBanner();
   
   if (state.instructor) {
 
@@ -7118,8 +7084,7 @@ state.instructor =
 
 updateBookingUrlDisplay();
 
-updateAppointmentsInstructorBanner();
-updateEmailsInstructorBanner();
+updateSelectedInstructorBanner();
 
 const calendarSelectedName =
   $("calendarSelectedName");
@@ -8479,5 +8444,4 @@ selectAppointmentHistoryRange(
   state.appointments.historyDays
 );
 
-updateAppointmentsInstructorBanner();
-updateEmailsInstructorBanner();
+updateSelectedInstructorBanner();
