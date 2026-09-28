@@ -6161,13 +6161,25 @@ function updateBookingUrlDisplay() {
 async function loadOtherUserEmailSettings() {
 
   /*
-   * Always clear the previous instructor's settings
-   * before loading the newly selected instructor.
+   * Capture the instructor this request belongs to.
+   *
+   * Instructor selection can change while this
+   * asynchronous request is still running. Never
+   * allow an older request to overwrite the settings
+   * for a newly selected instructor.
+   */
+  const instructorId =
+    state.instructor?.id || null;
+
+
+  /*
+   * Clear the previous instructor's settings while
+   * the newly selected instructor is loading.
    */
   state.otherUserEmail.settings = {};
 
 
-  if (!state.instructor?.id) {
+  if (!instructorId) {
     return;
   }
 
@@ -6190,7 +6202,7 @@ async function loadOtherUserEmailSettings() {
               "load_other_user_email_settings",
 
             instructor_id:
-              state.instructor.id
+              instructorId
           })
         }
       );
@@ -6211,8 +6223,30 @@ async function loadOtherUserEmailSettings() {
     }
 
 
+    /*
+     * The selected instructor may have changed while
+     * this request was running. If so, this response
+     * is stale and must not modify shared state.
+     */
+    if (
+      state.instructor?.id !==
+      instructorId
+    ) {
+      return;
+    }
+
+
     const records =
       result.other_user_email_settings || [];
+
+
+    /*
+     * Build this instructor's settings separately,
+     * then replace the shared cache in one operation.
+     * This prevents overlapping requests from mixing
+     * records from different instructors.
+     */
+    const loadedSettings = {};
 
 
     records.forEach(record => {
@@ -6222,14 +6256,30 @@ async function loadOtherUserEmailSettings() {
       }
 
 
-      state.otherUserEmail.settings[
+      loadedSettings[
         record.event_type
       ] = record;
 
     });
 
 
+    state.otherUserEmail.settings =
+      loadedSettings;
+
+
   } catch (error) {
+
+    /*
+     * If the instructor changed while this request
+     * was running, this request is obsolete.
+     */
+    if (
+      state.instructor?.id !==
+      instructorId
+    ) {
+      return;
+    }
+
 
     console.error(
       "OTHER USER EMAIL SETTINGS LOAD ERROR:",
