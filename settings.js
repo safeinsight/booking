@@ -5017,15 +5017,22 @@ document
         }
 
 
+        /*
+         * Preserve any unsaved Other User Email
+         * changes from the tab we are leaving
+         * before displaying another Email event.
+         */
+        captureActiveOtherUserEmailSettings();
+
+
         state.otherUserEmail.activeEvent =
           eventType;
 
 
         /*
-         * The recipient checkboxes already exist.
-         * Repaint them, along with the subject,
-         * message, and enabled state, for the
-         * newly selected Email event.
+         * Display the saved or locally edited
+         * configuration for the newly selected
+         * Email event.
          */
         renderActiveOtherUserEmailSettings();
 
@@ -6377,6 +6384,53 @@ function renderActiveOtherUserEmailSettings() {
 
 
   updateOtherUserEmailVisibility();
+
+}
+
+
+function captureActiveOtherUserEmailSettings() {
+
+  const eventType =
+    state.otherUserEmail.activeEvent;
+
+  if (!eventType) {
+    return;
+  }
+
+
+  state.otherUserEmail.settings[
+    eventType
+  ] = {
+    ...(
+      state.otherUserEmail.settings[
+        eventType
+      ] || {}
+    ),
+
+    event_type:
+      eventType,
+
+    enabled:
+      $("otherUserEmailEnabled")
+        ?.checked === true,
+
+    recipient_user_ids:
+      Array.from(
+        document.querySelectorAll(
+          ".other-user-email-recipient:checked"
+        )
+      ).map(checkbox =>
+        checkbox.value
+      ),
+
+    subject:
+      $("otherUserEmailSubject")
+        ?.value || "",
+
+    message:
+      $("otherUserEmailMessage")
+        ?.value || ""
+  };
 
 }
 
