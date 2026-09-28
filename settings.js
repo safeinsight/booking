@@ -278,7 +278,16 @@ const state = {
     historyDays: 60
   },
 
-  scheduleAvailability: null
+  scheduleAvailability: null,
+
+  /*
+   * Other User Email settings are stored separately
+   * for each Email event and selected instructor.
+   */
+  otherUserEmail: {
+    activeEvent: "confirmation",
+    settings: {}
+  }
 };
 
 
@@ -5997,6 +6006,91 @@ function updateBookingUrlDisplay() {
    OTHER USER EMAIL RECIPIENTS
    ========================================================= */
 
+async function loadOtherUserEmailSettings() {
+
+  /*
+   * Always clear the previous instructor's settings
+   * before loading the newly selected instructor.
+   */
+  state.otherUserEmail.settings = {};
+
+
+  if (!state.instructor?.id) {
+    return;
+  }
+
+
+  try {
+
+    const authHeaders =
+      await getAuthHeaders();
+
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/save-location-settings`,
+        {
+          method: "POST",
+          headers: authHeaders,
+
+          body: JSON.stringify({
+            action:
+              "load_other_user_email_settings",
+
+            instructor_id:
+              state.instructor.id
+          })
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      result.error
+    ) {
+      throw new Error(
+        result.error ||
+        "Unable to load Other User Email settings."
+      );
+    }
+
+
+    const records =
+      result.other_user_email_settings || [];
+
+
+    records.forEach(record => {
+
+      if (!record?.event_type) {
+        return;
+      }
+
+
+      state.otherUserEmail.settings[
+        record.event_type
+      ] = record;
+
+    });
+
+
+  } catch (error) {
+
+    console.error(
+      "OTHER USER EMAIL SETTINGS LOAD ERROR:",
+      error
+    );
+
+    throw error;
+
+  }
+
+}
+
+
 function updateOtherUserEmailVisibility() {
 
   const enabled =
@@ -6013,6 +6107,75 @@ function updateOtherUserEmailVisibility() {
     "hidden",
     !enabled.checked
   );
+}
+
+
+function renderActiveOtherUserEmailSettings() {
+
+  const eventType =
+    state.otherUserEmail.activeEvent;
+
+  const settings =
+    state.otherUserEmail.settings[
+      eventType
+    ] || null;
+
+
+  const enabled =
+    $("otherUserEmailEnabled");
+
+  const subject =
+    $("otherUserEmailSubject");
+
+  const message =
+    $("otherUserEmailMessage");
+
+
+  if (
+    !enabled ||
+    !subject ||
+    !message
+  ) {
+    return;
+  }
+
+
+  enabled.checked =
+    settings?.enabled === true;
+
+  subject.value =
+    settings?.subject || "";
+
+  message.value =
+    settings?.message || "";
+
+
+  const selectedUserIds =
+    new Set(
+      Array.isArray(
+        settings?.recipient_user_ids
+      )
+        ? settings.recipient_user_ids
+        : []
+    );
+
+
+  document
+    .querySelectorAll(
+      ".other-user-email-recipient"
+    )
+    .forEach(checkbox => {
+
+      checkbox.checked =
+        selectedUserIds.has(
+          checkbox.value
+        );
+
+    });
+
+
+  updateOtherUserEmailVisibility();
+
 }
 
 
