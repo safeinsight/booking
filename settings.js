@@ -6827,27 +6827,24 @@ document.addEventListener("click", async function (event) {
 
   updateBookingUrlDisplay();
 
-  await loadLocationIntoForm(
-    state.location
-  );
-
-  await loadServices();
-
 
   /*
-   * Rebuild the Other User recipient list because
-   * the newly selected instructor must not appear
-   * as one of their own notification recipients.
-   *
-   * Then load all six saved Other User Email
-   * configurations for this instructor and display
-   * whichever Email event is currently active.
+   * Update Other User Email settings immediately.
+   * Do not make the Email UI wait for unrelated
+   * Location or Services requests to finish.
    */
   renderOtherUserEmailRecipients();
 
   await loadOtherUserEmailSettings();
 
   renderActiveOtherUserEmailSettings();
+
+
+  await loadLocationIntoForm(
+    state.location
+  );
+
+  await loadServices();
 
 
   const calendarSelectedName =
@@ -7935,6 +7932,20 @@ if (calendarSelectedName) {
     selectedInstructor.name;
 }
 
+
+/*
+ * Update Other User Email settings immediately.
+ * Do not make the Email UI wait for unrelated
+ * Location, Services, Appointments, or Schedule
+ * requests to finish.
+ */
+renderOtherUserEmailRecipients();
+
+await loadOtherUserEmailSettings();
+
+renderActiveOtherUserEmailSettings();
+
+
 await loadLocationIntoForm(
   state.location
 );
@@ -7948,22 +7959,6 @@ await loadAppointments();
  * the newly selected instructor.
  */
 await loadScheduleServices();
-
-
-/*
- * Rebuild the Other User recipient list because
- * the newly selected instructor must not appear
- * as one of their own notification recipients.
- *
- * Then load all six saved Other User Email
- * configurations for this instructor and display
- * whichever Email event is currently active.
- */
-renderOtherUserEmailRecipients();
-
-await loadOtherUserEmailSettings();
-
-renderActiveOtherUserEmailSettings();
 
 
 renderInstructorList();
