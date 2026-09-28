@@ -4968,7 +4968,50 @@ $("locationSelect").addEventListener("change", async event => {
 $("otherUserEmailEnabled")?.addEventListener(
   "change",
   () => {
+
     updateOtherUserEmailVisibility();
+
+    captureActiveOtherUserEmailSettings();
+
+  }
+);
+
+
+$("otherUserEmailSubject")?.addEventListener(
+  "input",
+  () => {
+
+    captureActiveOtherUserEmailSettings();
+
+  }
+);
+
+
+$("otherUserEmailMessage")?.addEventListener(
+  "input",
+  () => {
+
+    captureActiveOtherUserEmailSettings();
+
+  }
+);
+
+
+$("otherUserEmailRecipients")?.addEventListener(
+  "change",
+  event => {
+
+    if (
+      !event.target.matches(
+        ".other-user-email-recipient"
+      )
+    ) {
+      return;
+    }
+
+
+    captureActiveOtherUserEmailSettings();
+
   }
 );
 
