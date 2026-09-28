@@ -7930,41 +7930,18 @@ document.addEventListener("change", async function (event) {
     const instructorId =
       globalSelect.value;
 
+
     /*
-     * Update the selected instructor immediately from
-     * the already-loaded instructor list so Appointments
-     * do not wait for the full instructor settings query.
+     * If no instructor is selected, clear the
+     * instructor-specific UI and reload the
+     * remaining shared settings.
      */
-    const immediateInstructor =
-      state.instructors.find(
-        instructor =>
-          instructor.id === instructorId
-      );
-
-    if (
-      instructorId &&
-      immediateInstructor
-    ) {
-
-      state.instructor =
-        immediateInstructor;
-
-      updateSelectedInstructorBanner();
-
-      /*
-       * Start loading the newly selected instructor's
-       * appointments immediately. Do not await here;
-       * the remaining instructor settings can continue
-       * loading at the same time.
-       */
-      loadAppointments();
-
-    }
-
     if (!instructorId) {
+
       state.instructor = null;
 
-    updateBookingUrlDisplay();
+      updateBookingUrlDisplay();
+      updateSelectedInstructorBanner();
 
       const calendarSelectedName =
         $("calendarSelectedName");
@@ -7974,9 +7951,173 @@ document.addEventListener("change", async function (event) {
           "NONE SELECTED";
       }
 
+      renderInstructorList();
 
+      await loadLocationIntoForm(
+        state.location
+      );
+
+      await loadServices();
 
       renderInstructorList();
+
+      return;
+    }
+
+
+    /*
+     * Immediately switch to the already-loaded
+     * instructor record.
+     *
+     * This allows Appointments to begin loading
+     * without waiting for the complete instructor
+     * settings query below.
+     */
+    const immediateInstructor =
+      state.instructors.find(
+        instructor =>
+          instructor.id === instructorId
+      );
+
+    if (immediateInstructor) {
+
+      state.instructor =
+        immediateInstructor;
+
+      updateBookingUrlDisplay();
+      updateSelectedInstructorBanner();
+
+      const calendarSelectedName =
+        $("calendarSelectedName");
+
+      if (calendarSelectedName) {
+        calendarSelectedName.textContent =
+          immediateInstructor.name;
+      }
+
+      /*
+       * Start the appointment request immediately.
+       * Do not await it here because the complete
+       * instructor settings can load in parallel.
+       */
+      loadAppointments();
+
+    }
+
+
+    /*
+     * Load the complete instructor settings record.
+     */
+    const {
+      data: selectedInstructor,
+      error: instructorError
+    } =
+      await db
+        .from("instructors")
+        .select(`
+          id,
+          location_id,
+          user_id,
+          name,
+          email,
+          slug,
+          timezone,
+          appointment_length_minutes,
+          max_students_per_slot,
+          booking_horizon_days,
+          minimum_booking_notice_hours,
+          cancellation_hours,
+          reschedule_hours,
+          allow_customer_service_selection,
+
+          confirmation_email_subject,
+          confirmation_email_message,
+          student_confirmation_enabled,
+          confirmation_button_enabled,
+          confirmation_button_text,
+          confirmation_button_url,
+          instructor_confirmation_email,
+          instructor_confirmation_subject,
+          instructor_confirmation_message,
+
+          reschedule_email_subject,
+          reschedule_email_message,
+          reschedule_button_enabled,
+          reschedule_button_text,
+          reschedule_button_url,
+          instructor_reschedule_email,
+          instructor_reschedule_subject,
+          instructor_reschedule_message,
+
+          reminder_enabled,
+          reminder_hours_before,
+          instructor_email,
+          student_reminder_subject,
+          student_reminder_message,
+          instructor_reminder_subject,
+          instructor_reminder_message,
+
+          cancel_email_subject,
+          cancel_email_message,
+
+          instructor_cancel_email,
+          instructor_cancel_subject,
+          instructor_cancel_message,
+
+          missed_email_subject,
+          missed_email_message,
+
+          followup_enabled,
+          followup_delay_minutes,
+          followup_subject,
+          followup_message
+        `)
+        .eq("id", instructorId)
+        .single();
+
+
+    if (instructorError) {
+
+      console.error(
+        "INSTRUCTOR LOAD ERROR:",
+        instructorError
+      );
+
+      return;
+    }
+
+
+    if (!selectedInstructor) {
+      return;
+    }
+
+
+    state.instructor =
+      selectedInstructor;
+
+    updateBookingUrlDisplay();
+    updateSelectedInstructorBanner();
+
+    const calendarSelectedName =
+      $("calendarSelectedName");
+
+    if (calendarSelectedName) {
+      calendarSelectedName.textContent =
+        selectedInstructor.name;
+    }
+
+
+    /*
+     * Update Other User Email settings immediately.
+     * Appointments are already loading independently
+     * and do not wait for these requests.
+     */
+    renderOtherUserEmailRecipients();
+
+    await loadOtherUserEmailSettings();
+
+    renderActiveOtherUserEmailSettings();
+
 
     await loadLocationIntoForm(
       state.location
@@ -7984,139 +8125,19 @@ document.addEventListener("change", async function (event) {
 
     await loadServices();
 
+
+    /*
+     * Refresh Schedule availability/services for
+     * the newly selected instructor.
+     */
+    await loadScheduleServices();
+
+
     renderInstructorList();
 
-
-
     return;
-    }
+  }
 
-const { data: selectedInstructor, error: instructorError } =
-  await db
-    .from("instructors")
-    .select(`
-      id,
-      location_id,
-      user_id,
-      name,
-      email,
-      slug,
-      timezone,
-      appointment_length_minutes,
-      max_students_per_slot,
-      booking_horizon_days,
-      minimum_booking_notice_hours,
-      cancellation_hours,
-      reschedule_hours,
-      allow_customer_service_selection,
-
-      confirmation_email_subject,
-      confirmation_email_message,
-      student_confirmation_enabled,
-      confirmation_button_enabled,
-      confirmation_button_text,
-      confirmation_button_url,
-      instructor_confirmation_email,
-      instructor_confirmation_subject,
-      instructor_confirmation_message,
-
-      reschedule_email_subject,
-      reschedule_email_message,
-      reschedule_button_enabled,
-      reschedule_button_text,
-      reschedule_button_url,
-      instructor_reschedule_email,
-      instructor_reschedule_subject,
-      instructor_reschedule_message,
-
-      reminder_enabled,
-      reminder_hours_before,
-      instructor_email,
-      student_reminder_subject,
-      student_reminder_message,
-      instructor_reminder_subject,
-      instructor_reminder_message,
-
-      cancel_email_subject,
-      cancel_email_message,
-
-      instructor_cancel_email,
-      instructor_cancel_subject,
-      instructor_cancel_message,
-
-      missed_email_subject,
-      missed_email_message,
-
-      followup_enabled,
-      followup_delay_minutes,
-      followup_subject,
-      followup_message
-    `)
-    .eq("id", instructorId)
-    .single();
-
-if (instructorError) {
-  console.error(
-    "INSTRUCTOR LOAD ERROR:",
-    instructorError
-  );
-  return;
-}
-
-if (!selectedInstructor) return;
-
-state.instructor =
-  selectedInstructor;
-
-updateBookingUrlDisplay();
-
-updateSelectedInstructorBanner();
-
-const calendarSelectedName =
-  $("calendarSelectedName");
-
-if (calendarSelectedName) {
-  calendarSelectedName.textContent =
-    selectedInstructor.name;
-}
-
-
-/*
- * Update Other User Email settings immediately.
- * Do not make the Email UI wait for unrelated
- * Location, Services, Appointments, or Schedule
- * requests to finish.
- */
-renderOtherUserEmailRecipients();
-
-/*
- * Refresh Appointments immediately for the
- * newly selected instructor instead of making
- * them wait for unrelated settings requests.
- */
-await loadAppointments();
-
-await loadOtherUserEmailSettings();
-
-renderActiveOtherUserEmailSettings();
-
-
-await loadLocationIntoForm(
-  state.location
-);
-
-await loadServices();
-
-/*
- * Refresh Schedule availability/services for
- * the newly selected instructor.
- */
-await loadScheduleServices();
-
-
-renderInstructorList();
-
-return;
 
   const select =
     event.target.closest("[data-role-user]");
