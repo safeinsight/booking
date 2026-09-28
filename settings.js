@@ -8058,6 +8058,13 @@ if (calendarSelectedName) {
  */
 renderOtherUserEmailRecipients();
 
+/*
+ * Refresh Appointments immediately for the
+ * newly selected instructor instead of making
+ * them wait for unrelated settings requests.
+ */
+await loadAppointments();
+
 await loadOtherUserEmailSettings();
 
 renderActiveOtherUserEmailSettings();
@@ -8069,8 +8076,6 @@ await loadLocationIntoForm(
 
 await loadServices();
 
-await loadAppointments();
-
 /*
  * Refresh Schedule availability/services for
  * the newly selected instructor.
@@ -8081,7 +8086,6 @@ await loadScheduleServices();
 renderInstructorList();
 
 return;
-  }
 
   const select =
     event.target.closest("[data-role-user]");
