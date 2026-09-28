@@ -6123,8 +6123,11 @@ function renderOtherUserEmailRecipients() {
           <label
             style="
               display:flex;
-              align-items:flex-start;
+              align-items:center;
               gap:8px;
+              margin:0;
+              padding:2px 0;
+              line-height:1.3;
             "
           >
             <input
