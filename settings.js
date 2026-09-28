@@ -4915,11 +4915,18 @@ updateSelectedInstructorBanner();
 
   renderInstructorList();
 
+  /*
+   * Build the available Other User recipient list,
+   * then load the saved settings for the currently
+   * selected instructor and render the active
+   * Email event into the form.
+   */
   renderOtherUserEmailRecipients();
 
   await loadOtherUserEmailSettings();
 
   renderActiveOtherUserEmailSettings();
+
 
   const globalSelector = $("globalInstructorSelector");
   const globalSelect = $("globalInstructorSelect");
