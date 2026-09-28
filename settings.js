@@ -7930,6 +7930,37 @@ document.addEventListener("change", async function (event) {
     const instructorId =
       globalSelect.value;
 
+    /*
+     * Update the selected instructor immediately from
+     * the already-loaded instructor list so Appointments
+     * do not wait for the full instructor settings query.
+     */
+    const immediateInstructor =
+      state.instructors.find(
+        instructor =>
+          instructor.id === instructorId
+      );
+
+    if (
+      instructorId &&
+      immediateInstructor
+    ) {
+
+      state.instructor =
+        immediateInstructor;
+
+      updateSelectedInstructorBanner();
+
+      /*
+       * Start loading the newly selected instructor's
+       * appointments immediately. Do not await here;
+       * the remaining instructor settings can continue
+       * loading at the same time.
+       */
+      loadAppointments();
+
+    }
+
     if (!instructorId) {
       state.instructor = null;
 
