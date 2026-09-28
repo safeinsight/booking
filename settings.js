@@ -4916,7 +4916,10 @@ updateSelectedInstructorBanner();
   renderInstructorList();
 
   renderOtherUserEmailRecipients();
-  updateOtherUserEmailVisibility();
+
+  await loadOtherUserEmailSettings();
+
+  renderActiveOtherUserEmailSettings();
 
   const globalSelector = $("globalInstructorSelector");
   const globalSelect = $("globalInstructorSelect");
@@ -4961,6 +4964,68 @@ $("otherUserEmailEnabled")?.addEventListener(
     updateOtherUserEmailVisibility();
   }
 );
+
+
+document
+  .querySelectorAll("[data-email-tab]")
+  .forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        const target =
+          button.getAttribute(
+            "data-email-tab"
+          );
+
+
+        const eventTypes = {
+          confirmationEmailTab:
+            "confirmation",
+
+          rescheduleEmailTab:
+            "reschedule",
+
+          reminderEmailTab:
+            "reminder",
+
+          cancelEmailTab:
+            "cancel",
+
+          missedEmailTab:
+            "missed",
+
+          followupEmailTab:
+            "followup"
+        };
+
+
+        const eventType =
+          eventTypes[target];
+
+
+        if (!eventType) {
+          return;
+        }
+
+
+        state.otherUserEmail.activeEvent =
+          eventType;
+
+
+        /*
+         * The recipient checkboxes already exist.
+         * Repaint them, along with the subject,
+         * message, and enabled state, for the
+         * newly selected Email event.
+         */
+        renderActiveOtherUserEmailSettings();
+
+      }
+    );
+
+  });
 
 
 $("logoUrl").addEventListener("input", () => {
@@ -5691,12 +5756,58 @@ async function saveEmailSettings(button) {
       );
     }
 
+
+    /*
+     * Capture the currently displayed Other User Email
+     * configuration before sending the Email settings
+     * to the server.
+     */
+    const activeOtherUserEvent =
+      state.otherUserEmail.activeEvent;
+
+
+    const activeOtherUserSettings = {
+      event_type:
+        activeOtherUserEvent,
+
+      enabled:
+        $("otherUserEmailEnabled")?.checked === true,
+
+      recipient_user_ids:
+        Array.from(
+          document.querySelectorAll(
+            ".other-user-email-recipient:checked"
+          )
+        ).map(checkbox =>
+          checkbox.value
+        ),
+
+      subject:
+        $("otherUserEmailSubject")
+          ?.value
+          .trim() || "",
+
+      message:
+        $("otherUserEmailMessage")
+          ?.value
+          .trim() || ""
+    };
+
+
+    state.otherUserEmail.settings[
+      activeOtherUserEvent
+    ] = activeOtherUserSettings;
+
+
     const payload = {
       location_id:
         state.location.id,
 
       instructor_id:
         state.instructor.id,
+
+      other_user_email_settings:
+        activeOtherUserSettings,
 
     confirmation_email_subject:
       $("emailSubject").value.trim(),
@@ -5849,6 +5960,40 @@ instructor_reschedule_message:
             }
           : instructor
       );
+
+
+    /*
+     * Keep the local Other User Email cache synchronized
+     * with the authoritative record returned by the server.
+     */
+    if (result.other_user_email_settings) {
+
+      const savedOtherUserSettings =
+        Array.isArray(
+          result.other_user_email_settings
+        )
+          ? result.other_user_email_settings
+          : [
+              result.other_user_email_settings
+            ];
+
+
+      savedOtherUserSettings.forEach(record => {
+
+        if (!record?.event_type) {
+          return;
+        }
+
+        state.otherUserEmail.settings[
+          record.event_type
+        ] = record;
+
+      });
+
+    }
+
+
+    renderActiveOtherUserEmailSettings();
 
 
     button.textContent = "Saved";
@@ -6632,10 +6777,20 @@ document.addEventListener("click", async function (event) {
   await loadServices();
 
 
+  /*
+   * Rebuild the Other User recipient list because
+   * the newly selected instructor must not appear
+   * as one of their own notification recipients.
+   *
+   * Then load all six saved Other User Email
+   * configurations for this instructor and display
+   * whichever Email event is currently active.
+   */
+  renderOtherUserEmailRecipients();
 
+  await loadOtherUserEmailSettings();
 
-
-
+  renderActiveOtherUserEmailSettings();
 
 
   const calendarSelectedName =
@@ -6645,11 +6800,6 @@ document.addEventListener("click", async function (event) {
     calendarSelectedName.textContent =
       selectedInstructor.name;
   }
-
-
-
-
-
 
 
   renderInstructorList();
@@ -7741,6 +7891,23 @@ await loadAppointments();
  * the newly selected instructor.
  */
 await loadScheduleServices();
+
+
+/*
+ * Rebuild the Other User recipient list because
+ * the newly selected instructor must not appear
+ * as one of their own notification recipients.
+ *
+ * Then load all six saved Other User Email
+ * configurations for this instructor and display
+ * whichever Email event is currently active.
+ */
+renderOtherUserEmailRecipients();
+
+await loadOtherUserEmailSettings();
+
+renderActiveOtherUserEmailSettings();
+
 
 renderInstructorList();
 
