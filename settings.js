@@ -5816,44 +5816,64 @@ async function saveEmailSettings(button) {
 
     /*
      * Capture the currently displayed Other User Email
-     * configuration before sending the Email settings
-     * to the server.
+     * configuration before saving.
+     *
+     * The other Email events are already kept current in
+     * state.otherUserEmail.settings as the user edits and
+     * switches between Email tabs.
      */
-    const activeOtherUserEvent =
-      state.otherUserEmail.activeEvent;
+    captureActiveOtherUserEmailSettings();
 
 
-    const activeOtherUserSettings = {
-      event_type:
-        activeOtherUserEvent,
-
-      enabled:
-        $("otherUserEmailEnabled")?.checked === true,
-
-      recipient_user_ids:
-        Array.from(
-          document.querySelectorAll(
-            ".other-user-email-recipient:checked"
-          )
-        ).map(checkbox =>
-          checkbox.value
-        ),
-
-      subject:
-        $("otherUserEmailSubject")
-          ?.value
-          .trim() || "",
-
-      message:
-        $("otherUserEmailMessage")
-          ?.value
-          .trim() || ""
-    };
+    /*
+     * Send all six Other User Email configurations together.
+     *
+     * Events that have never been configured are still sent
+     * as explicit disabled records. This gives every instructor
+     * a complete, predictable six-event configuration after
+     * the first Email Settings save.
+     */
+    const otherUserEventTypes = [
+      "confirmation",
+      "reschedule",
+      "reminder",
+      "cancel",
+      "missed",
+      "followup"
+    ];
 
 
-    state.otherUserEmail.settings[
-      activeOtherUserEvent
-    ] = activeOtherUserSettings;
+    const allOtherUserSettings =
+      otherUserEventTypes.map(eventType => {
+
+        const settings =
+          state.otherUserEmail.settings[
+            eventType
+          ] || {};
+
+
+        return {
+          event_type:
+            eventType,
+
+          enabled:
+            settings.enabled === true,
+
+          recipient_user_ids:
+            Array.isArray(
+              settings.recipient_user_ids
+            )
+              ? settings.recipient_user_ids
+              : [],
+
+          subject:
+            settings.subject || "",
+
+          message:
+            settings.message || ""
+        };
+
+      });
 
 
     const payload = {
@@ -5864,7 +5884,7 @@ async function saveEmailSettings(button) {
         state.instructor.id,
 
       other_user_email_settings:
-        activeOtherUserSettings,
+        allOtherUserSettings,
 
     confirmation_email_subject:
       $("emailSubject").value.trim(),
