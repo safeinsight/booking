@@ -1989,6 +1989,86 @@
 </div>
 
 
+<!-- CLIENTS TAB -->
+
+<div
+  id="clientsTab"
+  class="settings-tab-panel"
+>
+
+  <div class="settings-section">
+
+    <h2>Clients</h2>
+
+    <p class="muted">
+      View client contact information and appointment history for the selected instructor.
+    </p>
+
+
+    <!-- CLIENT HISTORY RANGE -->
+
+    <div
+      id="clientsHistoryControls"
+      style="
+        margin:20px 0;
+      "
+    >
+
+      <div
+        style="
+          display:flex;
+          gap:8px;
+          flex-wrap:wrap;
+        "
+      >
+
+        <button
+          type="button"
+          class="primary client-range active"
+          data-client-days="60"
+        >
+          Last 60 Days
+        </button>
+
+        <button
+          type="button"
+          class="secondary client-range"
+          data-client-days="all"
+        >
+          All
+        </button>
+
+      </div>
+
+      <p
+        id="clientsHistoryDescription"
+        class="muted"
+        style="margin-top:10px;"
+      >
+        Showing all current and upcoming appointments, plus past appointments from the last 60 days.
+      </p>
+
+    </div>
+
+
+    <!-- CLIENT LIST -->
+
+    <div
+      id="clientsList"
+      style="margin-top:20px;"
+    >
+
+      <p class="muted">
+        Client information will appear here.
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+
 <!-- EMAILS TAB -->
 
 <div
