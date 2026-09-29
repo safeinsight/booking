@@ -232,6 +232,231 @@ function canManageStudentBookingFields() {
   );
 }
 
+
+/* =========================================================
+   STUDENT BOOKING FIELDS
+   ========================================================= */
+
+function getStudentBookingFieldQuestions() {
+
+  return Array.from(
+    document.querySelectorAll(
+      ".student-booking-field-question"
+    )
+  )
+    .map(input => input.value.trim())
+    .filter(Boolean);
+
+}
+
+
+function updateStudentBookingFieldsControls() {
+
+  const list =
+    $("studentBookingFieldsList");
+
+  const addButton =
+    $("addStudentBookingFieldBtn");
+
+  const limitMessage =
+    $("studentBookingFieldsLimitMessage");
+
+
+  if (
+    !list ||
+    !addButton ||
+    !limitMessage
+  ) {
+    return;
+  }
+
+
+  const rows =
+    list.querySelectorAll(
+      ".student-booking-field-row"
+    );
+
+
+  const atLimit =
+    rows.length >= 5;
+
+
+  addButton.disabled =
+    atLimit;
+
+  limitMessage.classList.toggle(
+    "hidden",
+    !atLimit
+  );
+
+
+  rows.forEach((row, index) => {
+
+    const label =
+      row.querySelector(
+        ".student-booking-field-label"
+      );
+
+    const input =
+      row.querySelector(
+        ".student-booking-field-question"
+      );
+
+
+    if (label) {
+      label.textContent =
+        `Question ${index + 1}`;
+    }
+
+
+    if (input) {
+      input.setAttribute(
+        "aria-label",
+        `Question ${index + 1}`
+      );
+    }
+
+  });
+
+}
+
+
+function addStudentBookingField(
+  question = ""
+) {
+
+  const list =
+    $("studentBookingFieldsList");
+
+
+  if (!list) {
+    return;
+  }
+
+
+  const existingRows =
+    list.querySelectorAll(
+      ".student-booking-field-row"
+    );
+
+
+  if (existingRows.length >= 5) {
+    updateStudentBookingFieldsControls();
+    return;
+  }
+
+
+  const row =
+    document.createElement("div");
+
+
+  row.className =
+    "student-booking-field-row";
+
+
+  row.style.cssText = `
+    margin-top:15px;
+    padding:15px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    background:#fafafa;
+  `;
+
+
+  const label =
+    document.createElement("label");
+
+  label.className =
+    "student-booking-field-label";
+
+  label.style.cssText = `
+    display:block;
+    font-weight:700;
+    margin-bottom:8px;
+  `;
+
+
+  const input =
+    document.createElement("input");
+
+  input.type =
+    "text";
+
+  input.className =
+    "student-booking-field-question";
+
+  input.maxLength =
+    500;
+
+  input.placeholder =
+    "Enter the question the student must answer";
+
+  input.value =
+    question;
+
+  input.style.width =
+    "100%";
+
+
+  const removeButton =
+    document.createElement("button");
+
+  removeButton.type =
+    "button";
+
+  removeButton.className =
+    "secondary student-booking-field-remove";
+
+  removeButton.textContent =
+    "Remove Question";
+
+  removeButton.style.marginTop =
+    "10px";
+
+
+  removeButton.addEventListener(
+    "click",
+    () => {
+
+      row.remove();
+
+      updateStudentBookingFieldsControls();
+
+    }
+  );
+
+
+  row.appendChild(label);
+  row.appendChild(input);
+  row.appendChild(removeButton);
+
+  list.appendChild(row);
+
+  updateStudentBookingFieldsControls();
+
+  input.focus();
+
+}
+
+
+function clearStudentBookingFields() {
+
+  const list =
+    $("studentBookingFieldsList");
+
+
+  if (!list) {
+    return;
+  }
+
+
+  list.innerHTML = "";
+
+  updateStudentBookingFieldsControls();
+
+}
+
+
 function canEditEmails() {
   return (
     isAdministrator() ||
@@ -1089,6 +1314,16 @@ function applyRolePermissions() {
   const appointmentsTab = $("appointmentsTab");
   const calendarTab = $("calendarTab");
   const emailsTab = $("emailsTab");
+
+  const studentBookingFieldsSection =
+    $("studentBookingFieldsSection");
+
+  if (studentBookingFieldsSection) {
+    studentBookingFieldsSection.classList.toggle(
+      "hidden",
+      !canManageStudentBookingFields()
+    );
+  }
 
 const locationTabButton =
   document.querySelector('[data-tab="locationTab"]');
