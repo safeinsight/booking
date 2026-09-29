@@ -368,101 +368,91 @@
 
 
 
-  <!-- SETTINGS TABS -->
+<!-- SETTINGS TABS -->
 
-        <div class="settings-tabs" role="tablist">
+<div class="settings-tabs" role="tablist">
 
-          <button
-            type="button"
-            class="settings-tab"
-            data-tab="usersTab"
-          >
-            Users
-          </button>
-          
-          <button
-            type="button"
-            class="settings-tab active"
-            data-tab="locationTab"
-          >
-            Location
-          </button>
+  <button
+    type="button"
+    class="settings-tab"
+    data-tab="usersTab"
+  >
+    Users
+  </button>
 
+  <button
+    type="button"
+    class="settings-tab active"
+    data-tab="locationTab"
+  >
+    Location
+  </button>
 
+  <button
+    type="button"
+    class="settings-tab"
+    data-tab="brandingTab"
+  >
+    Branding
+  </button>
 
-          <button
-            type="button"
-            class="settings-tab"
-            data-tab="brandingTab"
-          >
-            Branding
-          </button>
+  <button
+    type="button"
+    class="settings-tab"
+    data-tab="availabilityTab"
+  >
+    Availability
+  </button>
 
-          <button
-            type="button"
-            class="settings-tab"
-            data-tab="availabilityTab"
-          >
-            Availability
-          </button>
+  <button
+    type="button"
+    class="settings-tab"
+    data-tab="bookingRulesTab"
+  >
+    Booking Rules
+  </button>
 
-<button
-  type="button"
-  class="settings-tab"
-  data-tab="bookingRulesTab"
->
-  Booking Rules
-</button>
+  <button
+    type="button"
+    class="settings-tab"
+    data-tab="servicesTab"
+  >
+    Services
+  </button>
 
-<button
-  type="button"
-  class="settings-tab"
-  data-tab="servicesTab"
->
-  Services
-</button>
+  <button
+    type="button"
+    class="settings-tab"
+    data-tab="calendarTab"
+  >
+    Calendar
+  </button>
 
-<button
-  type="button"
-  class="settings-tab"
-  data-tab="calendarTab"
->
-  Calendar
-</button>
+  <button
+    type="button"
+    class="settings-tab"
+    data-tab="appointmentsTab"
+  >
+    Appointments
+  </button>
 
-<button
-  type="button"
-  class="settings-tab"
-  data-tab="appointmentsTab"
->
-  Appointments
-</button>
+  <button
+    type="button"
+    class="settings-tab"
+    data-tab="clientsTab"
+  >
+    Clients
+  </button>
 
-<button
-  type="button"
-  class="settings-tab"
-  data-tab="clientsTab"
->
-  Clients
-</button>
+  <button
+    type="button"
+    class="settings-tab"
+    data-tab="emailsTab"
+  >
+    Emails
+  </button>
 
-<button
-  type="button"
-  class="settings-tab"
-  data-tab="clientsTab"
->
-  Clients
-</button>
-
-          <button
-            type="button"
-            class="settings-tab"
-            data-tab="emailsTab"
-          >
-            Emails
-          </button>
-
-        </div>
+</div>
 
 
 <!-- GLOBAL INSTRUCTOR SELECTOR -->
@@ -529,8 +519,7 @@
       overflow-wrap:anywhere;
       word-break:break-word;
     "
-  >
-  </div>
+  ></div>
 
 </div>
 
@@ -542,112 +531,126 @@
   class="settings-tab-panel"
 >
 
-<div
-  id="usersTab"
-  class="settings-tab-panel"
->
+  <!-- ADD USER -->
 
-<!-- ADD USER -->
-<div class="settings-section">
-  <h2>Add User</h2>
-  <p class="muted">
-    Add a user and give them access to Booking Settings.
-  </p>
+  <div class="settings-section">
 
-  <div
-    style="
-      display:flex;
-      align-items:flex-end;
-      gap:24px;
-      margin-top:20px;
-      flex-wrap:wrap;
-    "
-  >
+    <h2>Add User</h2>
 
-    <!-- INSTRUCTOR NAME -->
-<div>
-  <label
-    for="newUserName"
-    style="
-      display:block;
-      font-weight:700;
-      margin-bottom:8px;
-    "
-  >
-    Instructor Name
-  </label>
+    <p class="muted">
+      Add a user and give them access to Booking Settings.
+    </p>
 
-  <input
-    type="text"
-    id="newUserName"
-    placeholder="Instructor name"
-    style="
-      width:240px;
-    "
-  >
-</div>
+    <div
+      style="
+        display:flex;
+        align-items:flex-end;
+        gap:24px;
+        margin-top:20px;
+        flex-wrap:wrap;
+      "
+    >
 
-    <!-- EMAIL ADDRESS -->
-    <div>
-      <label
-        for="newUserEmail"
-        style="
-          display:block;
-          font-weight:700;
-          margin-bottom:8px;
-        "
-      >
-        Email Address
-      </label>
+      <!-- INSTRUCTOR NAME -->
 
-      <input
-        type="email"
-        id="newUserEmail"
-        placeholder="user@example.com"
-        style="
-          width:280px;
-        "
-      >
-    </div>
+      <div>
 
-<!-- ROLE -->
-<div>
-  <label
-    for="newUserRole"
-    style="
-      display:block;
-      font-weight:700;
-      margin-bottom:8px;
-    "
-  >
-    Role
-  </label>
+        <label
+          for="newUserName"
+          style="
+            display:block;
+            font-weight:700;
+            margin-bottom:8px;
+          "
+        >
+          Instructor Name
+        </label>
 
-  <select
-    id="newUserRole"
-    style="
-      width:220px;
-    "
-  >
-    <option value="Administrator">Administrator</option>
-    <option value="Manager">Manager</option>
-    <option value="Instructor" selected>Instructor</option>
-  </select>
-</div>
+        <input
+          type="text"
+          id="newUserName"
+          placeholder="Instructor name"
+          style="
+            width:240px;
+          "
+        >
 
-    <!-- SEND INVITE -->
-    <div>
-      <button
-        type="button"
-        id="addInstructorBtn"
-        class="secondary"
-      >
-        Send Invite
-      </button>
+      </div>
+
+
+      <!-- EMAIL ADDRESS -->
+
+      <div>
+
+        <label
+          for="newUserEmail"
+          style="
+            display:block;
+            font-weight:700;
+            margin-bottom:8px;
+          "
+        >
+          Email Address
+        </label>
+
+        <input
+          type="email"
+          id="newUserEmail"
+          placeholder="user@example.com"
+          style="
+            width:280px;
+          "
+        >
+
+      </div>
+
+
+      <!-- ROLE -->
+
+      <div>
+
+        <label
+          for="newUserRole"
+          style="
+            display:block;
+            font-weight:700;
+            margin-bottom:8px;
+          "
+        >
+          Role
+        </label>
+
+        <select
+          id="newUserRole"
+          style="
+            width:220px;
+          "
+        >
+          <option value="Administrator">Administrator</option>
+          <option value="Manager">Manager</option>
+          <option value="Instructor" selected>Instructor</option>
+        </select>
+
+      </div>
+
+
+      <!-- SEND INVITE -->
+
+      <div>
+
+        <button
+          type="button"
+          id="addInstructorBtn"
+          class="secondary"
+        >
+          Send Invite
+        </button>
+
+      </div>
+
     </div>
 
   </div>
-</div>
 
 
   <!-- USER MANAGEMENT -->
@@ -668,6 +671,7 @@
   </div>
 
 </div>
+
 
 <!-- LOCATION TAB -->
 
