@@ -457,6 +457,125 @@ function clearStudentBookingFields() {
 }
 
 
+/*
+ * Load the additional required booking questions
+ * for the currently selected instructor.
+ *
+ * This function is intentionally safe against an
+ * instructor being changed while the request is
+ * still in progress.
+ */
+
+async function loadStudentBookingFields(
+  instructorId
+) {
+
+  if (
+    !canManageStudentBookingFields() ||
+    !instructorId
+  ) {
+    clearStudentBookingFields();
+    return;
+  }
+
+
+  try {
+
+    const response = await fetch(
+      `${cfg.functionsBaseUrl}/save-location-settings`,
+      {
+        method: "POST",
+        headers: await getAuthHeaders(),
+        body: JSON.stringify({
+          action:
+            "load_student_booking_fields",
+
+          instructor_id:
+            instructorId
+        })
+      }
+    );
+
+
+    const result =
+      await response.json();
+
+
+    if (!response.ok || result.error) {
+      throw new Error(
+        typeof result.error === "string"
+          ? result.error
+          : JSON.stringify(
+              result.error || result
+            )
+      );
+    }
+
+
+    /*
+     * The instructor may have changed while this
+     * request was running. Never render stale data
+     * into the newly selected instructor's form.
+     */
+
+    if (
+      state.instructor?.id !==
+      instructorId
+    ) {
+      return;
+    }
+
+
+    clearStudentBookingFields();
+
+
+    const fields =
+      Array.isArray(
+        result.student_booking_fields
+      )
+        ? result.student_booking_fields
+        : [];
+
+
+    fields.forEach(field => {
+
+      addStudentBookingField(
+        String(
+          field?.question || ""
+        )
+      );
+
+    });
+
+
+    updateStudentBookingFieldsControls();
+
+
+  } catch (error) {
+
+    console.error(
+      "LOAD STUDENT BOOKING FIELDS ERROR:",
+      error
+    );
+
+
+    /*
+     * Only clear the visible fields if this is
+     * still the instructor whose request failed.
+     */
+
+    if (
+      state.instructor?.id ===
+      instructorId
+    ) {
+      clearStudentBookingFields();
+    }
+
+  }
+
+}
+
+
 function canEditEmails() {
   return (
     isAdministrator() ||
@@ -5165,11 +5284,9 @@ state.instructors =
 
   updateBookingUrlDisplay();
 
-updateSelectedInstructorBanner();
+  updateSelectedInstructorBanner();
   
   if (state.instructor) {
-
-
 
     const calendarSelectedName =
       $("calendarSelectedName");
@@ -5179,6 +5296,21 @@ updateSelectedInstructorBanner();
         state.instructor.name;
     }
 
+
+    /*
+     * Begin loading Student Booking Fields for the
+     * initially selected instructor.
+     *
+     * Do not await this request. It should never
+     * delay the rest of the Settings initialization.
+     */
+    loadStudentBookingFields(
+      state.instructor.id
+    );
+
+  } else {
+
+    clearStudentBookingFields();
 
   }
 
@@ -5999,6 +6131,46 @@ async function saveBookingRulesSettings(button) {
       throw new Error(
         "The Booking Rules could not be saved because the selected instructor was not updated."
       );
+    }
+
+
+    /*
+     * For Administrators and Managers, synchronize the
+     * visible Student Booking Fields with the authoritative
+     * rows returned by the backend.
+     *
+     * Instructors do not submit or receive this protected
+     * setting through the Booking Rules save.
+     */
+
+    if (canManageStudentBookingFields()) {
+
+      clearStudentBookingFields();
+
+
+      const savedStudentBookingFields =
+        Array.isArray(
+          result.student_booking_fields
+        )
+          ? result.student_booking_fields
+          : [];
+
+
+      savedStudentBookingFields.forEach(
+        field => {
+
+          addStudentBookingField(
+            String(
+              field?.question || ""
+            )
+          );
+
+        }
+      );
+
+
+      updateStudentBookingFieldsControls();
+
     }
 
 
@@ -7231,6 +7403,18 @@ document.addEventListener("click", async function (event) {
 
 
   /*
+   * Start Student Booking Fields immediately.
+   *
+   * Do not await this request. It can load
+   * independently while the rest of the selected
+   * instructor UI continues updating.
+   */
+  loadStudentBookingFields(
+    selectedInstructor.id
+  );
+
+
+  /*
    * Update Other User Email settings immediately.
    * Do not make the Email UI wait for unrelated
    * Location or Services requests to finish.
@@ -8281,11 +8465,18 @@ document.addEventListener("change", async function (event) {
       }
 
       /*
-       * Start the appointment request immediately.
-       * Do not await it here because the complete
-       * instructor settings can load in parallel.
+       * Start instructor-specific requests immediately.
+       *
+       * Neither request is awaited here so Appointments
+       * and Student Booking Fields can load independently
+       * while the complete instructor settings record
+       * loads below.
        */
       loadAppointments();
+
+      loadStudentBookingFields(
+        immediateInstructor.id
+      );
 
     }
 
