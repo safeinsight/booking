@@ -439,6 +439,28 @@ async function loadDates() {
 
   state.rawAvailability = json;
 
+  /*
+   * Additional required questions configured for
+   * the currently selected instructor.
+   *
+   * These definitions come from get-availability
+   * and include the stable field ID that will later
+   * be submitted with the student's answer.
+   */
+  state.studentBookingFields =
+    Array.isArray(
+      json.student_booking_fields
+    )
+      ? json.student_booking_fields
+      : [];
+
+  /*
+   * Answers belong to the currently loaded question
+   * definitions. Clear any previous answers whenever
+   * availability/instructor data is reloaded.
+   */
+  state.studentBookingAnswers = [];
+
   state.services =
     json.services || [];
 
