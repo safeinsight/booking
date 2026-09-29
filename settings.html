@@ -417,6 +417,14 @@
   Appointments
 </button>
 
+<button
+  type="button"
+  class="settings-tab"
+  data-tab="clientsTab"
+>
+  Clients
+</button>
+
           <button
             type="button"
             class="settings-tab"
@@ -428,132 +436,7 @@
         </div>
 
 
-  <!-- GLOBAL INSTRUCTOR CONTEXT -->
 
-  <div
-    id="globalInstructorSelector"
-    class="settings-section"
-    style="
-      margin-bottom:20px;
-      padding:12px 15px;
-      border:1px solid #ddd;
-      border-radius:8px;
-      background:#f8f8f8;
-    "
-  >
-    <label
-      for="globalInstructorSelect"
-      style="
-        display:block;
-        margin:0 0 8px 0;
-      "
-    >
-      <strong>Selected Instructor:</strong>
-    </label>
-
-    <select
-      id="globalInstructorSelect"
-      style="
-        width:100%;
-        margin:0;
-      "
-    ></select>
-  </div>
-
-
-  <!-- SELECTED INSTRUCTOR DETAILS -->
-
-  <div
-    id="selectedInstructorBanner"
-    style="
-      margin:0 0 20px 0;
-      padding:16px 20px;
-      border:1px solid #ddd;
-      border-radius:8px;
-      background:#f8f8f8;
-    "
-  >
-
-    <!-- INSTRUCTOR IDENTITY -->
-
-    <div
-      id="selectedInstructorName"
-      style="
-        font-size:22px;
-        font-weight:700;
-        line-height:1.2;
-      "
-    >
-      Selected Instructor
-    </div>
-
-    <div
-      id="selectedInstructorEmail"
-      class="muted"
-      style="
-        margin-top:3px;
-        max-width:100%;
-        overflow-wrap:anywhere;
-        word-break:break-word;
-      "
-    ></div>
-
-
-    <!-- BOOKING URL -->
-
-    <div
-      id="bookingUrlDisplay"
-      style="
-        margin-top:12px;
-        padding-top:12px;
-        border-top:1px solid #ddd;
-      "
-    >
-
-      <div
-        style="
-          display:flex;
-          align-items:center;
-          gap:10px;
-          flex-wrap:wrap;
-        "
-      >
-
-        <strong
-          style="
-            flex:0 0 auto;
-          "
-        >
-          Booking URL:
-        </strong>
-
-        <span
-          id="bookingUrlText"
-          style="
-            flex:1 1 350px;
-            min-width:0;
-            overflow-wrap:anywhere;
-            word-break:break-word;
-          "
-        ></span>
-
-        <button
-          type="button"
-          id="copyBookingUrlBtn"
-          class="secondary"
-          style="
-            flex:0 0 auto;
-            margin:0;
-          "
-        >
-          Copy URL
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
 
 
 <!-- USERS TAB -->
