@@ -2773,8 +2773,16 @@ const addStudentBookingFieldBtn =
 
 if (addStudentBookingFieldBtn) {
 
-  addStudentBookingFieldBtn.addEventListener(
-    "click",
+  /*
+   * loadLocationIntoForm() can run multiple times while
+   * Settings is open.
+   *
+   * Use onclick assignment instead of addEventListener()
+   * so repeated form loads replace this handler rather
+   * than stacking additional click handlers.
+   */
+
+  addStudentBookingFieldBtn.onclick =
     () => {
 
       if (!canManageStudentBookingFields()) {
@@ -2783,8 +2791,7 @@ if (addStudentBookingFieldBtn) {
 
       addStudentBookingField();
 
-    }
-  );
+    };
 
 }
 
