@@ -2538,17 +2538,16 @@ const calendarResponse = await fetch(
   `${cfg.functionsBaseUrl}/get-calendar-settings`,
   {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-body: JSON.stringify({
-  location_id: state.location?.id,
-  instructor_id: state.instructor?.id
-})
+    headers: await getAuthHeaders(),
+    body: JSON.stringify({
+      location_id: state.location?.id,
+      instructor_id: state.instructor?.id
+    })
   }
 );
 
-const calendarResult = await calendarResponse.json();
+const calendarResult =
+  await calendarResponse.json();
 
 if (!calendarResponse.ok || calendarResult.error) {
 
