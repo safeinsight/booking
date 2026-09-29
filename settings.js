@@ -2534,6 +2534,8 @@ document
 
   }
 
+if (hasPermission("calendar")) {
+
 const calendarResponse = await fetch(
   `${cfg.functionsBaseUrl}/get-calendar-settings`,
   {
@@ -2762,7 +2764,7 @@ $("calendarInfo").innerHTML =
 
   }
 
-  // Load special days
+}
 
   let specialDays = [];
   let specialDaysError = null;
