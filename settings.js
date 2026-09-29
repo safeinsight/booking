@@ -5957,6 +5957,22 @@ async function saveBookingRulesSettings(button) {
         Number($("rescheduleHoursInput").value)
     };
 
+
+    /*
+     * Student Booking Fields are managed only by
+     * Administrators and Managers.
+     *
+     * Instructors can still save the normal Booking Rules,
+     * but this protected field is intentionally omitted
+     * from their request.
+     */
+
+    if (canManageStudentBookingFields()) {
+      payload.student_booking_fields =
+        getStudentBookingFieldQuestions();
+    }
+
+
     const response = await fetch(
       `${cfg.functionsBaseUrl}/save-location-settings`,
       {
