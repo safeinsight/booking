@@ -8483,6 +8483,206 @@ document.addEventListener("change", async function (event) {
 });
 
 
+// ------------------------------------------------------
+// RESET USER PERMISSIONS TO ROLE DEFAULTS
+// ------------------------------------------------------
+
+document.addEventListener("click", async function (event) {
+
+  const button =
+    event.target.closest(
+      "[data-reset-user-permissions]"
+    );
+
+  if (!button) return;
+
+
+  const userId =
+    button.getAttribute(
+      "data-reset-user-permissions"
+    );
+
+
+  if (!userId) {
+    return;
+  }
+
+
+  const settingsUser =
+    state.settingsUsers.find(
+      user =>
+        user.user_id === userId
+    );
+
+
+  if (!settingsUser) {
+
+    showCustomAlert(
+      "Unable to find this Booking Settings user."
+    );
+
+    renderInstructorList();
+
+    return;
+
+  }
+
+
+  const confirmed =
+    await showCustomConfirm(
+      `Reset permissions for ${settingsUser.email || "this user"} to the default permissions for the ${settingsUser.role} role?`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  button.disabled = true;
+
+
+  try {
+
+    const authHeaders =
+      await getAuthHeaders();
+
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/manage-settings-users`,
+        {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify({
+            action:
+              "reset_permissions",
+
+            user_id:
+              userId
+          })
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      result.error
+    ) {
+
+      console.error(
+        "RESET USER PERMISSIONS RESPONSE:",
+        result
+      );
+
+
+      const errorMessage =
+        typeof result.error === "string"
+          ? result.error
+          : result.error?.message ||
+            result.message ||
+            JSON.stringify(
+              result.error || result
+            );
+
+
+      throw new Error(
+        errorMessage ||
+        "Unable to reset user permissions."
+      );
+
+    }
+
+
+    /*
+     * Reset means there are no explicit per-user
+     * overrides remaining.
+     */
+
+    settingsUser.permissions =
+      result.user?.permissions ||
+      {};
+
+
+    settingsUser.effective_permissions =
+      result.user?.effective_permissions ||
+      {
+        ...(
+          rolePermissionDefaults[
+            settingsUser.role
+          ] || {}
+        )
+      };
+
+
+    /*
+     * If the Administrator reset their own
+     * permissions, immediately synchronize the
+     * tabs available on the current page.
+     */
+
+    if (
+      state.user?.id === userId
+    ) {
+
+      state.permissions = {
+        ...settingsUser.effective_permissions
+      };
+
+
+      applyRolePermissions();
+
+    }
+
+
+    /*
+     * Refresh the User cards so the checkboxes
+     * show the restored role defaults.
+     *
+     * Keep this Permissions panel expanded so
+     * the Administrator can immediately see the
+     * result of the reset.
+     */
+
+    renderInstructorList();
+
+
+    const permissionsPanel =
+      document.querySelector(
+        `[data-user-permissions="${CSS.escape(userId)}"]`
+      );
+
+
+    if (permissionsPanel) {
+      permissionsPanel.open = true;
+    }
+
+
+  } catch (error) {
+
+    console.error(
+      "RESET USER PERMISSIONS ERROR:",
+      error
+    );
+
+
+    showCustomAlert(
+      error.message ||
+      "Unable to reset user permissions."
+    );
+
+
+    button.disabled = false;
+
+  }
+
+});
+
+
 // EXISTING ROLE CHANGE HANDLER
 // Leave this line exactly where it is.
 
