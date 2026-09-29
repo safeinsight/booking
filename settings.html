@@ -2282,147 +2282,245 @@
 
 <!-- CONFIRMATION EMAIL -->
 
-        <div
-        id="confirmationEmailTab"
-        class="email-tab-panel active"
+<div
+  id="confirmationEmailTab"
+  class="email-tab-panel active"
+>
+
+  <div class="settings-section">
+
+    <h2>Confirmation Email</h2>
+
+    <p class="muted">
+      Customize the message sent to the student after a
+      successful booking.
+    </p>
+
+    <label for="emailSubject">
+      Email Subject
+    </label>
+
+    <input
+      id="emailSubject"
+      type="text"
+      maxlength="200"
+      placeholder="Your appointment confirmation"
+    >
+
+    <label for="emailMessage">
+      Student Confirmation Message
+    </label>
+
+    <textarea
+      id="emailMessage"
+      rows="8"
+      maxlength="5000"
+      placeholder="Thank you for booking with us..."
+    ></textarea>
+
+    <p class="muted">
+      Available placeholders:
+      <code>{{DATE}}</code>,
+      <code>{{TIME}}</code>,
+      <code>{{LOCATION}}</code>,
+      <code>{{STUDENT_NAME}}</code>,
+      <code>{{INSTRUCTOR_NAME}}</code>,
+      <code>{{QUESTION1}}</code>,
+      <code>{{QUESTION2}}</code>,
+      <code>{{QUESTION3}}</code>,
+      <code>{{QUESTION4}}</code>,
+      <code>{{QUESTION5}}</code>,
+      <code>{{BOOKING_QUESTIONS}}</code>,
+      <code>{{CONFIRMATION_BUTTON}}</code>,
+      <code>{{MANAGE_BUTTON}}</code>
+    </p>
+
+    <p
+      class="muted"
+      style="
+        margin-top:8px;
+        font-size:13px;
+      "
+    >
+      <code>{{QUESTION1}}</code> through
+      <code>{{QUESTION5}}</code> insert the historical
+      question and answer for that numbered booking field.
+      <code>{{BOOKING_QUESTIONS}}</code> inserts all
+      historical booking questions and answers.
+    </p>
+
+
+    <!-- INSTRUCTOR CONFIRMATION EMAIL -->
+
+    <div
+      style="
+        margin-top:24px;
+        padding-top:20px;
+        border-top:1px solid #ddd;
+      "
+    >
+
+      <h3>Instructor Confirmation Email</h3>
+
+      <p class="muted">
+        Customize the confirmation message sent to the instructor
+        after a successful booking.
+      </p>
+
+      <label for="instructorConfirmationEmail">
+        Instructor Email
+      </label>
+
+      <input
+        id="instructorConfirmationEmail"
+        type="email"
+        maxlength="320"
+        placeholder="instructor@example.com"
       >
-          <div class="settings-section">
 
-            <h2>Confirmation Email</h2>
+      <label for="instructorConfirmationSubject">
+        Instructor Confirmation Email Subject
+      </label>
 
-            <p class="muted">
-              Customize the message sent to the student after a
-              successful booking.
-            </p>
+      <input
+        id="instructorConfirmationSubject"
+        type="text"
+        maxlength="200"
+        placeholder="New appointment booking"
+      >
 
-            <label for="emailSubject">
-              Email Subject
-            </label>
+      <label for="instructorConfirmationMessage">
+        Instructor Confirmation Message
+      </label>
 
-            <input
-              id="emailSubject"
-              type="text"
-              maxlength="200"
-              placeholder="Your appointment confirmation"
-            >
+      <textarea
+        id="instructorConfirmationMessage"
+        rows="8"
+        maxlength="5000"
+        placeholder="A new appointment has been booked..."
+      ></textarea>
 
-            <label for="emailMessage">
-              Student Confirmation Message
-            </label>
+      <p class="muted">
+        Available placeholders:
+        <code>{{DATE}}</code>,
+        <code>{{TIME}}</code>,
+        <code>{{LOCATION}}</code>,
+        <code>{{STUDENT_NAME}}</code>,
+        <code>{{INSTRUCTOR_NAME}}</code>,
+        <code>{{QUESTION1}}</code>,
+        <code>{{QUESTION2}}</code>,
+        <code>{{QUESTION3}}</code>,
+        <code>{{QUESTION4}}</code>,
+        <code>{{QUESTION5}}</code>,
+        <code>{{BOOKING_QUESTIONS}}</code>
+      </p>
 
-            <textarea
-              id="emailMessage"
-              rows="8"
-              maxlength="5000"
-              placeholder="Thank you for booking with us..."
-            ></textarea>
+      <p
+        class="muted"
+        style="
+          margin-top:8px;
+          font-size:13px;
+        "
+      >
+        <code>{{QUESTION1}}</code> through
+        <code>{{QUESTION5}}</code> insert the historical
+        question and answer for that numbered booking field.
+        <code>{{BOOKING_QUESTIONS}}</code> inserts all
+        historical booking questions and answers.
+      </p>
 
-            <p class="muted">
-              Available placeholders:
-              <code>{{DATE}}</code>,
-              <code>{{TIME}}</code>,
-              <code>{{LOCATION}}</code>,
-              <code>{{STUDENT_NAME}}</code>,
-              <code>{{INSTRUCTOR_NAME}}</code>,
-              <code>{{CONFIRMATION_BUTTON}}</code>,
-              <code>{{MANAGE_BUTTON}}</code>
-            </p>
+    </div>
 
-            <div
-              style="
-                margin-top:24px;
-                padding-top:20px;
-                border-top:1px solid #ddd;
-              "
-            >
-              <h3>Instructor Confirmation Email</h3>
 
-              <p class="muted">
-                Customize the confirmation message sent to the instructor
-                after a successful booking.
-              </p>
+    <!-- CONFIRMATION BUTTON -->
 
-              <label for="instructorConfirmationEmail">
-                Instructor Email
-              </label>
+    <div
+      style="
+        margin-top:18px;
+        padding:15px;
+        border:1px solid #ddd;
+        border-radius:8px;
+        background:#fafafa;
+      "
+    >
 
-              <input
-                id="instructorConfirmationEmail"
-                type="email"
-                maxlength="320"
-                placeholder="instructor@example.com"
-              >
+      <strong>Confirmation Button</strong>
 
-              <label for="instructorConfirmationSubject">
-                Instructor Confirmation Email Subject
-              </label>
+      <p class="muted" style="margin:6px 0 12px;">
+        Add a button to the confirmation email. Administrators and Managers can change the destination URL and button text here.
+      </p>
 
-              <input
-                id="instructorConfirmationSubject"
-                type="text"
-                maxlength="200"
-                placeholder="New appointment booking"
-              >
+      <label for="confirmationButtonEnabled">
+        <input
+          id="confirmationButtonEnabled"
+          type="checkbox"
+        >
+        Include button in confirmation emails
+      </label>
 
-              <label for="instructorConfirmationMessage">
-                Instructor Confirmation Message
-              </label>
+      <label
+        for="confirmationButtonText"
+        style="
+          display:block;
+          margin-top:12px;
+        "
+      >
+        Button Text
+      </label>
 
-              <textarea
-                id="instructorConfirmationMessage"
-                rows="8"
-                maxlength="5000"
-                placeholder="A new appointment has been booked..."
-              ></textarea>
+      <input
+        id="confirmationButtonText"
+        type="text"
+        maxlength="100"
+        placeholder="Join Video Conference"
+      >
 
-              <p class="muted">
-                Available placeholders:
-                <code>{{DATE}}</code>,
-                <code>{{TIME}}</code>,
-                <code>{{LOCATION}}</code>,
-                <code>{{STUDENT_NAME}}</code>,
-                <code>{{INSTRUCTOR_NAME}}</code>
-              </p>
-            </div>
+      <label
+        for="confirmationButtonUrl"
+        style="
+          display:block;
+          margin-top:12px;
+        "
+      >
+        Button URL
+      </label>
 
-            <div style="margin-top:18px; padding:15px; border:1px solid #ddd; border-radius:8px; background:#fafafa;">
-              <strong>Confirmation Button</strong>
-              <p class="muted" style="margin:6px 0 12px;">
-                Add a button to the confirmation email. Administrators and Managers can change the destination URL and button text here.
-              </p>
+      <input
+        id="confirmationButtonUrl"
+        type="url"
+        maxlength="1000"
+        placeholder="https://safeinsight.github.io/video-conference/?room=LACCW"
+      >
 
-              <label for="confirmationButtonEnabled">
-                <input id="confirmationButtonEnabled" type="checkbox">
-                Include button in confirmation emails
-              </label>
+      <p
+        class="muted"
+        style="
+          margin:8px 0 0;
+          font-size:13px;
+        "
+      >
+        The button is generated as HTML by the booking system.
+        You do not need to paste HTML into the message box.
+      </p>
 
-              <label for="confirmationButtonText" style="display:block; margin-top:12px;">
-                Button Text
-              </label>
-              <input id="confirmationButtonText" type="text" maxlength="100" placeholder="Join Video Conference">
+    </div>
 
-              <label for="confirmationButtonUrl" style="display:block; margin-top:12px;">
-                Button URL
-              </label>
-              <input id="confirmationButtonUrl" type="url" maxlength="1000" placeholder="https://safeinsight.github.io/video-conference/?room=LACCW">
 
-              <p class="muted" style="margin:8px 0 0; font-size:13px;">
-                The button is generated as HTML by the booking system. You do not need to paste HTML into the message box.
-              </p>
-            </div>
+    <!-- RESTORE DEFAULT -->
 
-            <button
-              type="button"
-              id="restoreEmailDefaultBtn"
-              class="secondary"
-              style="margin-top:10px;"
-            >
-              Restore Default
-            </button>
+    <button
+      type="button"
+      id="restoreEmailDefaultBtn"
+      class="secondary"
+      style="margin-top:10px;"
+    >
+      Restore Default
+    </button>
 
-          </div>
+  </div>
 
-          </div>
+</div>
+
 
 <!-- RESCHEDULE EMAIL -->
 
