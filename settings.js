@@ -254,7 +254,11 @@ const rolePermissionDefaults = {
   }
 
 };
- * for one Booking Settings permission.
+
+
+/*
+ * Determine whether the logged-in user has access
+ * to one Booking Settings permission.
  *
  * state.permissions contains the final permission
  * set after role defaults and individual overrides
@@ -1505,6 +1509,651 @@ async function loadAppointments() {
       }
 
     });
+
+  }
+
+}
+
+
+/* =========================================================
+   CLIENTS UI
+   ========================================================= */
+
+function updateClientsHistoryDescription() {
+
+  const description =
+    $("clientsHistoryDescription");
+
+
+  if (!description) {
+    return;
+  }
+
+
+  if (state.clients.historyDays === "all") {
+
+    description.textContent =
+      "Showing complete appointment history for each client.";
+
+    return;
+  }
+
+
+  description.textContent =
+    "Showing all current and upcoming appointments, plus past appointments from the last 60 days.";
+
+}
+
+
+function selectClientHistoryRange(days) {
+
+  state.clients.historyDays =
+    days;
+
+
+  document
+    .querySelectorAll(".client-range")
+    .forEach(button => {
+
+      const buttonValue =
+        button.getAttribute(
+          "data-client-days"
+        );
+
+      const selected =
+        String(days) ===
+        buttonValue;
+
+
+      button.classList.toggle(
+        "active",
+        selected
+      );
+
+      button.classList.toggle(
+        "primary",
+        selected
+      );
+
+      button.classList.toggle(
+        "secondary",
+        !selected
+      );
+
+    });
+
+
+  updateClientsHistoryDescription();
+
+}
+
+
+function getClientAppointmentStatus(
+  appointment
+) {
+
+  const status =
+    String(
+      appointment.status || ""
+    ).toLowerCase();
+
+
+  if (status === "cancelled") {
+    return "Cancelled";
+  }
+
+
+  if (status === "missed") {
+    return "Missed";
+  }
+
+
+  const endTime =
+    new Date(
+      appointment.end_time
+    );
+
+
+  if (
+    Number.isFinite(
+      endTime.getTime()
+    ) &&
+    endTime <= new Date()
+  ) {
+    return "Completed";
+  }
+
+
+  if (status === "rescheduled") {
+    return "Rescheduled";
+  }
+
+
+  return "Upcoming";
+
+}
+
+
+function renderClientAppointment(
+  appointment
+) {
+
+  const {
+    dateText,
+    timeText
+  } =
+    formatAppointmentDateTime(
+      appointment
+    );
+
+
+  const status =
+    getClientAppointmentStatus(
+      appointment
+    );
+
+
+  const serviceName =
+    appointment.service_name ||
+    "Appointment";
+
+
+  const price =
+    appointment.service_price_cents == null
+      ? ""
+      : appointment.service_price_cents === 0
+        ? "Free"
+        : `$${(
+            appointment.service_price_cents /
+            100
+          ).toFixed(2)}`;
+
+
+  return `
+    <div
+      style="
+        margin-top:12px;
+        padding:14px;
+        border:1px solid #ddd;
+        border-radius:8px;
+        background:#fafafa;
+      "
+    >
+
+      <div
+        style="
+          display:flex;
+          justify-content:space-between;
+          gap:12px;
+          align-items:flex-start;
+          flex-wrap:wrap;
+        "
+      >
+
+        <div>
+
+          <div
+            style="
+              font-weight:700;
+            "
+          >
+            ${escapeHtml(dateText)}
+          </div>
+
+          <div
+            class="muted"
+            style="
+              margin-top:3px;
+            "
+          >
+            ${escapeHtml(timeText)}
+          </div>
+
+        </div>
+
+
+        <div
+          style="
+            font-weight:700;
+          "
+        >
+          ${escapeHtml(status)}
+        </div>
+
+      </div>
+
+
+      <div
+        style="
+          margin-top:10px;
+        "
+      >
+
+        <strong>
+          Service:
+        </strong>
+
+        ${escapeHtml(serviceName)}
+
+        ${
+          price
+            ? ` — ${escapeHtml(price)}`
+            : ""
+        }
+
+      </div>
+
+    </div>
+  `;
+
+}
+
+
+function renderClients(result) {
+
+  const container =
+    $("clientsList");
+
+
+  if (!container) {
+    return;
+  }
+
+
+  const clients =
+    Array.isArray(result?.clients)
+      ? result.clients
+      : [];
+
+
+  if (!clients.length) {
+
+    container.innerHTML = `
+      <div
+        class="muted"
+        style="
+          padding:20px 0;
+        "
+      >
+        No clients found.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    clients
+      .map((client, index) => {
+
+        const appointments =
+          Array.isArray(
+            client.appointments
+          )
+            ? client.appointments
+            : [];
+
+
+        const appointmentCount =
+          appointments.length;
+
+
+        const appointmentText =
+          appointmentCount === 1
+            ? "1 appointment"
+            : `${appointmentCount} appointments`;
+
+
+        const clientName =
+          client.name ||
+          "Unnamed Client";
+
+
+        const clientEmail =
+          client.email || "";
+
+
+        const clientPhone =
+          client.phone || "";
+
+
+        const appointmentsHtml =
+          appointmentCount
+            ? appointments
+                .map(
+                  appointment =>
+                    renderClientAppointment(
+                      appointment
+                    )
+                )
+                .join("")
+            : `
+              <div
+                class="muted"
+                style="
+                  padding:16px 0 4px;
+                "
+              >
+                No appointments in the selected history range.
+              </div>
+            `;
+
+
+        return `
+          <div
+            class="client-card"
+            style="
+              border:1px solid #ddd;
+              border-radius:8px;
+              margin-top:14px;
+              overflow:hidden;
+            "
+          >
+
+            <button
+              type="button"
+              class="client-card-toggle"
+              data-client-index="${index}"
+              aria-expanded="false"
+              style="
+                width:100%;
+                border:0;
+                border-radius:0;
+                background:transparent;
+                color:inherit;
+                padding:16px;
+                text-align:left;
+                cursor:pointer;
+              "
+            >
+
+              <div
+                style="
+                  display:flex;
+                  justify-content:space-between;
+                  gap:16px;
+                  align-items:flex-start;
+                "
+              >
+
+                <div
+                  style="
+                    min-width:0;
+                  "
+                >
+
+                  <div
+                    style="
+                      font-size:18px;
+                      font-weight:700;
+                    "
+                  >
+                    ${escapeHtml(clientName)}
+                  </div>
+
+                  ${
+                    clientPhone
+                      ? `
+                        <div
+                          class="muted"
+                          style="
+                            margin-top:5px;
+                            overflow-wrap:anywhere;
+                          "
+                        >
+                          ${escapeHtml(clientPhone)}
+                        </div>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    clientEmail
+                      ? `
+                        <div
+                          class="muted"
+                          style="
+                            margin-top:3px;
+                            overflow-wrap:anywhere;
+                          "
+                        >
+                          ${escapeHtml(clientEmail)}
+                        </div>
+                      `
+                      : ""
+                  }
+
+                </div>
+
+
+                <div
+                  style="
+                    flex:0 0 auto;
+                    text-align:right;
+                  "
+                >
+
+                  <div
+                    class="muted"
+                  >
+                    ${escapeHtml(
+                      appointmentText
+                    )}
+                  </div>
+
+                  <div
+                    class="client-card-arrow"
+                    style="
+                      margin-top:5px;
+                      font-size:18px;
+                    "
+                  >
+                    ▼
+                  </div>
+
+                </div>
+
+              </div>
+
+            </button>
+
+
+            <div
+              class="client-card-appointments hidden"
+              data-client-appointments="${index}"
+              style="
+                padding:0 16px 16px;
+                border-top:1px solid #eee;
+              "
+            >
+
+              ${appointmentsHtml}
+
+            </div>
+
+          </div>
+        `;
+
+      })
+      .join("");
+
+}
+
+
+function clearClients() {
+
+  const container =
+    $("clientsList");
+
+
+  if (!container) {
+    return;
+  }
+
+
+  container.innerHTML = `
+    <div
+      class="muted"
+      style="
+        padding:20px 0;
+      "
+    >
+      No instructor selected.
+    </div>
+  `;
+
+}
+
+
+/* =========================================================
+   CLIENTS DATA
+   ========================================================= */
+
+async function loadClients() {
+
+  if (!hasPermission("clients")) {
+    return;
+  }
+
+
+  if (!state.instructor?.id) {
+
+    clearClients();
+
+    return;
+  }
+
+
+  const instructorId =
+    state.instructor.id;
+
+
+  const container =
+    $("clientsList");
+
+
+  if (container) {
+
+    container.innerHTML = `
+      <div
+        class="muted"
+        style="
+          padding:20px 0;
+        "
+      >
+        Loading clients...
+      </div>
+    `;
+
+  }
+
+
+  try {
+
+    const authHeaders =
+      await getAuthHeaders();
+
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/get-appointments`,
+        {
+          method: "POST",
+
+          headers:
+            authHeaders,
+
+          body: JSON.stringify({
+            mode:
+              "clients",
+
+            instructor_id:
+              instructorId,
+
+            history_days:
+              state.clients.historyDays
+          })
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      result.error
+    ) {
+
+      throw new Error(
+        result.error ||
+        "Unable to load clients."
+      );
+
+    }
+
+
+    /*
+     * The selected instructor may have changed while
+     * this request was running.
+     *
+     * Never render the previous instructor's clients
+     * into the newly selected instructor's tab.
+     */
+
+    if (
+      state.instructor?.id !==
+      instructorId
+    ) {
+      return;
+    }
+
+
+    renderClients(
+      result
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "CLIENTS LOAD ERROR:",
+      error
+    );
+
+
+    /*
+     * Only display this request's error if the same
+     * instructor is still selected.
+     */
+
+    if (
+      state.instructor?.id !==
+      instructorId
+    ) {
+      return;
+    }
+
+
+    if (container) {
+
+      container.innerHTML = `
+        <div
+          class="state error"
+          style="
+            margin-top:12px;
+          "
+        >
+          ${escapeHtml(
+            error.message ||
+            "Unable to load clients."
+          )}
+        </div>
+      `;
+
+    }
 
   }
 
@@ -9261,6 +9910,28 @@ document.addEventListener("change", async function (event) {
           "NONE SELECTED";
       }
 
+
+      /*
+       * Clear instructor-specific appointment and
+       * client displays immediately so information
+       * from the previously selected instructor
+       * cannot remain visible.
+       */
+
+      if (hasPermission("appointments")) {
+
+        await loadAppointments();
+
+      }
+
+
+      if (hasPermission("clients")) {
+
+        clearClients();
+
+      }
+
+
       renderInstructorList();
 
       await loadLocationIntoForm(
@@ -9308,12 +9979,28 @@ document.addEventListener("change", async function (event) {
       /*
        * Start instructor-specific requests immediately.
        *
-       * Neither request is awaited here so Appointments
-       * and Student Booking Fields can load independently
-       * while the complete instructor settings record
-       * loads below.
+       * These requests are intentionally not awaited here.
+       * Appointments, Clients, and Student Booking Fields
+       * can load independently while the complete instructor
+       * settings record loads below.
+       *
+       * Appointments and Clients remain independent
+       * permissions.
        */
-      loadAppointments();
+
+      if (hasPermission("appointments")) {
+
+        loadAppointments();
+
+      }
+
+
+      if (hasPermission("clients")) {
+
+        loadClients();
+
+      }
+
 
       loadStudentBookingFields(
         immediateInstructor.id
@@ -10104,7 +10791,33 @@ $("logoutBtn").addEventListener(
     renderInstructorList();
 
     await loadServices();
-    await loadAppointments();
+
+
+    /*
+     * Load instructor-specific appointment and client data
+     * only when the logged-in user has permission to view
+     * the corresponding Booking Settings tab.
+     *
+     * These permissions are independent. A user may have
+     * Clients access without Appointments access, or vice
+     * versa.
+     */
+
+    if (hasPermission("appointments")) {
+
+      await loadAppointments();
+
+    }
+
+
+    if (hasPermission("clients")) {
+
+      await loadClients();
+
+    }
+
+
+    updateClientsHistoryDescription();
 
     updateBookingUrlDisplay();
 
@@ -10155,6 +10868,132 @@ $("copyBookingUrlBtn")?.addEventListener(
         err
       );
     }
+  }
+);
+
+
+/* =========================================================
+   CLIENTS TAB CONTROLS
+   ========================================================= */
+
+document.addEventListener(
+  "click",
+  async function (event) {
+
+    /*
+     * CLIENT HISTORY RANGE
+     *
+     * Clients themselves always remain visible.
+     * This changes only the historical appointments
+     * displayed inside each client card.
+     */
+
+    const clientRangeButton =
+      event.target.closest(
+        ".client-range"
+      );
+
+
+    if (clientRangeButton) {
+
+      const value =
+        clientRangeButton.getAttribute(
+          "data-client-days"
+        );
+
+
+      const days =
+        value === "all"
+          ? "all"
+          : 60;
+
+
+      selectClientHistoryRange(
+        days
+      );
+
+
+      await loadClients();
+
+      return;
+    }
+
+
+    /*
+     * CLIENT CARD EXPAND / COLLAPSE
+     */
+
+    const clientToggle =
+      event.target.closest(
+        ".client-card-toggle"
+      );
+
+
+    if (clientToggle) {
+
+      const clientIndex =
+        clientToggle.getAttribute(
+          "data-client-index"
+        );
+
+
+      if (clientIndex == null) {
+        return;
+      }
+
+
+      const appointments =
+        document.querySelector(
+          `[data-client-appointments="${clientIndex}"]`
+        );
+
+
+      if (!appointments) {
+        return;
+      }
+
+
+      const currentlyExpanded =
+        clientToggle.getAttribute(
+          "aria-expanded"
+        ) === "true";
+
+
+      const expanded =
+        !currentlyExpanded;
+
+
+      clientToggle.setAttribute(
+        "aria-expanded",
+        String(expanded)
+      );
+
+
+      appointments.classList.toggle(
+        "hidden",
+        !expanded
+      );
+
+
+      const arrow =
+        clientToggle.querySelector(
+          ".client-card-arrow"
+        );
+
+
+      if (arrow) {
+
+        arrow.textContent =
+          expanded
+            ? "▲"
+            : "▼";
+
+      }
+
+
+      return;
+    }
+
   }
 );
 
