@@ -1330,6 +1330,16 @@ body: JSON.stringify({
   student_timezone: state.studentTimezone,
 
   /*
+   * Additional required Student Booking Field answers.
+   *
+   * Only the stable field ID and the student's answer
+   * are submitted. create-booking independently loads
+   * the authoritative question definitions.
+   */
+  student_booking_answers:
+    state.studentBookingAnswers,
+
+  /*
    * Paid services are identified by their
    * Stripe Price IDs.
    */
