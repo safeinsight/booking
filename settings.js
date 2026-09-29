@@ -210,6 +210,7 @@ const rolePermissionDefaults = {
     services: true,
     calendar: true,
     appointments: true,
+    clients: true,
     emails: true
   },
 
@@ -222,6 +223,7 @@ const rolePermissionDefaults = {
     services: true,
     calendar: true,
     appointments: true,
+    clients: true,
     emails: true
   },
 
@@ -234,6 +236,7 @@ const rolePermissionDefaults = {
     services: false,
     calendar: true,
     appointments: true,
+    clients: true,
     emails: false
   },
 
@@ -246,14 +249,11 @@ const rolePermissionDefaults = {
     services: false,
     calendar: true,
     appointments: true,
+    clients: true,
     emails: false
   }
 
 };
-
-
-/*
- * Return the logged-in user's effective value
  * for one Booking Settings permission.
  *
  * state.permissions contains the final permission
@@ -1635,6 +1635,10 @@ function applyRolePermissions() {
     {
       permission: "appointments",
       panelId: "appointmentsTab"
+    },
+    {
+      permission: "clients",
+      panelId: "clientsTab"
     },
     {
       permission: "emails",
@@ -7634,6 +7638,7 @@ function renderInstructorList() {
                     ["services", "Services"],
                     ["calendar", "Calendar"],
                     ["appointments", "Appointments"],
+                    ["clients", "Clients"],
                     ["emails", "Emails"]
                   ]
                     .map(([permission, label]) => {
