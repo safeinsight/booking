@@ -550,6 +550,19 @@
         ></div>
       </div>
 
+      <!-- HISTORICAL STUDENT BOOKING FIELD ANSWERS -->
+
+      <div
+        id="bookingFieldAnswersSection"
+        style="display:none;"
+      >
+
+        <div
+          id="bookingFieldAnswers"
+        ></div>
+
+      </div>
+
       <div class="detail-row">
         <div class="detail-label">
           Services
@@ -1123,6 +1136,90 @@ function groupRescheduleAvailabilityByStudentTimezone(
 
         locationName.textContent =
           data.booking.location_name || "";
+
+
+        /*
+         * HISTORICAL STUDENT BOOKING FIELD ANSWERS
+         */
+
+        const bookingFieldAnswersSection =
+          document.getElementById(
+            "bookingFieldAnswersSection"
+          );
+
+        const bookingFieldAnswers =
+          document.getElementById(
+            "bookingFieldAnswers"
+          );
+
+        const fieldAnswers =
+          Array.isArray(
+            data.booking.booking_field_answers
+          )
+            ? data.booking.booking_field_answers
+            : [];
+
+        bookingFieldAnswers.innerHTML =
+          "";
+
+        if (fieldAnswers.length) {
+
+          fieldAnswers.forEach(
+            field => {
+
+              const row =
+                document.createElement("div");
+
+              row.className =
+                "detail-row";
+
+              const label =
+                document.createElement("div");
+
+              label.className =
+                "detail-label";
+
+              label.textContent =
+                field.question || "";
+
+              const value =
+                document.createElement("div");
+
+              value.className =
+                "detail-value";
+
+              value.textContent =
+                field.answer || "";
+
+              row.appendChild(
+                label
+              );
+
+              row.appendChild(
+                value
+              );
+
+              bookingFieldAnswers.appendChild(
+                row
+              );
+
+            }
+          );
+
+          bookingFieldAnswersSection.style.display =
+            "block";
+
+        } else {
+
+          bookingFieldAnswersSection.style.display =
+            "none";
+
+        }
+
+
+        /*
+         * BOOKING SERVICES
+         */
 
         const services =
           Array.isArray(data.booking.services)
