@@ -2669,14 +2669,12 @@ return `
             `${cfg.functionsBaseUrl}/update-blocking-calendar`,
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-                body: JSON.stringify({
-                  location_id: state.location.id,
-                  google_calendar_id: calendarId,
-                  enabled: newEnabled
-                })
+              headers: await getAuthHeaders(),
+              body: JSON.stringify({
+                location_id: state.location.id,
+                google_calendar_id: calendarId,
+                enabled: newEnabled
+              })
             }
           );
 
