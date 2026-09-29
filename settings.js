@@ -1249,177 +1249,226 @@ async function authenticateSettingsUser() {
 }
 
 function applyRolePermissions() {
-  const locationTab = $("locationTab");
-  const usersTab = $("usersTab");
-  const brandingTab = $("brandingTab");
-  const availabilityTab = $("availabilityTab");
-  const bookingRulesTab = $("bookingRulesTab");
-  const servicesTab = $("servicesTab");
-  const appointmentsTab = $("appointmentsTab");
-  const calendarTab = $("calendarTab");
-  const emailsTab = $("emailsTab");
+
+  /*
+   * Top-level Booking Settings tabs are controlled
+   * entirely by the logged-in user's effective
+   * permissions.
+   *
+   * Role defaults have already been combined with
+   * individual overrides in state.permissions.
+   */
+
+  const tabPermissions = [
+    {
+      permission: "users",
+      panelId: "usersTab"
+    },
+    {
+      permission: "location",
+      panelId: "locationTab"
+    },
+    {
+      permission: "branding",
+      panelId: "brandingTab"
+    },
+    {
+      permission: "availability",
+      panelId: "availabilityTab"
+    },
+    {
+      permission: "booking_rules",
+      panelId: "bookingRulesTab"
+    },
+    {
+      permission: "services",
+      panelId: "servicesTab"
+    },
+    {
+      permission: "calendar",
+      panelId: "calendarTab"
+    },
+    {
+      permission: "appointments",
+      panelId: "appointmentsTab"
+    },
+    {
+      permission: "emails",
+      panelId: "emailsTab"
+    }
+  ];
+
+
+  /*
+   * Apply visibility to BOTH the tab button and its
+   * corresponding panel.
+   *
+   * This deliberately handles both directions:
+   * permissions can be granted OR removed while the
+   * page is open.
+   */
+
+  tabPermissions.forEach(item => {
+
+    const allowed =
+      hasPermission(
+        item.permission
+      );
+
+    const panel =
+      $(item.panelId);
+
+    const button =
+      document.querySelector(
+        `[data-tab="${item.panelId}"]`
+      );
+
+
+    button?.classList.toggle(
+      "hidden",
+      !allowed
+    );
+
+
+    panel?.classList.toggle(
+      "hidden",
+      !allowed
+    );
+
+  });
+
+
+  /*
+   * Student Booking Fields live inside Booking Rules.
+   * Access therefore follows the Booking Rules
+   * permission.
+   */
 
   const studentBookingFieldsSection =
     $("studentBookingFieldsSection");
 
   if (studentBookingFieldsSection) {
-    studentBookingFieldsSection.classList.toggle(
-      "hidden",
-      !canManageStudentBookingFields()
+
+    studentBookingFieldsSection
+      .classList.toggle(
+        "hidden",
+        !canManageStudentBookingFields()
+      );
+
+  }
+
+
+  /*
+   * Determine whether the currently active tab is
+   * still permitted.
+   *
+   * This matters when a user's permissions change
+   * while they are already on the Settings page.
+   */
+
+  const activeButton =
+    document.querySelector(
+      ".settings-tab.active"
     );
+
+  const activePanelId =
+    activeButton?.getAttribute(
+      "data-tab"
+    );
+
+  const activeTabConfig =
+    tabPermissions.find(
+      item =>
+        item.panelId ===
+        activePanelId
+    );
+
+  const activeTabStillAllowed =
+    activeTabConfig
+      ? hasPermission(
+          activeTabConfig.permission
+        )
+      : false;
+
+
+  if (activeTabStillAllowed) {
+    return;
   }
 
-const locationTabButton =
-  document.querySelector('[data-tab="locationTab"]');
 
-const usersTabButton =
-  document.querySelector('[data-tab="usersTab"]');
+  /*
+   * The active tab is no longer available, or there
+   * was no valid active tab.
+   *
+   * Clear the old active state and move to the first
+   * permitted tab in normal page order.
+   */
 
-const brandingTabButton =
-  document.querySelector('[data-tab="brandingTab"]');
+  document
+    .querySelectorAll(
+      ".settings-tab-panel"
+    )
+    .forEach(panel => {
 
-const availabilityTabButton =
-  document.querySelector('[data-tab="availabilityTab"]');
+      panel.classList.remove(
+        "active"
+      );
 
-const servicesTabButton =
-  document.querySelector('[data-tab="servicesTab"]');
+    });
 
-const appointmentsTabButton =
-  document.querySelector('[data-tab="appointmentsTab"]');
 
-const calendarTabButton =
-  document.querySelector('[data-tab="calendarTab"]');
+  document
+    .querySelectorAll(
+      ".settings-tab"
+    )
+    .forEach(tab => {
 
-const emailsTabButton =
-  document.querySelector('[data-tab="emailsTab"]');
+      tab.classList.remove(
+        "active"
+      );
 
-  const bookingRulesTabButton =
-  document.querySelector('[data-tab="bookingRulesTab"]');
+    });
 
-// Location tab visibility
-if (canViewLocation()) {
-  locationTabButton?.classList.remove("hidden");
-  locationTab?.classList.remove("hidden");
-}
 
-// Users: Administrator and Manager
-if (canManageUsers()) {
-  usersTabButton?.classList.remove("hidden");
-  usersTab?.classList.remove("hidden");
-}
+  const firstAllowedTab =
+    tabPermissions.find(
+      item =>
+        hasPermission(
+          item.permission
+        )
+    );
 
-  if (canEditBranding()) {
-    brandingTabButton?.classList.remove("hidden");
-    brandingTab?.classList.remove("hidden");
+
+  if (!firstAllowedTab) {
+
+    console.warn(
+      "This user does not have access to any Booking Settings tabs."
+    );
+
+    return;
+
   }
 
-  // Availability: Administrator, Manager, Instructor, Basic
-  
-if (canEditAvailability()) {
-  availabilityTabButton?.classList.remove("hidden");
-  availabilityTab?.classList.remove("hidden");
+
+  const firstAllowedPanel =
+    $(firstAllowedTab.panelId);
+
+  const firstAllowedButton =
+    document.querySelector(
+      `[data-tab="${firstAllowedTab.panelId}"]`
+    );
+
+
+  firstAllowedPanel?.classList.add(
+    "active"
+  );
+
+  firstAllowedButton?.classList.add(
+    "active"
+  );
+
 }
 
-if (
-  isAdministrator() ||
-  isManager() ||
-  isInstructor()
-) {
-  bookingRulesTabButton?.classList.remove("hidden");
-  bookingRulesTab?.classList.remove("hidden");
-}
-
-if (canManageServices()) {
-  servicesTabButton?.classList.remove("hidden");
-  servicesTab?.classList.remove("hidden");
-}
-
-if (
-  isAdministrator() ||
-  isManager() ||
-  isInstructor() ||
-  isBasic()
-) {
-  calendarTabButton?.classList.remove("hidden");
-  calendarTab?.classList.remove("hidden");
-}
-
-if (isManager() || isInstructor() || isBasic()) {
-  document.querySelectorAll(".settings-tab-panel").forEach(panel => {
-    panel.classList.remove("active");
-  });
-
-  document.querySelectorAll(".settings-tab").forEach(tab => {
-    tab.classList.remove("active");
-  });
-
-if (isManager()) {
-  locationTab?.classList.add("active");
-  locationTabButton?.classList.add("active");
-}
-
-if (isInstructor()) {
-  appointmentsTab?.classList.add("active");
-  appointmentsTabButton?.classList.add("active");
-}
-
-if (isBasic()) {
-  availabilityTab?.classList.add("active");
-  availabilityTabButton?.classList.add("active");
-}
-}
-
-if (canEditEmails()) {
-  emailsTabButton?.classList.remove("hidden");
-  emailsTab?.classList.remove("hidden");
-}
-
-  // Hide tabs that this role cannot access
-if (!canViewLocation()) {
-  locationTabButton?.classList.add("hidden");
-}
-
-if (!canManageUsers()) {
-  usersTabButton?.classList.add("hidden");
-  usersTab?.classList.add("hidden");
-}
-
-  if (!canEditBranding()) {
-    brandingTabButton?.classList.add("hidden");
-  }
-
-if (!canEditAvailability()) {
-  availabilityTabButton?.classList.add("hidden");
-}
-
-if (!canManageServices()) {
-  servicesTabButton?.classList.add("hidden");
-  servicesTab?.classList.add("hidden");
-}
-
-if (
-  !isAdministrator() &&
-  !isManager() &&
-  !isInstructor()
-) {
-  bookingRulesTabButton?.classList.add("hidden");
-  bookingRulesTab?.classList.add("hidden");
-}
-
-if (
-  !isAdministrator() &&
-  !isManager() &&
-  !isInstructor() &&
-  !isBasic()
-) {
-  calendarTabButton?.classList.add("hidden");
-  calendarTab?.classList.add("hidden");
-}
-
-if (!canEditEmails()) {
-  emailsTabButton?.classList.add("hidden");
-}
-}
 
 async function loadLocationIntoForm(loc) {
 
@@ -7176,6 +7225,138 @@ function renderInstructorList() {
             </div>
 
 
+            <!-- PERMISSIONS -->
+
+            <details
+              data-user-permissions="${escapeAttr(settingsUser.user_id || "")}"
+              style="
+                margin-top:18px;
+                border:1px solid #ddd;
+                border-radius:8px;
+                padding:12px 14px;
+                background:#fafafa;
+              "
+            >
+
+              <summary
+                style="
+                  cursor:pointer;
+                  font-weight:700;
+                  user-select:none;
+                "
+              >
+                Permissions
+              </summary>
+
+
+              <div
+                style="
+                  margin-top:12px;
+                "
+              >
+
+                <div
+                  class="muted"
+                  style="
+                    margin-bottom:12px;
+                    line-height:1.4;
+                  "
+                >
+                  Role defaults are shown below.
+                  Individual changes override this user's
+                  role without changing the role itself.
+                </div>
+
+
+                <div
+                  style="
+                    display:grid;
+                    grid-template-columns:
+                      repeat(
+                        auto-fit,
+                        minmax(190px, 1fr)
+                      );
+                    gap:8px 18px;
+                  "
+                >
+
+                  ${[
+                    ["users", "Users"],
+                    ["location", "Location"],
+                    ["branding", "Branding"],
+                    ["availability", "Availability"],
+                    ["booking_rules", "Booking Rules"],
+                    ["services", "Services"],
+                    ["calendar", "Calendar"],
+                    ["appointments", "Appointments"],
+                    ["emails", "Emails"]
+                  ]
+                    .map(([permission, label]) => {
+
+                      const effectivePermissions =
+                        settingsUser.effective_permissions ||
+                        rolePermissionDefaults[
+                          settingsUser.role
+                        ] ||
+                        {};
+
+                      const checked =
+                        effectivePermissions[
+                          permission
+                        ] === true;
+
+                      return `
+                        <label
+                          style="
+                            display:flex;
+                            align-items:center;
+                            gap:8px;
+                            margin:0;
+                            cursor:pointer;
+                          "
+                        >
+
+                          <input
+                            type="checkbox"
+                            data-user-permission="${escapeAttr(settingsUser.user_id || "")}"
+                            data-permission-key="${escapeAttr(permission)}"
+                            ${checked ? "checked" : ""}
+                          >
+
+                          <span>
+                            ${escapeHtml(label)}
+                          </span>
+
+                        </label>
+                      `;
+
+                    })
+                    .join("")}
+
+                </div>
+
+
+                <div
+                  style="
+                    margin-top:14px;
+                  "
+                >
+
+                  <button
+                    type="button"
+                    class="secondary"
+                    data-reset-user-permissions="${escapeAttr(settingsUser.user_id || "")}"
+                  >
+                    Reset to Role Defaults
+                  </button>
+
+                </div>
+
+              </div>
+
+            </details>
+
+
             <!-- USER ACTIONS -->
 
             <div
@@ -7225,6 +7406,9 @@ document.addEventListener("click", async function (event) {
   // Do not treat management controls as instructor selection.
   if (
     event.target.closest("[data-role-user]") ||
+    event.target.closest("[data-user-permissions]") ||
+    event.target.closest("[data-user-permission]") ||
+    event.target.closest("[data-reset-user-permissions]") ||
     event.target.closest("[data-deactivate-user]") ||
     event.target.closest("[data-delete-user]") ||
     event.target.closest("[data-resend-invite]")
