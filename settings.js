@@ -9510,10 +9510,35 @@ document.addEventListener("change", async function (event) {
 
     /*
      * Update the User Management source of truth.
+     *
+     * A role change does NOT erase intentional
+     * per-user permission overrides.
+     *
+     * The backend returns both the preserved
+     * overrides and the newly calculated effective
+     * permissions for the user's new role.
      */
     settingsUser.role =
       result.user?.role ||
       newRole;
+
+
+    settingsUser.permissions =
+      result.user?.permissions ||
+      settingsUser.permissions ||
+      {};
+
+
+    settingsUser.effective_permissions =
+      result.user?.effective_permissions ||
+      {
+        ...(
+          rolePermissionDefaults[
+            settingsUser.role
+          ] || {}
+        ),
+        ...settingsUser.permissions
+      };
 
 
     /*
@@ -9543,8 +9568,9 @@ document.addEventListener("change", async function (event) {
 
 
     /*
-     * If an Administrator changes their own role,
-     * keep the current page permissions synchronized.
+     * If the logged-in user changes their own role,
+     * immediately synchronize both the role and the
+     * effective permissions controlling this page.
      */
     if (
       state.user?.id === userId
@@ -9553,12 +9579,40 @@ document.addEventListener("change", async function (event) {
       state.role =
         settingsUser.role;
 
+
+      state.permissions = {
+        ...settingsUser.effective_permissions
+      };
+
+
       applyRolePermissions();
 
     }
 
 
+    /*
+     * Refresh the User cards so the displayed
+     * permission checkboxes reflect the new role
+     * defaults plus any preserved overrides.
+     */
     renderInstructorList();
+
+
+    /*
+     * Keep this user's Permissions panel open after
+     * the role change so the Administrator can
+     * immediately see the resulting permissions.
+     */
+    const permissionsPanel =
+      document.querySelector(
+        `[data-user-permissions="${CSS.escape(userId)}"]`
+      );
+
+
+    if (permissionsPanel) {
+      permissionsPanel.open = true;
+    }
+
 
   } catch (error) {
 
