@@ -5382,41 +5382,71 @@ state.instructors =
 
   renderInstructorList();
 
+
   /*
-   * Build the available Other User recipient list,
-   * then load the saved settings for the currently
-   * selected instructor and render the active
-   * Email event into the form.
+   * Other User Email settings are an
+   * Administrator / Manager feature.
+   *
+   * Instructor and Basic users must not call the
+   * protected load_other_user_email_settings action.
+   * Their role does not expose the Emails tab, and
+   * attempting this request would correctly be
+   * rejected by the Edge Function and would abort
+   * the entire Booking Settings initialization.
    */
-  renderOtherUserEmailRecipients();
+  if (canEditEmails()) {
 
-  await loadOtherUserEmailSettings();
+    renderOtherUserEmailRecipients();
 
-  renderActiveOtherUserEmailSettings();
+    await loadOtherUserEmailSettings();
+
+    renderActiveOtherUserEmailSettings();
+
+  } else {
+
+    /*
+     * Make sure no previously cached Other User Email
+     * state survives for a role that cannot manage it.
+     */
+    state.otherUserEmail.settings = {};
+
+  }
 
 
   const globalSelector = $("globalInstructorSelector");
   const globalSelect = $("globalInstructorSelect");
 
   if (globalSelector && globalSelect) {
-    if (isAdministrator() || isManager()) {
+
+    if (
+      isAdministrator() ||
+      isManager()
+    ) {
+
       globalSelector.classList.remove("hidden");
 
       globalSelect.innerHTML =
-        state.instructors.map(instructor => `
-          <option value="${escapeAttr(instructor.id)}">
-            ${escapeHtml(instructor.name)}
-          </option>
-        `).join("");
+        state.instructors
+          .map(instructor => `
+            <option value="${escapeAttr(instructor.id)}">
+              ${escapeHtml(instructor.name)}
+            </option>
+          `)
+          .join("");
 
       globalSelect.value =
         state.instructor?.id || "";
 
     } else {
+
       globalSelector.classList.add("hidden");
+
       globalSelect.innerHTML = "";
+
     }
+
   }
+
 }
 
 $("locationSelect").addEventListener("change", async event => {
