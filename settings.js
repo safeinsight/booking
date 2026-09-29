@@ -988,6 +988,63 @@ function renderAppointmentList(
                 ).toFixed(2)}`;
 
 
+        /*
+         * Historical Student Booking Field answers.
+         *
+         * These are snapshots stored with the booking,
+         * so later changes to the instructor's current
+         * questions do not change appointment history.
+         */
+
+        const bookingFieldAnswers =
+          Array.isArray(
+            appointment.booking_field_answers
+          )
+            ? appointment.booking_field_answers
+            : [];
+
+
+        const bookingFieldAnswersHtml =
+          bookingFieldAnswers.length
+            ? `
+              <div
+                style="
+                  margin-top:14px;
+                  padding-top:14px;
+                  border-top:1px solid #eee;
+                "
+              >
+                ${bookingFieldAnswers
+                  .map(field => `
+                    <div
+                      style="
+                        margin-top:8px;
+                      "
+                    >
+                      <strong>
+                        ${escapeHtml(
+                          field.question || ""
+                        )}
+                      </strong>
+
+                      <div
+                        class="muted"
+                        style="
+                          margin-top:2px;
+                        "
+                      >
+                        ${escapeHtml(
+                          field.answer || ""
+                        )}
+                      </div>
+                    </div>
+                  `)
+                  .join("")}
+              </div>
+            `
+            : "";
+
+
         return `
           <div
             style="
