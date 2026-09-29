@@ -8424,7 +8424,28 @@ document.addEventListener("change", async function (event) {
     }
 
 
+    /*
+     * Re-render the User cards so all displayed
+     * permission values remain synchronized.
+     *
+     * Then reopen this user's Permissions box.
+     * A successful checkbox change should not
+     * unexpectedly collapse the panel the
+     * Administrator is actively working in.
+     */
+
     renderInstructorList();
+
+
+    const permissionsPanel =
+      document.querySelector(
+        `[data-user-permissions="${CSS.escape(userId)}"]`
+      );
+
+
+    if (permissionsPanel) {
+      permissionsPanel.open = true;
+    }
 
 
   } catch (error) {
