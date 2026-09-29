@@ -11202,11 +11202,26 @@ document.addEventListener(
 
 
         /*
-         * Refresh the appointment lists so the newly
-         * created appointment immediately appears under
-         * Upcoming.
+         * Refresh instructor-specific appointment data
+         * after the manual booking is created.
+         *
+         * Appointments and Clients are independent
+         * permissions, so refresh only the data the
+         * logged-in user is authorized to view.
          */
-        await loadAppointments();
+
+        if (hasPermission("appointments")) {
+
+          await loadAppointments();
+
+        }
+
+
+        if (hasPermission("clients")) {
+
+          await loadClients();
+
+        }
 
 
       } catch (error) {
@@ -11542,7 +11557,27 @@ document.addEventListener(
         }
 
 
-        await loadAppointments();
+        /*
+         * Refresh instructor-specific appointment data
+         * after the appointment is cancelled.
+         *
+         * Appointments and Clients are independent
+         * permissions, so refresh only the data the
+         * logged-in user is authorized to view.
+         */
+
+        if (hasPermission("appointments")) {
+
+          await loadAppointments();
+
+        }
+
+
+        if (hasPermission("clients")) {
+
+          await loadClients();
+
+        }
 
 
         if (
@@ -11682,7 +11717,27 @@ document.addEventListener(
         }
 
 
-        await loadAppointments();
+        /*
+         * Refresh instructor-specific appointment data
+         * after the appointment is marked missed.
+         *
+         * Appointments and Clients are independent
+         * permissions, so refresh only the data the
+         * logged-in user is authorized to view.
+         */
+
+        if (hasPermission("appointments")) {
+
+          await loadAppointments();
+
+        }
+
+
+        if (hasPermission("clients")) {
+
+          await loadClients();
+
+        }
 
 
       } catch (error) {
