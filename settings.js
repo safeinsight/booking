@@ -1193,7 +1193,7 @@ async function authenticateSettingsUser() {
   const { data: settingsUser, error: roleError } =
     await db
       .from("settings_users")
-      .select("role, active")
+      .select("role, active, permissions")
       .eq("user_id", user.id)
       .single();
 
@@ -1209,9 +1209,40 @@ async function authenticateSettingsUser() {
     );
   }
 
+
   state.user = user;
   state.role = settingsUser.role;
 
+
+  /*
+   * Build the logged-in user's effective permission
+   * set locally from their role defaults plus their
+   * explicit database overrides.
+   */
+
+  const roleDefaults =
+    rolePermissionDefaults[
+      settingsUser.role
+    ] || {};
+
+
+  const permissionOverrides =
+    (
+      settingsUser.permissions &&
+      typeof settingsUser.permissions ===
+        "object" &&
+      !Array.isArray(
+        settingsUser.permissions
+      )
+    )
+      ? settingsUser.permissions
+      : {};
+
+
+  state.permissions = {
+    ...roleDefaults,
+    ...permissionOverrides
+  };
 
 
   return true;
