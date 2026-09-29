@@ -1162,6 +1162,52 @@
       required
     >
 
+
+    <!-- STUDENT BOOKING FIELDS -->
+
+    <div
+      id="studentBookingFieldsSection"
+      class="hidden"
+      style="
+        margin-top:30px;
+        padding-top:20px;
+        border-top:1px solid #ddd;
+      "
+    >
+
+      <h3>Student Booking Fields</h3>
+
+      <p class="muted">
+        Name, Phone, and Email are always required.
+        Add up to 5 additional questions that students must answer
+        before completing their booking.
+      </p>
+
+      <div
+        id="studentBookingFieldsList"
+        style="margin-top:20px;"
+      ></div>
+
+      <button
+        type="button"
+        id="addStudentBookingFieldBtn"
+        class="secondary"
+        style="margin-top:15px;"
+      >
+        + Add Question
+      </button>
+
+      <p
+        id="studentBookingFieldsLimitMessage"
+        class="muted hidden"
+        style="margin-top:10px;"
+      >
+        Maximum of 5 additional questions reached.
+      </p>
+
+    </div>
+
+
         <div class="tab-save">
 
             <button
