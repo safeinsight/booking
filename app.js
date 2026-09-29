@@ -12,6 +12,17 @@ const state = {
   student: null,
   calendarMonth: null,
 
+  /*
+   * Additional instructor-specific questions that
+   * the student must answer before booking.
+   *
+   * Definitions are loaded from the backend.
+   * Answers are collected separately when the
+   * student submits the information form.
+   */
+  studentBookingFields: [],
+  studentBookingAnswers: [],
+
   services: [],
   selectedServicePriceIds: [],
   selectedServiceIds: [],
