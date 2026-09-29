@@ -188,414 +188,140 @@ function isBasic() {
   return state.role === "Basic";
 }
 
-function canEditLocation() {
-  return (
-    isAdministrator() ||
-    isManager() ||
-    isInstructor()
-  );
-}
 
-function canViewLocation() {
-  return (
-    isAdministrator() ||
-    isManager() ||
-    isInstructor()
-  );
-}
+/*
+ * Booking Settings permission defaults.
+ *
+ * These must mirror the defaults enforced by
+ * manage-settings-users.
+ *
+ * Individual user overrides are applied after
+ * these role defaults.
+ */
 
-function canEditBranding() {
-  return isAdministrator();
-}
+const rolePermissionDefaults = {
 
-function canEditAvailability() {
-  return (
-    isAdministrator() ||
-    isManager() ||
-    isInstructor() ||
-    isBasic()
-  );
-}
+  Administrator: {
+    users: true,
+    location: true,
+    branding: true,
+    availability: true,
+    booking_rules: true,
+    services: true,
+    calendar: true,
+    appointments: true,
+    emails: true
+  },
 
-function canEditBookingRules() {
-  return (
-    isAdministrator() ||
-    isManager() ||
-    isInstructor()
-  );
-}
+  Manager: {
+    users: true,
+    location: true,
+    branding: false,
+    availability: true,
+    booking_rules: true,
+    services: true,
+    calendar: true,
+    appointments: true,
+    emails: true
+  },
 
-function canManageStudentBookingFields() {
-  return (
-    isAdministrator() ||
-    isManager()
-  );
-}
+  Instructor: {
+    users: false,
+    location: true,
+    branding: false,
+    availability: true,
+    booking_rules: true,
+    services: false,
+    calendar: true,
+    appointments: true,
+    emails: false
+  },
 
-
-/* =========================================================
-   STUDENT BOOKING FIELDS
-   ========================================================= */
-
-function getStudentBookingFieldQuestions() {
-
-  return Array.from(
-    document.querySelectorAll(
-      ".student-booking-field-question"
-    )
-  )
-    .map(input => input.value.trim())
-    .filter(Boolean);
-
-}
-
-
-function updateStudentBookingFieldsControls() {
-
-  const list =
-    $("studentBookingFieldsList");
-
-  const addButton =
-    $("addStudentBookingFieldBtn");
-
-  const limitMessage =
-    $("studentBookingFieldsLimitMessage");
-
-
-  if (
-    !list ||
-    !addButton ||
-    !limitMessage
-  ) {
-    return;
+  Basic: {
+    users: false,
+    location: false,
+    branding: false,
+    availability: true,
+    booking_rules: false,
+    services: false,
+    calendar: true,
+    appointments: true,
+    emails: false
   }
 
-
-  const rows =
-    list.querySelectorAll(
-      ".student-booking-field-row"
-    );
-
-
-  const atLimit =
-    rows.length >= 5;
-
-
-  addButton.disabled =
-    atLimit;
-
-  limitMessage.classList.toggle(
-    "hidden",
-    !atLimit
-  );
-
-
-  rows.forEach((row, index) => {
-
-    const label =
-      row.querySelector(
-        ".student-booking-field-label"
-      );
-
-    const input =
-      row.querySelector(
-        ".student-booking-field-question"
-      );
-
-
-    if (label) {
-      label.textContent =
-        `Question ${index + 1}`;
-    }
-
-
-    if (input) {
-      input.setAttribute(
-        "aria-label",
-        `Question ${index + 1}`
-      );
-    }
-
-  });
-
-}
-
-
-function addStudentBookingField(
-  question = ""
-) {
-
-  const list =
-    $("studentBookingFieldsList");
-
-
-  if (!list) {
-    return;
-  }
-
-
-  const existingRows =
-    list.querySelectorAll(
-      ".student-booking-field-row"
-    );
-
-
-  if (existingRows.length >= 5) {
-    updateStudentBookingFieldsControls();
-    return;
-  }
-
-
-  const row =
-    document.createElement("div");
-
-
-  row.className =
-    "student-booking-field-row";
-
-
-  row.style.cssText = `
-    margin-top:15px;
-    padding:15px;
-    border:1px solid #ddd;
-    border-radius:8px;
-    background:#fafafa;
-  `;
-
-
-  const label =
-    document.createElement("label");
-
-  label.className =
-    "student-booking-field-label";
-
-  label.style.cssText = `
-    display:block;
-    font-weight:700;
-    margin-bottom:8px;
-  `;
-
-
-  const input =
-    document.createElement("input");
-
-  input.type =
-    "text";
-
-  input.className =
-    "student-booking-field-question";
-
-  input.maxLength =
-    500;
-
-  input.placeholder =
-    "Enter the question the student must answer";
-
-  input.value =
-    question;
-
-  input.style.width =
-    "100%";
-
-
-  const removeButton =
-    document.createElement("button");
-
-  removeButton.type =
-    "button";
-
-  removeButton.className =
-    "secondary student-booking-field-remove";
-
-  removeButton.textContent =
-    "Remove Question";
-
-  removeButton.style.marginTop =
-    "10px";
-
-
-  removeButton.addEventListener(
-    "click",
-    () => {
-
-      row.remove();
-
-      updateStudentBookingFieldsControls();
-
-    }
-  );
-
-
-  row.appendChild(label);
-  row.appendChild(input);
-  row.appendChild(removeButton);
-
-  list.appendChild(row);
-
-  updateStudentBookingFieldsControls();
-
-  input.focus();
-
-}
-
-
-function clearStudentBookingFields() {
-
-  const list =
-    $("studentBookingFieldsList");
-
-
-  if (!list) {
-    return;
-  }
-
-
-  list.innerHTML = "";
-
-  updateStudentBookingFieldsControls();
-
-}
+};
 
 
 /*
- * Load the additional required booking questions
- * for the currently selected instructor.
+ * Return the logged-in user's effective value
+ * for one Booking Settings permission.
  *
- * This function is intentionally safe against an
- * instructor being changed while the request is
- * still in progress.
+ * state.permissions contains the final permission
+ * set after role defaults and individual overrides
+ * have been combined.
+ *
+ * The role default is retained as a safe fallback
+ * during initial page loading.
  */
 
-async function loadStudentBookingFields(
-  instructorId
-) {
+function hasPermission(permission) {
 
   if (
-    !canManageStudentBookingFields() ||
-    !instructorId
+    state.permissions &&
+    typeof state.permissions[permission] ===
+      "boolean"
   ) {
-    clearStudentBookingFields();
-    return;
-  }
 
-
-  try {
-
-    const response = await fetch(
-      `${cfg.functionsBaseUrl}/save-location-settings`,
-      {
-        method: "POST",
-        headers: await getAuthHeaders(),
-        body: JSON.stringify({
-          action:
-            "load_student_booking_fields",
-
-          instructor_id:
-            instructorId
-        })
-      }
-    );
-
-
-    const result =
-      await response.json();
-
-
-    if (!response.ok || result.error) {
-      throw new Error(
-        typeof result.error === "string"
-          ? result.error
-          : JSON.stringify(
-              result.error || result
-            )
-      );
-    }
-
-
-    /*
-     * The instructor may have changed while this
-     * request was running. Never render stale data
-     * into the newly selected instructor's form.
-     */
-
-    if (
-      state.instructor?.id !==
-      instructorId
-    ) {
-      return;
-    }
-
-
-    clearStudentBookingFields();
-
-
-    const fields =
-      Array.isArray(
-        result.student_booking_fields
-      )
-        ? result.student_booking_fields
-        : [];
-
-
-    fields.forEach(field => {
-
-      addStudentBookingField(
-        String(
-          field?.question || ""
-        )
-      );
-
-    });
-
-
-    updateStudentBookingFieldsControls();
-
-
-  } catch (error) {
-
-    console.error(
-      "LOAD STUDENT BOOKING FIELDS ERROR:",
-      error
-    );
-
-
-    /*
-     * Only clear the visible fields if this is
-     * still the instructor whose request failed.
-     */
-
-    if (
-      state.instructor?.id ===
-      instructorId
-    ) {
-      clearStudentBookingFields();
-    }
+    return state.permissions[permission];
 
   }
+
+
+  return Boolean(
+    rolePermissionDefaults[state.role]?.[
+      permission
+    ]
+  );
 
 }
 
 
+function canEditLocation() {
+  return hasPermission("location");
+}
+
+function canViewLocation() {
+  return hasPermission("location");
+}
+
+function canEditBranding() {
+  return hasPermission("branding");
+}
+
+function canEditAvailability() {
+  return hasPermission("availability");
+}
+
+function canEditBookingRules() {
+  return hasPermission("booking_rules");
+}
+
+function canManageStudentBookingFields() {
+  return hasPermission("booking_rules");
+}
+
 function canEditEmails() {
-  return (
-    isAdministrator() ||
-    isManager()
-  );
+  return hasPermission("emails");
 }
 
 function canManageServices() {
-  return (
-    isAdministrator() ||
-    isManager()
-  );
+  return hasPermission("services");
 }
 
 function canManageUsers() {
-  return (
-    isAdministrator() ||
-    isManager()
-  );
+  return hasPermission("users");
 }
+
 
 const state = {
   locations: [],
