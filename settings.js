@@ -350,6 +350,15 @@ const state = {
   user: null,
   role: null,
 
+  /*
+   * Effective Booking Settings permissions for
+   * the currently logged-in user.
+   *
+   * These are the role defaults combined with any
+   * explicit per-user overrides.
+   */
+  permissions: null,
+
   appointments: {
     activeTab: "upcoming",
     historyDays: 60
