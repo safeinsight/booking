@@ -786,6 +786,63 @@ function selectSlot(index) {
   }
 }
 
+function renderStudentBookingFields() {
+  const container =
+    $("studentBookingFields");
+
+  if (!container) {
+    return;
+  }
+
+  const fields =
+    Array.isArray(state.studentBookingFields)
+      ? state.studentBookingFields
+      : [];
+
+  if (!fields.length) {
+    container.innerHTML = "";
+    return;
+  }
+
+  container.innerHTML =
+    fields
+      .map(field => {
+
+        const fieldId =
+          String(field?.id || "");
+
+        const question =
+          String(field?.question || "").trim();
+
+        if (!fieldId || !question) {
+          return "";
+        }
+
+        return `
+          <div
+            class="student-booking-field"
+            style="margin-top:15px;"
+          >
+            <label
+              for="studentBookingField_${escapeAttr(fieldId)}"
+            >
+              ${escapeHtml(question)}
+            </label>
+
+            <input
+              id="studentBookingField_${escapeAttr(fieldId)}"
+              type="text"
+              maxlength="1000"
+              required
+              data-student-booking-field-id="${escapeAttr(fieldId)}"
+            >
+          </div>
+        `;
+      })
+      .join("");
+}
+
+
 function renderBookingServices() {
   const container =
     $("bookingServices");
@@ -1054,6 +1111,29 @@ function buildReview() {
     l.address ||
     "";
 
+  const bookingFieldReview =
+    state.studentBookingAnswers
+      .map(answer => {
+
+        const field =
+          state.studentBookingFields.find(
+            item =>
+              String(item?.id) ===
+              String(answer?.field_id)
+          );
+
+        if (!field) {
+          return "";
+        }
+
+        return `
+          <br><br>
+          <strong>${escapeHtml(field.question)}</strong><br>
+          ${escapeHtml(answer.answer)}
+        `;
+      })
+      .join("");
+
   $("review").innerHTML = `
     <strong>${escapeHtml(reviewLocationName)}</strong><br>
     ${instructor.name ? `Instructor: ${escapeHtml(instructor.name)}<br>` : ""}
@@ -1066,6 +1146,7 @@ ${formatTime(first.start, state.studentTimezone)} – ${formatTime(last.end, sta
     ${escapeHtml(state.student.fullName)}<br>
     ${escapeHtml(state.student.phone)}<br>
     ${escapeHtml(state.student.email)}
+    ${bookingFieldReview}
   `;
 
   const selectedServices =
@@ -1180,14 +1261,44 @@ $("calendarNext").addEventListener(
   "click",
   () => changeCalendarMonth(1)
 );
-$("toInfoBtn").addEventListener("click", () => showStep(3));
+$("toInfoBtn").addEventListener(
+  "click",
+  () => {
+
+    renderStudentBookingFields();
+
+    showStep(3);
+  }
+);
+
 $("studentForm").addEventListener("submit", e => {
   e.preventDefault();
+
   state.student = {
     fullName: $("fullName").value.trim(),
     phone: $("phone").value.trim(),
     email: $("email").value.trim()
   };
+
+  /*
+   * Capture the student's answers using the stable
+   * booking-field IDs supplied by the backend.
+   *
+   * Do not trust or submit question text from the
+   * browser. create-booking will later resolve the
+   * authoritative question text by field_id.
+   */
+  state.studentBookingAnswers =
+    [...document.querySelectorAll(
+      "[data-student-booking-field-id]"
+    )]
+      .map(input => ({
+        field_id:
+          input.dataset.studentBookingFieldId,
+
+        answer:
+          input.value.trim()
+      }));
 
   buildReview();
   renderBookingServices();
