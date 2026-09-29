@@ -8257,6 +8257,211 @@ document.addEventListener("click", async function (event) {
 });
 
 
+// ------------------------------------------------------
+// USER PERMISSION CHANGE
+// ------------------------------------------------------
+
+document.addEventListener("change", async function (event) {
+
+  const checkbox =
+    event.target.closest(
+      "[data-user-permission]"
+    );
+
+  if (!checkbox) return;
+
+
+  const userId =
+    checkbox.getAttribute(
+      "data-user-permission"
+    );
+
+  const permission =
+    checkbox.getAttribute(
+      "data-permission-key"
+    );
+
+
+  if (
+    !userId ||
+    !permission
+  ) {
+    return;
+  }
+
+
+  const settingsUser =
+    state.settingsUsers.find(
+      user =>
+        user.user_id === userId
+    );
+
+
+  if (!settingsUser) {
+
+    showCustomAlert(
+      "Unable to find this Booking Settings user."
+    );
+
+    renderInstructorList();
+
+    return;
+
+  }
+
+
+  const previousValue =
+    !checkbox.checked;
+
+  const newValue =
+    checkbox.checked;
+
+
+  checkbox.disabled = true;
+
+
+  try {
+
+    const authHeaders =
+      await getAuthHeaders();
+
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/manage-settings-users`,
+        {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify({
+            action:
+              "update_permission",
+
+            user_id:
+              userId,
+
+            permission:
+              permission,
+
+            allowed:
+              newValue
+          })
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      result.error
+    ) {
+
+      console.error(
+        "UPDATE USER PERMISSION RESPONSE:",
+        result
+      );
+
+
+      const errorMessage =
+        typeof result.error === "string"
+          ? result.error
+          : result.error?.message ||
+            result.message ||
+            JSON.stringify(
+              result.error || result
+            );
+
+
+      throw new Error(
+        errorMessage ||
+        "Unable to update user permission."
+      );
+
+    }
+
+
+    /*
+     * Keep the User Management source of truth
+     * synchronized with the backend response.
+     */
+
+    settingsUser.permissions =
+      result.user?.permissions ||
+      {};
+
+
+    settingsUser.effective_permissions =
+      result.user?.effective_permissions ||
+      {
+        ...(
+          rolePermissionDefaults[
+            settingsUser.role
+          ] || {}
+        ),
+        ...settingsUser.permissions
+      };
+
+
+    /*
+     * If the edited account is the currently
+     * logged-in user, immediately update the
+     * permissions controlling this page.
+     */
+
+    if (
+      state.user?.id === userId
+    ) {
+
+      state.permissions = {
+        ...settingsUser.effective_permissions
+      };
+
+
+      applyRolePermissions();
+
+    }
+
+
+    renderInstructorList();
+
+
+  } catch (error) {
+
+    console.error(
+      "UPDATE USER PERMISSION ERROR:",
+      error
+    );
+
+
+    checkbox.checked =
+      previousValue;
+
+
+    showCustomAlert(
+      error.message ||
+      "Unable to update user permission."
+    );
+
+
+  } finally {
+
+    /*
+     * renderInstructorList() normally replaces
+     * this checkbox after a successful save.
+     *
+     * This protects the original control when
+     * the request fails before a rerender.
+     */
+
+    checkbox.disabled = false;
+
+  }
+
+});
+
+
 // EXISTING ROLE CHANGE HANDLER
 // Leave this line exactly where it is.
 
