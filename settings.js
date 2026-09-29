@@ -225,6 +225,13 @@ function canEditBookingRules() {
   );
 }
 
+function canManageStudentBookingFields() {
+  return (
+    isAdministrator() ||
+    isManager()
+  );
+}
+
 function canEditEmails() {
   return (
     isAdministrator() ||
