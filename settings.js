@@ -2766,6 +2766,8 @@ $("calendarInfo").innerHTML =
 
 }
 
+  // Load special days
+
   let specialDays = [];
   let specialDaysError = null;
 
