@@ -676,7 +676,8 @@ const state = {
    *
    * These users participate in instructor-specific
    * Booking Settings such as booking pages,
-   * availability, services, calendars, and appointments.
+   * availability, services, calendars, appointments,
+   * and clients.
    */
   instructors: [],
   instructor: null,
@@ -705,6 +706,24 @@ const state = {
 
   appointments: {
     activeTab: "upcoming",
+    historyDays: 60
+  },
+
+  /*
+   * Client history display.
+   *
+   * Clients themselves are always returned from the
+   * instructor's complete booking history.
+   *
+   * historyDays controls only historical appointments
+   * shown inside each client card:
+   *
+   * 60    = past 60 days
+   * "all" = complete appointment history
+   *
+   * Current and future appointments are always shown.
+   */
+  clients: {
     historyDays: 60
   },
 
