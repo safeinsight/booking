@@ -2643,6 +2643,33 @@ Instructor: {{INSTRUCTOR_NAME}}`;
   );
 
 }
+
+
+/* =========================================================
+   STUDENT BOOKING FIELDS — ADD QUESTION
+   ========================================================= */
+
+const addStudentBookingFieldBtn =
+  $("addStudentBookingFieldBtn");
+
+if (addStudentBookingFieldBtn) {
+
+  addStudentBookingFieldBtn.addEventListener(
+    "click",
+    () => {
+
+      if (!canManageStudentBookingFields()) {
+        return;
+      }
+
+      addStudentBookingField();
+
+    }
+  );
+
+}
+
+
 // Add Special Day
 
 $("addSpecialDayBtn").onclick = () => {
