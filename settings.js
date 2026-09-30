@@ -6457,74 +6457,138 @@ async function loadLocations() {
 
 async function loadAllInstructors() {
 
-  const { data, error } =
-    await db
+  /*
+   * Instructor records and the privileged Settings Users
+   * collection are independent data sources.
+   *
+   * Start both requests together so User Management data
+   * does not have to wait for the instructor query, and
+   * the instructor query does not have to wait for User
+   * Management.
+   */
+
+  const instructorLoadPromise =
+    db
       .from("instructors")
-.select(`
-  id,
-  location_id,
-  user_id,
-  name,
-  email,
-  slug,
-  location_name,
-  address,
-  website,
-  services,
-  timezone,
-  appointment_length_minutes,
-  max_students_per_slot,
-  booking_horizon_days,
-  minimum_booking_notice_hours,
-  cancellation_hours,
-  reschedule_hours,
-  allow_customer_service_selection,
+      .select(`
+        id,
+        location_id,
+        user_id,
+        name,
+        email,
+        slug,
+        location_name,
+        address,
+        website,
+        services,
+        timezone,
+        appointment_length_minutes,
+        max_students_per_slot,
+        booking_horizon_days,
+        minimum_booking_notice_hours,
+        cancellation_hours,
+        reschedule_hours,
+        allow_customer_service_selection,
 
-  confirmation_email_subject,
-  confirmation_email_message,
-  student_confirmation_enabled,
-  confirmation_button_enabled,
-  confirmation_button_text,
-  confirmation_button_url,
-  instructor_confirmation_email,
-  instructor_confirmation_subject,
-  instructor_confirmation_message,
+        confirmation_email_subject,
+        confirmation_email_message,
+        student_confirmation_enabled,
+        confirmation_button_enabled,
+        confirmation_button_text,
+        confirmation_button_url,
+        instructor_confirmation_email,
+        instructor_confirmation_subject,
+        instructor_confirmation_message,
 
-  reschedule_email_subject,
-  reschedule_email_message,
-  reschedule_button_enabled,
-  reschedule_button_text,
-  reschedule_button_url,
-  instructor_reschedule_email,
-  instructor_reschedule_subject,
-  instructor_reschedule_message,
+        reschedule_email_subject,
+        reschedule_email_message,
+        reschedule_button_enabled,
+        reschedule_button_text,
+        reschedule_button_url,
+        instructor_reschedule_email,
+        instructor_reschedule_subject,
+        instructor_reschedule_message,
 
-  reminder_enabled,
-  reminder_hours_before,
-  instructor_email,
-  student_reminder_subject,
-  student_reminder_message,
-  instructor_reminder_subject,
-  instructor_reminder_message,
+        reminder_enabled,
+        reminder_hours_before,
+        instructor_email,
+        student_reminder_subject,
+        student_reminder_message,
+        instructor_reminder_subject,
+        instructor_reminder_message,
 
-  cancel_email_subject,
-  cancel_email_message,
+        cancel_email_subject,
+        cancel_email_message,
 
-  instructor_cancel_email,
-  instructor_cancel_subject,
-  instructor_cancel_message,
+        instructor_cancel_email,
+        instructor_cancel_subject,
+        instructor_cancel_message,
 
-  missed_email_subject,
-  missed_email_message,
+        missed_email_subject,
+        missed_email_message,
 
-  followup_enabled,
-  followup_delay_minutes,
-  followup_subject,
-  followup_message
-`)
+        followup_enabled,
+        followup_delay_minutes,
+        followup_subject,
+        followup_message
+      `)
       .order("name");
 
+
+  const settingsUsersLoadPromise =
+    canManageUsers()
+      ? (async () => {
+
+          const authHeaders =
+            await getAuthHeaders();
+
+          const response =
+            await fetch(
+              `${cfg.functionsBaseUrl}/manage-settings-users`,
+              {
+                method: "GET",
+                headers: authHeaders
+              }
+            );
+
+          const result =
+            await response.json();
+
+          if (
+            !response.ok ||
+            result.error
+          ) {
+            throw new Error(
+              result.error ||
+              "Unable to load settings users."
+            );
+          }
+
+          return result.users || [];
+
+        })()
+      : Promise.resolve([]);
+
+
+  const [
+    instructorResult,
+    settingsUsers
+  ] =
+    await Promise.all([
+      instructorLoadPromise,
+      settingsUsersLoadPromise
+    ]);
+
+
+  const {
+    data,
+    error
+  } =
+    instructorResult;
+
+
   if (error) {
+
     console.error(
       "ALL INSTRUCTORS LOAD ERROR:",
       error
@@ -6537,8 +6601,20 @@ async function loadAllInstructors() {
     throw error;
   }
 
+
   state.instructors =
     data || [];
+
+
+  state.settingsUsers =
+    settingsUsers;
+
+
+  /*
+   * User Management failures remain fatal for users
+   * who have the Users permission, matching the
+   * existing behavior.
+   */
 
 
   /*
