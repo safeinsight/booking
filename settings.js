@@ -11303,54 +11303,67 @@ $("logoutBtn").addEventListener(
      * organization, not to the selected Location or
      * Instructor.
      *
-     * Load them independently before the instructor/location
-     * settings begin loading.
+     * Organization and Instructor data are independent,
+     * so begin both requests at the same time.
      */
+    const organizationLoadPromise =
+      hasPermission("organization")
+        ? loadOrganizationSettings()
+        : Promise.resolve();
 
-    if (hasPermission("organization")) {
-
-      await loadOrganizationSettings();
-
-    }
+    const instructorLoadPromise =
+      loadAllInstructors();
 
 
-    await loadAllInstructors();
-    await loadLocations();
+    await Promise.all([
+      organizationLoadPromise,
+      instructorLoadPromise
+    ]);
+
 
     /*
      * loadAllInstructors() initially renders the Users list
      * before the location slug is available.
      *
-     * Render it again now that state.location is loaded so
-     * each instructor's Booking URL can be generated.
+     * Render it again now that the instructor collection
+     * is loaded and the selected instructor is established.
      */
     renderInstructorList();
 
-    await loadServices();
-
 
     /*
-     * Load instructor-specific appointment and client data
-     * only when the logged-in user has permission to view
-     * the corresponding Booking Settings tab.
+     * Locations, Services, Appointments, and Clients all
+     * depend on the selected instructor now being available,
+     * but they are otherwise independent of one another.
      *
-     * These permissions are independent. A user may have
-     * Clients access without Appointments access, or vice
-     * versa.
+     * Start them together rather than waiting for each
+     * unrelated request to finish before starting the next.
      */
+    const locationLoadPromise =
+      loadLocations();
 
-    if (hasPermission("appointments")) {
-
-      await loadAppointments();
-
-    }
+    const servicesLoadPromise =
+      loadServices();
 
 
-    if (hasPermission("clients")) {
+    const appointmentsLoadPromise =
+      hasPermission("appointments")
+        ? loadAppointments()
+        : Promise.resolve();
 
-      await loadClients();
 
-    }
+    const clientsLoadPromise =
+      hasPermission("clients")
+        ? loadClients()
+        : Promise.resolve();
+
+
+    await Promise.all([
+      locationLoadPromise,
+      servicesLoadPromise,
+      appointmentsLoadPromise,
+      clientsLoadPromise
+    ]);
 
 
     updateClientsHistoryDescription();
