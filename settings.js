@@ -6611,26 +6611,13 @@ async function loadAllInstructors() {
 
 
   /*
-   * User Management failures remain fatal for users
-   * who have the Users permission, matching the
-   * existing behavior.
-   */
-
-
-  /*
-   * User Management has its own source of truth.
+   * User Management was loaded in parallel with the
+   * instructor query above.
    *
-   * Only users who actually have the Users permission
-   * may request the complete Booking Settings user list
-   * from manage-settings-users.
-   *
-   * Instructor and Basic users do not need that
-   * privileged collection in order to load their own
-   * instructor-specific Booking Settings.
+   * Do not request manage-settings-users a second time.
+   * state.settingsUsers already contains the result from
+   * settingsUsersLoadPromise.
    */
-  if (canManageUsers()) {
-
-    try {
 
       const authHeaders =
         await getAuthHeaders();
