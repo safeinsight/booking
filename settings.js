@@ -6329,6 +6329,9 @@ async function loadAllInstructors() {
 
 }
 
+
+$("locationSelect").addEventListener("change", async event => {
+
   const selected =
     state.locations.find(
       loc => loc.slug === event.target.value
