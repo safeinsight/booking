@@ -6668,18 +6668,42 @@ async function loadAllInstructors() {
    *
    * Instructor and Basic users must not call the
    * protected load_other_user_email_settings action.
-   * Their role does not expose the Emails tab, and
-   * attempting this request would correctly be
-   * rejected by the Edge Function and would abort
-   * the entire Booking Settings initialization.
+   *
+   * This request is intentionally NOT awaited here.
+   * Other User Email settings are independent of the
+   * rest of Booking Settings initialization and must
+   * never delay the page becoming available.
    */
   if (canEditEmails()) {
 
     renderOtherUserEmailRecipients();
 
-    await loadOtherUserEmailSettings();
+    /*
+     * Start loading the settings in the background.
+     *
+     * loadOtherUserEmailSettings() already protects
+     * against stale instructor responses, so it is
+     * safe to allow this request to finish independently.
+     */
+    loadOtherUserEmailSettings()
+      .then(() => {
 
-    renderActiveOtherUserEmailSettings();
+        /*
+         * The request may complete after the rest of
+         * initialization. Render only after its data
+         * has actually arrived.
+         */
+        renderActiveOtherUserEmailSettings();
+
+      })
+      .catch(error => {
+
+        console.error(
+          "OTHER USER EMAIL SETTINGS LOAD ERROR:",
+          error
+        );
+
+      });
 
   } else {
 
