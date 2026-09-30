@@ -1,5 +1,4 @@
 const cfg = window.BOOKING_CONFIG;
-const db = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
 
 const state = {
   locations: [],
@@ -306,95 +305,119 @@ function renderLocationSummary() {
   `;
 }
 
-async function loadLocations() {
-  const { data, error } = await db
-    .from("locations")
-    .select("id,slug,name,instructor_name,address,timezone,appointment_length_minutes,max_students_per_slot,cancellation_hours,reschedule_hours,primary_color,secondary_color,accent_color,logo_url,footer_text,payment_required")
-    .eq("active", true)
-    .order("name");
+async function loadBookingContext() {
+  const route =
+    getBookingRoute();
 
-  if (error) throw error;
-  state.locations = data || [];
-  if (!state.locations.length) throw new Error("No active booking locations are configured.");
-
-  const select = $("locationSelect");
-  const route = getBookingRoute();
-
-  select.innerHTML = state.locations.map(l =>
-    `<option value="${escapeAttr(l.slug)}">${escapeHtml(l.name)}${l.instructor_name ? " — " + escapeHtml(l.instructor_name) : ""}</option>`
-  ).join("");
-
-  if (route.instructorSlug) {
-    select.disabled = true;
-    select.style.display = "none";
-  } else {
-    select.disabled = false;
-    select.style.display = "";
-  }
-
-
-  const selected =
-    state.locations.find(
-      l => l.slug === route.locationSlug
-    ) || state.locations[0];
-
-  select.value = selected.slug;
-  state.location = selected;
-  state.instructorSlug = route.instructorSlug;
-
-  applyBranding(selected);
-
-}
-
-async function loadInstructor() {
-  if (!state.instructorSlug) {
-    state.instructor = null;
-    $("brandSubtitle").textContent = "";
-    return;
-  }
-
-  const { data, error } = await db
-    .from("instructors")
-    .select(`
-      id,
-      location_id,
-      user_id,
-      name,
-      email,
-      slug,
-      location_name,
-      address,
-      website,
-      services,
-      timezone,
-      appointment_length_minutes,
-      max_students_per_slot,
-      booking_horizon_days,
-      minimum_booking_notice_hours,
-      cancellation_hours,
-      reschedule_hours,
-      allow_customer_service_selection
-    `)
-    .eq("slug", state.instructorSlug)
-    .eq("location_id", state.location.id);
-
-  if (error) {
-    throw error;
-  }
-
-  if (!data || data.length !== 1) {
+  if (!route.locationSlug) {
     throw new Error(
-      `Instructor "${state.instructorSlug}" was not found for this location.`
+      "Missing booking location."
     );
   }
 
-  state.instructor = data[0];
+  if (!route.instructorSlug) {
+    throw new Error(
+      "Missing booking instructor."
+    );
+  }
+
+  /*
+   * Public booking context is resolved exclusively
+   * through get-availability.
+   *
+   * The browser no longer reads locations or
+   * instructors directly from Supabase.
+   */
+  const res =
+    await fetch(
+      `${cfg.functionsBaseUrl}/get-availability?location=${encodeURIComponent(route.locationSlug)}&instructor=${encodeURIComponent(route.instructorSlug)}`,
+      {
+        headers: {
+          "Authorization":
+            `Bearer ${cfg.supabaseAnonKey}`
+        }
+      }
+    );
+
+  const json =
+    await res.json();
+
+  if (!res.ok) {
+    throw new Error(
+      json.error ||
+      "Unable to load booking information."
+    );
+  }
+
+  if (
+    !json.location ||
+    !json.instructor
+  ) {
+    throw new Error(
+      "The booking location or instructor could not be found."
+    );
+  }
+
+  /*
+   * Store only the public-safe location and
+   * instructor objects intentionally returned by
+   * get-availability.
+   */
+  state.location =
+    json.location;
+
+  state.locations = [
+    json.location
+  ];
+
+  state.instructor =
+    json.instructor;
+
+  state.instructorSlug =
+    json.instructor.slug ||
+    route.instructorSlug;
+
+  /*
+   * Preserve the already-loaded availability response.
+   * loadDates() will refresh it when the student
+   * proceeds to the date-selection step.
+   */
+  state.rawAvailability =
+    json;
+
+  /*
+   * The public Booking Page is now route-specific.
+   * It must never build a cross-organization location
+   * directory from database records.
+   */
+  const select =
+    $("locationSelect");
+
+  if (select) {
+    select.innerHTML =
+      `<option value="${escapeAttr(state.location.slug)}">${escapeHtml(state.location.name)}</option>`;
+
+    select.value =
+      state.location.slug;
+
+    select.disabled =
+      true;
+
+    select.style.display =
+      "none";
+  }
+
+  applyBranding(
+    state.location
+  );
 
   $("brandName").textContent =
     "Safe Insight";
 
   $("brandSubtitle").textContent =
-    `with ${state.instructor.name}`;
+    state.instructor.name
+      ? `with ${state.instructor.name}`
+      : "";
 
   renderLocationSummary();
 }
@@ -1186,25 +1209,6 @@ ${formatTime(first.start, state.studentTimezone)} – ${formatTime(last.end, sta
   }
 }
 
-$("locationSelect").addEventListener("change", async e => {
-  try {
-    state.location =
-      state.locations.find(
-        l => l.slug === e.target.value
-      );
-
-    state.instructor = null;
-
-    applyBranding(state.location);
-    renderLocationSummary();
-
-    await loadInstructor();
-    await loadDates();
-  } catch (err) {
-    showError(err.message);
-  }
-});
-
 $("studentTimezone").addEventListener(
   "change",
   e => {
@@ -1400,8 +1404,14 @@ function escapeAttr(v) { return escapeHtml(v); }
 
 (async function init() {
   try {
-    await loadLocations();
-    await loadInstructor();
+    /*
+     * Resolve the requested public booking route through
+     * the server-controlled public booking boundary.
+     *
+     * No direct browser access to locations or instructors
+     * is required.
+     */
+    await loadBookingContext();
 
     initializeStudentTimezone();
 
