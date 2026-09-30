@@ -6057,100 +6057,127 @@ async function loadAllInstructors() {
   state.instructors =
     data || [];
 
-try {
-
-  const authHeaders =
-    await getAuthHeaders();
-
-  const response =
-    await fetch(
-      `${cfg.functionsBaseUrl}/manage-settings-users`,
-      {
-        method: "GET",
-        headers: authHeaders
-      }
-    );
-
-  const result =
-    await response.json();
-
-  if (!response.ok || result.error) {
-    throw new Error(
-      result.error ||
-      "Unable to load settings users."
-    );
-  }
 
   /*
    * User Management has its own source of truth.
    *
-   * This list contains every Booking Settings user,
-   * including Administrators who intentionally do
-   * not have instructor records.
+   * Only users who actually have the Users permission
+   * may request the complete Booking Settings user list
+   * from manage-settings-users.
+   *
+   * Instructor and Basic users do not need that
+   * privileged collection in order to load their own
+   * instructor-specific Booking Settings.
    */
-  state.settingsUsers =
-    result.users || [];
+  if (canManageUsers()) {
 
-} catch (error) {
+    try {
 
-  console.error(
-    "SETTINGS USERS LOAD ERROR:",
-    error
-  );
+      const authHeaders =
+        await getAuthHeaders();
 
-  state.settingsUsers = [];
+      const response =
+        await fetch(
+          `${cfg.functionsBaseUrl}/manage-settings-users`,
+          {
+            method: "GET",
+            headers: authHeaders
+          }
+        );
 
-  throw error;
-}
+      const result =
+        await response.json();
 
+      if (!response.ok || result.error) {
+        throw new Error(
+          result.error ||
+          "Unable to load settings users."
+        );
+      }
 
-/*
- * Enrich actual instructor records with their
- * Booking Settings account information when one
- * exists.
- *
- * This does NOT add Settings-only users to the
- * instructor collection.
- */
-state.instructors =
-  state.instructors.map(instructor => {
+      /*
+       * This list contains every Booking Settings user,
+       * including Administrators who intentionally do
+       * not have instructor records.
+       */
+      state.settingsUsers =
+        result.users || [];
 
-    const instructorEmail =
-      instructor.email
-        ?.trim()
-        .toLowerCase();
+    } catch (error) {
 
-    const settingsUser =
-      state.settingsUsers.find(
-        user =>
-          user.email
-            ?.trim()
-            .toLowerCase() ===
-          instructorEmail
+      console.error(
+        "SETTINGS USERS LOAD ERROR:",
+        error
       );
 
-    return {
-      ...instructor,
+      state.settingsUsers = [];
 
-      user_id:
-        settingsUser?.user_id ||
-        instructor.user_id ||
-        null,
+      throw error;
+    }
 
-      role:
-        settingsUser?.role ||
-        "Instructor",
+  } else {
 
-      active:
-        settingsUser?.active ??
-        false,
+    /*
+     * Do not request privileged User Management data
+     * for a user who does not have the Users permission.
+     *
+     * Their authenticated instructor record was already
+     * loaded above through the organization-scoped
+     * instructors SELECT policy.
+     */
+    state.settingsUsers = [];
 
-      email_confirmed:
-        settingsUser?.email_confirmed ??
-        false
-    };
+  }
 
-  });
+
+  /*
+   * Enrich actual instructor records with their
+   * Booking Settings account information when one
+   * exists.
+   *
+   * This does NOT add Settings-only users to the
+   * instructor collection.
+   */
+  state.instructors =
+    state.instructors.map(instructor => {
+
+      const instructorEmail =
+        instructor.email
+          ?.trim()
+          .toLowerCase();
+
+      const settingsUser =
+        state.settingsUsers.find(
+          user =>
+            user.email
+              ?.trim()
+              .toLowerCase() ===
+            instructorEmail
+        );
+
+      return {
+        ...instructor,
+
+        user_id:
+          settingsUser?.user_id ||
+          instructor.user_id ||
+          null,
+
+        role:
+          settingsUser?.role ||
+          "Instructor",
+
+        active:
+          settingsUser?.active ??
+          false,
+
+        email_confirmed:
+          settingsUser?.email_confirmed ??
+          false
+      };
+
+    });
+
 
   const loggedInInstructor =
     state.user?.id
@@ -6161,8 +6188,10 @@ state.instructors =
       : null;
 
   if (loggedInInstructor) {
+
     state.instructor =
       loggedInInstructor;
+
   } else if (
     state.instructor &&
     state.instructors.some(
@@ -6170,28 +6199,36 @@ state.instructors =
         instructor.id === state.instructor.id
     )
   ) {
+
     state.instructor =
       state.instructors.find(
         instructor =>
           instructor.id === state.instructor.id
       );
+
   } else {
+
     state.instructor =
       state.instructors[0] || null;
+
   }
+
 
   updateBookingUrlDisplay();
 
   updateSelectedInstructorBanner();
-  
+
+
   if (state.instructor) {
 
     const calendarSelectedName =
       $("calendarSelectedName");
 
     if (calendarSelectedName) {
+
       calendarSelectedName.textContent =
         state.instructor.name;
+
     }
 
 
@@ -6211,6 +6248,7 @@ state.instructors =
     clearStudentBookingFields();
 
   }
+
 
   renderInstructorList();
 
@@ -6245,17 +6283,25 @@ state.instructors =
   }
 
 
-  const globalSelector = $("globalInstructorSelector");
-  const globalSelect = $("globalInstructorSelect");
+  const globalSelector =
+    $("globalInstructorSelector");
 
-  if (globalSelector && globalSelect) {
+  const globalSelect =
+    $("globalInstructorSelect");
+
+  if (
+    globalSelector &&
+    globalSelect
+  ) {
 
     if (
       isAdministrator() ||
       isManager()
     ) {
 
-      globalSelector.classList.remove("hidden");
+      globalSelector.classList.remove(
+        "hidden"
+      );
 
       globalSelect.innerHTML =
         state.instructors
@@ -6271,7 +6317,9 @@ state.instructors =
 
     } else {
 
-      globalSelector.classList.add("hidden");
+      globalSelector.classList.add(
+        "hidden"
+      );
 
       globalSelect.innerHTML = "";
 
@@ -6280,8 +6328,6 @@ state.instructors =
   }
 
 }
-
-$("locationSelect").addEventListener("change", async event => {
 
   const selected =
     state.locations.find(
