@@ -2202,6 +2202,383 @@ function setColorPair(colorInput, textInput, value) {
   $(textInput).value = color;
 }
 
+
+/* =========================================================
+   ORGANIZATION SETTINGS
+   ========================================================= */
+
+/*
+ * Organization data is independent of the currently
+ * selected Location or Instructor.
+ *
+ * The organization ID comes only from the authenticated
+ * settings_users record and is stored in
+ * state.organizationId.
+ */
+
+function loadOrganizationIntoForm(organization) {
+
+  state.organization =
+    organization || null;
+
+
+  const organizationData =
+    organization || {};
+
+
+  $("organizationName").value =
+    organizationData.name || "";
+
+  $("organizationHeadquartersName").value =
+    organizationData.headquarters_name || "";
+
+  $("organizationAddressLine1").value =
+    organizationData.headquarters_address_line_1 || "";
+
+  $("organizationAddressLine2").value =
+    organizationData.headquarters_address_line_2 || "";
+
+  $("organizationCity").value =
+    organizationData.headquarters_city || "";
+
+  $("organizationStateProvince").value =
+    organizationData.headquarters_state_province || "";
+
+  $("organizationPostalCode").value =
+    organizationData.headquarters_postal_code || "";
+
+  $("organizationCountry").value =
+    organizationData.headquarters_country || "";
+
+  $("organizationMainPhone").value =
+    organizationData.main_phone || "";
+
+  $("organizationMainEmail").value =
+    organizationData.main_email || "";
+
+  $("organizationWebsite").value =
+    organizationData.website || "";
+
+}
+
+
+async function loadOrganizationSettings() {
+
+  /*
+   * Do not attempt the protected organization SELECT
+   * unless the logged-in user has Organization access.
+   */
+
+  if (!hasPermission("organization")) {
+
+    state.organization = null;
+
+    return;
+  }
+
+
+  if (!state.organizationId) {
+
+    throw new Error(
+      "Your Booking Settings account is not assigned to an organization."
+    );
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("organizations")
+      .select(`
+        id,
+        name,
+        headquarters_name,
+        headquarters_address_line_1,
+        headquarters_address_line_2,
+        headquarters_city,
+        headquarters_state_province,
+        headquarters_postal_code,
+        headquarters_country,
+        main_phone,
+        main_email,
+        website
+      `)
+      .eq(
+        "id",
+        state.organizationId
+      )
+      .single();
+
+
+  if (error) {
+
+    console.error(
+      "LOAD ORGANIZATION SETTINGS ERROR:",
+      error
+    );
+
+    throw new Error(
+      "Unable to load Organization settings."
+    );
+
+  }
+
+
+  if (!data) {
+
+    throw new Error(
+      "Unable to find your organization."
+    );
+
+  }
+
+
+  /*
+   * Extra defensive check:
+   *
+   * The RLS policy already restricts the SELECT to the
+   * authenticated user's organization. Never render a
+   * record that does not match the organization assigned
+   * during authentication.
+   */
+
+  if (
+    data.id !==
+    state.organizationId
+  ) {
+
+    throw new Error(
+      "The Organization settings response did not match your account."
+    );
+
+  }
+
+
+  loadOrganizationIntoForm(
+    data
+  );
+
+}
+
+
+async function saveOrganizationSettings(button) {
+
+  if (!hasPermission("organization")) {
+
+    showCustomAlert(
+      "You do not have permission to manage Organization settings."
+    );
+
+    return;
+  }
+
+
+  if (!state.organizationId) {
+
+    showCustomAlert(
+      "Your Booking Settings account is not assigned to an organization."
+    );
+
+    return;
+  }
+
+
+  const originalText =
+    button.textContent;
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "Saving...";
+
+
+  try {
+
+    /*
+     * IMPORTANT:
+     *
+     * organization_id is deliberately NOT sent.
+     *
+     * The save-organization-settings Edge Function
+     * derives the organization exclusively from the
+     * authenticated settings_users membership.
+     *
+     * slug and active are also deliberately absent.
+     */
+
+    const payload = {
+
+      name:
+        $("organizationName").value.trim(),
+
+      headquarters_name:
+        $("organizationHeadquartersName").value.trim(),
+
+      headquarters_address_line_1:
+        $("organizationAddressLine1").value.trim(),
+
+      headquarters_address_line_2:
+        $("organizationAddressLine2").value.trim(),
+
+      headquarters_city:
+        $("organizationCity").value.trim(),
+
+      headquarters_state_province:
+        $("organizationStateProvince").value.trim(),
+
+      headquarters_postal_code:
+        $("organizationPostalCode").value.trim(),
+
+      headquarters_country:
+        $("organizationCountry").value.trim(),
+
+      main_phone:
+        $("organizationMainPhone").value.trim(),
+
+      main_email:
+        $("organizationMainEmail").value.trim(),
+
+      website:
+        $("organizationWebsite").value.trim()
+
+    };
+
+
+    if (!payload.name) {
+
+      throw new Error(
+        "Organization Name is required."
+      );
+
+    }
+
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/save-organization-settings`,
+        {
+          method: "POST",
+          headers:
+            await getAuthHeaders(),
+
+          body:
+            JSON.stringify(
+              payload
+            )
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      result.error
+    ) {
+
+      const errorMessage =
+        typeof result.error === "string"
+          ? result.error
+          : result.error?.message ||
+            result.message ||
+            JSON.stringify(
+              result.error || result
+            );
+
+
+      throw new Error(
+        errorMessage ||
+        "Unable to save Organization settings."
+      );
+
+    }
+
+
+    if (!result.organization) {
+
+      throw new Error(
+        "The Organization settings were not returned after saving."
+      );
+
+    }
+
+
+    /*
+     * The server returns the authoritative saved values.
+     * Use those values to keep both state and the form
+     * synchronized with the database.
+     */
+
+    loadOrganizationIntoForm(
+      result.organization
+    );
+
+
+    button.textContent =
+      "Saved";
+
+
+    setTimeout(() => {
+
+      button.textContent =
+        originalText;
+
+    }, 1500);
+
+
+  } catch (error) {
+
+    console.error(
+      "SAVE ORGANIZATION SETTINGS ERROR:",
+      error
+    );
+
+
+    button.textContent =
+      "Save Failed";
+
+
+    showCustomAlert(
+      error.message ||
+      "Unable to save Organization settings."
+    );
+
+
+    setTimeout(() => {
+
+      button.textContent =
+        originalText;
+
+    }, 2000);
+
+
+  } finally {
+
+    button.disabled = false;
+
+  }
+
+}
+
+
+$("saveOrganizationBtn")?.addEventListener(
+  "click",
+  async event => {
+
+    await saveOrganizationSettings(
+      event.currentTarget
+    );
+
+  }
+);
+
+
 async function authenticateSettingsUser() {
   const {
     data: { session }
@@ -9195,6 +9572,31 @@ document.addEventListener("change", async function (event) {
 
       applyRolePermissions();
 
+
+      /*
+       * Keep Organization data synchronized when the
+       * currently logged-in user's Organization permission
+       * is changed while this page is open.
+       */
+
+      if (
+        permission === "organization"
+      ) {
+
+        if (
+          hasPermission("organization")
+        ) {
+
+          await loadOrganizationSettings();
+
+        } else {
+
+          state.organization = null;
+
+        }
+
+      }
+
     }
 
 
@@ -10894,6 +11296,23 @@ $("logoutBtn").addEventListener(
     applyRolePermissions();
 
     setupServiceTypeSelector();
+
+
+    /*
+     * Organization settings belong to the authenticated
+     * organization, not to the selected Location or
+     * Instructor.
+     *
+     * Load them independently before the instructor/location
+     * settings begin loading.
+     */
+
+    if (hasPermission("organization")) {
+
+      await loadOrganizationSettings();
+
+    }
+
 
     await loadAllInstructors();
     await loadLocations();
