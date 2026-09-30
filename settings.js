@@ -7580,7 +7580,7 @@ function getBookingUrl(instructor) {
     return "";
   }
 
-  return `${window.location.origin}/booking/?location=${encodeURIComponent(state.location.slug)}&instructor=${encodeURIComponent(instructorSlug)}`;
+  return `https://apps.safeinsight.net/booking/?location=${encodeURIComponent(state.location.slug)}&instructor=${encodeURIComponent(instructorSlug)}`;
 }
 
 
