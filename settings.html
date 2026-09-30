@@ -367,6 +367,14 @@
 
   <button
     type="button"
+    class="settings-tab"
+    data-tab="organizationTab"
+  >
+    Organization
+  </button>
+
+  <button
+    type="button"
     class="settings-tab active"
     data-tab="locationTab"
   >
@@ -668,6 +676,194 @@
       id="usersList"
       style="margin-top:20px;"
     ></div>
+
+  </div>
+
+</div>
+
+
+<!-- ORGANIZATION TAB -->
+
+<div
+  id="organizationTab"
+  class="settings-tab-panel"
+>
+
+  <!-- ORGANIZATION INFORMATION -->
+
+  <div class="settings-section">
+
+    <h2>Organization Information</h2>
+
+    <p class="muted">
+      Manage information that applies to the organization as a whole.
+    </p>
+
+    <label for="organizationName">
+      Organization Name
+    </label>
+
+    <input
+      id="organizationName"
+      type="text"
+      maxlength="200"
+      placeholder="Organization name"
+    >
+
+  </div>
+
+
+  <!-- HEADQUARTERS INFORMATION -->
+
+  <div class="settings-section">
+
+    <h2>Headquarters Information</h2>
+
+    <p class="muted">
+      Headquarters information is independent of booking and training locations.
+    </p>
+
+    <label for="organizationHeadquartersName">
+      Headquarters Name
+    </label>
+
+    <input
+      id="organizationHeadquartersName"
+      type="text"
+      maxlength="200"
+      placeholder="Headquarters name"
+    >
+
+
+    <label for="organizationAddressLine1">
+      Street Address
+    </label>
+
+    <input
+      id="organizationAddressLine1"
+      type="text"
+      maxlength="300"
+      placeholder="Street address"
+    >
+
+
+    <label for="organizationAddressLine2">
+      Address Line 2
+    </label>
+
+    <input
+      id="organizationAddressLine2"
+      type="text"
+      maxlength="300"
+      placeholder="Suite, unit, building, etc."
+    >
+
+
+    <label for="organizationCity">
+      City
+    </label>
+
+    <input
+      id="organizationCity"
+      type="text"
+      maxlength="150"
+      placeholder="City"
+    >
+
+
+    <label for="organizationStateProvince">
+      State / Province
+    </label>
+
+    <input
+      id="organizationStateProvince"
+      type="text"
+      maxlength="150"
+      placeholder="State or province"
+    >
+
+
+    <label for="organizationPostalCode">
+      Postal Code
+    </label>
+
+    <input
+      id="organizationPostalCode"
+      type="text"
+      maxlength="50"
+      placeholder="Postal code"
+    >
+
+
+    <label for="organizationCountry">
+      Country
+    </label>
+
+    <input
+      id="organizationCountry"
+      type="text"
+      maxlength="150"
+      placeholder="Country"
+    >
+
+  </div>
+
+
+  <!-- ORGANIZATION CONTACT INFORMATION -->
+
+  <div class="settings-section">
+
+    <h2>Contact Information</h2>
+
+    <label for="organizationMainPhone">
+      Main Phone
+    </label>
+
+    <input
+      id="organizationMainPhone"
+      type="tel"
+      maxlength="100"
+      placeholder="Main phone number"
+    >
+
+
+    <label for="organizationMainEmail">
+      Main Email
+    </label>
+
+    <input
+      id="organizationMainEmail"
+      type="email"
+      maxlength="320"
+      placeholder="Main email address"
+    >
+
+
+    <label for="organizationWebsite">
+      Website
+    </label>
+
+    <input
+      id="organizationWebsite"
+      type="url"
+      maxlength="500"
+      placeholder="https://example.com"
+    >
+
+  </div>
+
+
+  <!-- SAVE ORGANIZATION SETTINGS -->
+
+  <div class="tab-save">
+
+    <button
+      type="button"
+      class="primary"
+      id="saveOrganizationBtn"
+    >
+      Save Organization Settings
+    </button>
 
   </div>
 
