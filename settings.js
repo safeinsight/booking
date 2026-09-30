@@ -6546,7 +6546,7 @@ $("uploadLogoBtn").addEventListener("click", async () => {
           file,
           {
             cacheControl: "3600",
-            upsert: true,
+            upsert: false,
             contentType: file.type
           }
         );
