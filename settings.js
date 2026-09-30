@@ -8408,7 +8408,7 @@ function renderInstructorList() {
                     ["appointments", "Appointments"],
                     ["clients", "Clients"],
                     ["emails", "Emails"]
-                  ]}
+                  ]
                     .map(([permission, label]) => {
 
                       const effectivePermissions =
