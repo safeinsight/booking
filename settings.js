@@ -10029,6 +10029,17 @@ document.addEventListener("change", async function (event) {
 
     /*
      * Load the complete instructor settings record.
+     *
+     * IMPORTANT:
+     * Keep the instructor-specific Location fields in
+     * this query. loadLocationIntoForm() uses these
+     * values as instructor overrides for the shared
+     * Location defaults.
+     *
+     * Omitting them here would replace the already-loaded
+     * instructor with an incomplete record when switching
+     * instructors, causing Location Name, Address, Website,
+     * or Services to fall back to the Location defaults.
      */
     const {
       data: selectedInstructor,
@@ -10043,6 +10054,12 @@ document.addEventListener("change", async function (event) {
           name,
           email,
           slug,
+
+          location_name,
+          address,
+          website,
+          services,
+
           timezone,
           appointment_length_minutes,
           max_students_per_slot,
