@@ -203,6 +203,7 @@ const rolePermissionDefaults = {
 
   Administrator: {
     users: true,
+    organization: true,
     location: true,
     branding: true,
     availability: true,
@@ -216,6 +217,7 @@ const rolePermissionDefaults = {
 
   Manager: {
     users: true,
+    organization: false,
     location: true,
     branding: false,
     availability: true,
@@ -229,6 +231,7 @@ const rolePermissionDefaults = {
 
   Instructor: {
     users: false,
+    organization: false,
     location: true,
     branding: false,
     availability: true,
@@ -242,6 +245,7 @@ const rolePermissionDefaults = {
 
   Basic: {
     users: false,
+    organization: false,
     location: false,
     branding: false,
     availability: true,
@@ -2275,6 +2279,10 @@ function applyRolePermissions() {
     {
       permission: "users",
       panelId: "usersTab"
+    },
+    {
+      permission: "organization",
+      panelId: "organizationTab"
     },
     {
       permission: "location",
@@ -8366,6 +8374,7 @@ function renderInstructorList() {
 
                   ${[
                     ["users", "Users"],
+                    ["organization", "Organization"],
                     ["location", "Location"],
                     ["branding", "Branding"],
                     ["availability", "Availability"],
@@ -8375,7 +8384,7 @@ function renderInstructorList() {
                     ["appointments", "Appointments"],
                     ["clients", "Clients"],
                     ["emails", "Emails"]
-                  ]
+                  ]}
                     .map(([permission, label]) => {
 
                       const effectivePermissions =
