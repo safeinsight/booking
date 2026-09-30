@@ -676,6 +676,20 @@ function canManageUsers() {
 
 
 const state = {
+
+  /*
+   * Organization-level state.
+   *
+   * organizationId comes from the authenticated
+   * settings_users record. It is never derived from
+   * the selected instructor or Location selector.
+   *
+   * organization contains the organization-level
+   * information displayed in the Organization tab.
+   */
+  organizationId: null,
+  organization: null,
+
   locations: [],
   location: null,
 
@@ -2209,7 +2223,9 @@ async function authenticateSettingsUser() {
   const { data: settingsUser, error: roleError } =
     await db
       .from("settings_users")
-      .select("role, active, permissions")
+      .select(
+        "role, active, permissions, organization_id"
+      )
       .eq("user_id", user.id)
       .single();
 
@@ -2225,9 +2241,17 @@ async function authenticateSettingsUser() {
     );
   }
 
+  if (!settingsUser.organization_id) {
+    throw new Error(
+      "Your Booking Settings account is not assigned to an organization."
+    );
+  }
+
 
   state.user = user;
   state.role = settingsUser.role;
+  state.organizationId =
+    settingsUser.organization_id;
 
 
   /*
