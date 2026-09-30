@@ -6665,6 +6665,24 @@ async function saveLocationSettings(button) {
         payload.services
     };
 
+    /*
+     * Keep the master instructor cache synchronized with
+     * the instructor that was just saved.
+     *
+     * Instructor switching reads from state.instructors,
+     * so leaving the old record there would restore stale
+     * Location settings when switching away and back.
+     */
+    state.instructors =
+      state.instructors.map(instructor =>
+        instructor.id === state.instructor.id
+          ? {
+              ...instructor,
+              ...state.instructor
+            }
+          : instructor
+      );
+
     button.textContent = "Saved";
 
     setTimeout(() => {
