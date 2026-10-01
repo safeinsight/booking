@@ -8614,56 +8614,6 @@ function renderInstructorList() {
 
 
   /*
-   * Preserve any password currently being entered
-   * before rebuilding the User Management cards.
-   *
-   * renderInstructorList() replaces the contents of
-   * usersList. Without this, an unrelated rerender
-   * destroys the live password inputs and clears
-   * whatever the Administrator is typing.
-   *
-   * IMPORTANT:
-   * These values exist only as local variables during
-   * this synchronous render. They are never placed in
-   * application state, browser storage, or the database.
-   */
-
-  const activePasswordRecoveryUserId =
-    state.openPasswordRecoveryUserId || null;
-
-
-  let temporaryPasswordValue = "";
-  let confirmTemporaryPasswordValue = "";
-
-
-  if (activePasswordRecoveryUserId) {
-
-    const currentPasswordInput =
-      container.querySelector(
-        `[data-temporary-password="${CSS.escape(activePasswordRecoveryUserId)}"]`
-      );
-
-    const currentConfirmPasswordInput =
-      container.querySelector(
-        `[data-confirm-temporary-password="${CSS.escape(activePasswordRecoveryUserId)}"]`
-      );
-
-
-    if (currentPasswordInput) {
-      temporaryPasswordValue =
-        currentPasswordInput.value;
-    }
-
-
-    if (currentConfirmPasswordInput) {
-      confirmTemporaryPasswordValue =
-        currentConfirmPasswordInput.value;
-    }
-
-  }
-
-
-  /*
    * User Management is driven by settingsUsers,
    * NOT by instructors.
    *
@@ -9149,43 +9099,6 @@ function renderInstructorList() {
 
       })
       .join("");
-
-
-  /*
-   * Restore the password fields immediately after the
-   * User Management DOM has been rebuilt.
-   *
-   * The Password Recovery panel's open state is already
-   * preserved separately. This restores only the live
-   * input values that existed immediately before this
-   * render.
-   */
-
-  if (activePasswordRecoveryUserId) {
-
-    const newPasswordInput =
-      container.querySelector(
-        `[data-temporary-password="${CSS.escape(activePasswordRecoveryUserId)}"]`
-      );
-
-    const newConfirmPasswordInput =
-      container.querySelector(
-        `[data-confirm-temporary-password="${CSS.escape(activePasswordRecoveryUserId)}"]`
-      );
-
-
-    if (newPasswordInput) {
-      newPasswordInput.value =
-        temporaryPasswordValue;
-    }
-
-
-    if (newConfirmPasswordInput) {
-      newConfirmPasswordInput.value =
-        confirmTemporaryPasswordValue;
-    }
-
-  }
 
 }
 
