@@ -1788,12 +1788,60 @@ document.querySelectorAll(".back").forEach(b => b.addEventListener("click", () =
 $("confirmBtn").addEventListener("click", async () => {
   $("confirmBtn").disabled = true;
   $("submitStatus").textContent = "Checking availability and creating your booking…";
-  try {
-    const day = state.availability.days.find(d => d.date === state.date);
-    const first = day.slots[state.selectedStart];
-    const last = day.slots[state.selectedEnd];
 
-const res = await fetch(`${cfg.functionsBaseUrl}/create-booking`, {
+  try {
+    const day =
+      state.availability.days.find(
+        d => d.date === state.date
+      );
+
+    const first =
+      day.slots[state.selectedStart];
+
+    const last =
+      day.slots[state.selectedEnd];
+
+
+    /*
+     * Submit quantities ONLY for services that are
+     * actually part of this booking.
+     *
+     * renderBookingServices() may retain quantity state
+     * for services the student viewed or temporarily
+     * selected. Those stale entries must never be sent
+     * to create-booking.
+     *
+     * Paid services use Stripe Price IDs.
+     * Free services use local services.id.
+     */
+    const selectedServiceKeys =
+      new Set([
+        ...state.selectedServicePriceIds.map(String),
+        ...state.selectedServiceIds.map(String)
+      ]);
+
+
+    const selectedServiceQuantities =
+      Object.fromEntries(
+        Object.entries(
+          state.selectedServiceQuantities
+        )
+          .filter(
+            ([serviceKey]) =>
+              selectedServiceKeys.has(
+                String(serviceKey)
+              )
+          )
+          .map(
+            ([serviceKey, quantity]) => [
+              serviceKey,
+              quantity
+            ]
+          )
+      );
+
+
+    const res = await fetch(`${cfg.functionsBaseUrl}/create-booking`, {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -1845,7 +1893,7 @@ body: JSON.stringify({
    * before using it for the booking or Stripe.
    */
   selected_service_quantities:
-    state.selectedServiceQuantities
+    selectedServiceQuantities
 })
 });
 
