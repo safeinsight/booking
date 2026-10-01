@@ -1252,9 +1252,8 @@ $("studentTimezone").addEventListener(
   }
 );
 
-$("toDateBtn").addEventListener("click", async () => {
-  try { await loadDates(); showStep(2); }
-  catch (err) { showError(err.message); }
+$("toDateBtn").addEventListener("click", () => {
+  showStep(2);
 });
 $("calendarPrev").addEventListener(
   "click",
