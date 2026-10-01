@@ -340,33 +340,14 @@ button, .button {
 
   /* Calendar information */
   #calendarInfo {
+    display: block;
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    overflow: hidden;
-    white-space: normal;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-  }
-
-  #calendarInfo * {
-    min-width: 0;
-    max-width: 100%;
+    box-sizing: border-box;
     white-space: normal !important;
     overflow-wrap: anywhere !important;
-    word-break: break-word !important;
-  }
-
-  #calendarInfo a,
-  #calendarInfo span,
-  #calendarInfo div,
-  #calendarInfo p,
-  #calendarInfo strong {
-    min-width: 0;
-    max-width: 100%;
-    white-space: normal !important;
-    overflow-wrap: anywhere !important;
-    word-break: break-word !important;
+    word-break: break-all !important;
   }
 
   /* Other User / CC recipient email addresses */
