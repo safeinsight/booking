@@ -131,6 +131,55 @@ function showCustomConfirm(message) {
 }
 
 
+/* =========================================================
+   PASSWORD VISIBILITY
+   ========================================================= */
+
+document.addEventListener(
+  "change",
+  event => {
+
+    const toggle =
+      event.target.closest(
+        "[data-password-visibility-toggle]"
+      );
+
+    if (!toggle) {
+      return;
+    }
+
+
+    const targetId =
+      toggle.getAttribute(
+        "data-password-visibility-toggle"
+      );
+
+
+    if (!targetId) {
+      return;
+    }
+
+
+    const passwordInput =
+      document.getElementById(
+        targetId
+      );
+
+
+    if (!passwordInput) {
+      return;
+    }
+
+
+    passwordInput.type =
+      toggle.checked
+        ? "text"
+        : "password";
+
+  }
+);
+
+
 customAlertOverlay.addEventListener(
   "click",
   event => {
