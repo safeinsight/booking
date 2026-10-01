@@ -5679,6 +5679,14 @@ function renderServices() {
         service.currency || "usd"
       ).toUpperCase();
 
+    const maxQuantity =
+      Number.isInteger(
+        Number(service.max_quantity)
+      ) &&
+      Number(service.max_quantity) >= 1
+        ? Number(service.max_quantity)
+        : 1;
+
 
     /*
      * Local free services do not have Stripe
@@ -5706,7 +5714,13 @@ function renderServices() {
             "
           >
 
-            <span>
+            <span
+              style="
+                display:block;
+                min-width:0;
+                width:100%;
+              "
+            >
 
               <strong>
                 ${escapeHtml(service.product_name)}
@@ -5758,6 +5772,48 @@ function renderServices() {
                 </span>
 
               </label>
+
+
+              <div
+                style="
+                  margin-top:15px;
+                  max-width:240px;
+                "
+              >
+
+                <label
+                  style="
+                    display:block;
+                    margin-bottom:5px;
+                  "
+                >
+                  Maximum Quantity per Booking
+                </label>
+
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value="${maxQuantity}"
+                  data-free-service-max-quantity
+                  data-service-id="${escapeAttr(service.id)}"
+                  style="
+                    width:100%;
+                    max-width:120px;
+                  "
+                >
+
+                <div
+                  class="muted"
+                  style="
+                    margin-top:5px;
+                    font-size:0.9em;
+                  "
+                >
+                  Maximum number a customer may purchase in one booking.
+                </div>
+
+              </div>
 
 
               <button
@@ -5814,7 +5870,13 @@ function renderServices() {
             "
           >
 
-          <span>
+          <span
+            style="
+              display:block;
+              min-width:0;
+              width:100%;
+            "
+          >
 
             <strong>
               ${escapeHtml(service.product_name)}
@@ -5861,6 +5923,54 @@ function renderServices() {
               </span>
 
             </label>
+
+
+            <div
+              style="
+                margin-top:15px;
+                max-width:240px;
+              "
+            >
+
+              <label
+                style="
+                  display:block;
+                  margin-bottom:5px;
+                "
+              >
+                Maximum Quantity per Booking
+              </label>
+
+              <input
+                type="number"
+                min="1"
+                step="1"
+                value="${maxQuantity}"
+                data-stripe-service-max-quantity
+                data-product-id="${escapeAttr(service.product_id)}"
+                data-price-id="${escapeAttr(service.price_id)}"
+                ${service.assigned ? "" : "disabled"}
+                style="
+                  width:100%;
+                  max-width:120px;
+                "
+              >
+
+              <div
+                class="muted"
+                style="
+                  margin-top:5px;
+                  font-size:0.9em;
+                "
+              >
+                ${
+                  service.assigned
+                    ? "Maximum number a customer may purchase in one booking."
+                    : "Assign this service before setting its maximum quantity."
+                }
+              </div>
+
+            </div>
 
           </span>
 
@@ -5962,8 +6072,7 @@ function renderServices() {
 
     container.innerHTML = `
       <p class="muted">
-        No active Stripe products with an active
-        one-time default price were found.
+        No active services were found.
       </p>
     `;
 
@@ -5994,6 +6103,7 @@ function renderServices() {
       .join("");
 
 }
+
 
 function setupServiceTypeSelector() {
 
