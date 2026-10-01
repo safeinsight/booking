@@ -342,13 +342,106 @@
       </span>
     </div>
 
-    <button
-      type="button"
-      id="logoutBtn"
-      class="secondary"
+
+    <div
+      style="
+        display:flex;
+        align-items:center;
+        gap:10px;
+        flex-wrap:wrap;
+      "
     >
-      Logout
-    </button>
+
+      <button
+        type="button"
+        id="changePasswordBtn"
+        class="secondary"
+      >
+        Change Password
+      </button>
+
+      <button
+        type="button"
+        id="logoutBtn"
+        class="secondary"
+      >
+        Logout
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- CHANGE PASSWORD -->
+
+  <div
+    id="changePasswordPanel"
+    class="settings-section hidden"
+    style="margin-bottom:20px;"
+  >
+
+    <h2>
+      Change Password
+    </h2>
+
+    <p class="muted">
+      Change the password for your Booking Settings account.
+      Your new password must be at least 8 characters.
+    </p>
+
+
+    <label for="changePasswordNew">
+      New Password
+    </label>
+
+    <input
+      id="changePasswordNew"
+      type="password"
+      autocomplete="new-password"
+      placeholder="Minimum 8 characters"
+    >
+
+
+    <label for="changePasswordConfirm">
+      Confirm New Password
+    </label>
+
+    <input
+      id="changePasswordConfirm"
+      type="password"
+      autocomplete="new-password"
+      placeholder="Re-enter your new password"
+    >
+
+
+    <div
+      style="
+        display:flex;
+        align-items:center;
+        gap:10px;
+        flex-wrap:wrap;
+        margin-top:15px;
+      "
+    >
+
+      <button
+        type="button"
+        id="saveChangedPasswordBtn"
+        class="primary"
+      >
+        Save New Password
+      </button>
+
+      <button
+        type="button"
+        id="cancelChangePasswordBtn"
+        class="secondary"
+      >
+        Cancel
+      </button>
+
+    </div>
 
   </div>
 
