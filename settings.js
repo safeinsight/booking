@@ -11719,6 +11719,41 @@ $("loginPassword").addEventListener(
   }
 );
 
+
+/* =========================================================
+   CHANGE PASSWORD
+   ========================================================= */
+
+$("changePasswordBtn").addEventListener(
+  "click",
+  () => {
+
+    $("changePasswordNew").value = "";
+    $("changePasswordConfirm").value = "";
+
+    $("changePasswordPanel")
+      .classList.remove("hidden");
+
+    $("changePasswordNew").focus();
+
+  }
+);
+
+
+$("cancelChangePasswordBtn").addEventListener(
+  "click",
+  () => {
+
+    $("changePasswordNew").value = "";
+    $("changePasswordConfirm").value = "";
+
+    $("changePasswordPanel")
+      .classList.add("hidden");
+
+  }
+);
+
+
 $("logoutBtn").addEventListener(
   "click",
   async () => {
