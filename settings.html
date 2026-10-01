@@ -463,6 +463,96 @@
 </div>
 
 
+<!-- RESET PASSWORD PANEL -->
+
+<div
+  id="resetPasswordPanel"
+  class="settings-section hidden"
+>
+
+  <h2>Reset Your Password</h2>
+
+  <p class="muted">
+    Enter a new password for your Booking Settings account.
+    Your new password must be at least 8 characters.
+  </p>
+
+
+  <label for="resetPasswordNew">
+    New Password
+  </label>
+
+  <input
+    id="resetPasswordNew"
+    type="password"
+    autocomplete="new-password"
+    placeholder="Minimum 8 characters"
+  >
+
+  <label
+    style="
+      margin-top:8px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      cursor:pointer;
+    "
+  >
+    <input
+      type="checkbox"
+      data-password-visibility-toggle="resetPasswordNew"
+    >
+    Show Password
+  </label>
+
+
+  <label for="resetPasswordConfirm">
+    Confirm New Password
+  </label>
+
+  <input
+    id="resetPasswordConfirm"
+    type="password"
+    autocomplete="new-password"
+    placeholder="Re-enter your new password"
+  >
+
+  <label
+    style="
+      margin-top:8px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      cursor:pointer;
+    "
+  >
+    <input
+      type="checkbox"
+      data-password-visibility-toggle="resetPasswordConfirm"
+    >
+    Show Password
+  </label>
+
+
+  <button
+    type="button"
+    id="resetPasswordBtn"
+    class="primary"
+    style="margin-top:15px;"
+  >
+    Save New Password
+  </button>
+
+
+  <div
+    id="resetPasswordError"
+    class="state error hidden"
+    style="margin-top:15px;"
+  ></div>
+
+</div>
+
+
 <!-- AUTHENTICATED SETTINGS APPLICATION -->
 
 <div id="settingsApp" class="hidden">
