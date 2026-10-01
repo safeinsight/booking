@@ -1963,6 +1963,9 @@ function renderClientAppointment(
 }
 
 
+function renderClients(
+  result
+) {
 
   const container =
     $("clientsList");
