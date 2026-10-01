@@ -1516,6 +1516,9 @@ function renderAppointmentList(
 }
 
 
+function renderAppointments(
+  result
+) {
 
   const counts =
     result.counts || {};
@@ -1599,9 +1602,6 @@ function renderAppointmentList(
   );
 
 }
-
-
-async function loadAppointments() {
 
   if (!state.instructor?.id) {
 
