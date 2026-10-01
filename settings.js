@@ -1460,7 +1460,8 @@ function renderAppointmentList(
             </div>
 
             ${
-              containerId === "upcomingAppointmentsList"
+              containerId ===
+              "upcomingAppointmentsList"
                 ? `
                   <div
                     style="
@@ -1484,7 +1485,8 @@ function renderAppointmentList(
             }
 
             ${
-              containerId === "pastAppointmentsList"
+              containerId ===
+              "pastAppointmentsList"
                 ? `
                   <div
                     style="
@@ -1602,6 +1604,9 @@ function renderAppointments(
   );
 
 }
+
+
+async function loadAppointments() {
 
   if (!state.instructor?.id) {
 
@@ -1734,11 +1739,6 @@ function renderAppointments(
   }
 
 }
-
-
-/* =========================================================
-   CLIENTS UI
-   ========================================================= */
 
 function updateClientsHistoryDescription() {
 
