@@ -220,12 +220,16 @@
   Checking login…
 </div>
 
+<!-- LOGIN PANEL -->
+
 <div id="loginPanel" class="settings-section">
+
   <h2>Booking Settings Login</h2>
 
   <p class="muted">
     Sign in with your authorized Booking Settings account.
   </p>
+
 
   <label for="loginEmail">
     Email
@@ -237,6 +241,7 @@
     autocomplete="username"
     placeholder="Email address"
   >
+
 
   <label for="loginPassword">
     Password
@@ -265,31 +270,123 @@
     Show Password
   </label>
 
-  <button
-    type="button"
-    id="loginBtn"
-    class="primary"
-    style="margin-top:15px;"
+
+  <div
+    style="
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:15px;
+    "
   >
-    Login
-  </button>
+
+    <button
+      type="button"
+      id="loginBtn"
+      class="primary"
+    >
+      Login
+    </button>
+
+    <button
+      type="button"
+      id="forgotPasswordBtn"
+      class="secondary"
+    >
+      Forgot Password
+    </button>
+
+  </div>
+
 
   <div
     id="loginError"
     class="state error hidden"
     style="margin-top:15px;"
   ></div>
+
 </div>
+
+
+<!-- FORGOT PASSWORD PANEL -->
+
+<div
+  id="forgotPasswordPanel"
+  class="settings-section hidden"
+>
+
+  <h2>Forgot Password</h2>
+
+  <p class="muted">
+    Enter the email address for your Booking Settings account.
+    We will send you a password recovery link.
+  </p>
+
+
+  <label for="forgotPasswordEmail">
+    Email
+  </label>
+
+  <input
+    id="forgotPasswordEmail"
+    type="email"
+    autocomplete="email"
+    placeholder="Email address"
+  >
+
+
+  <div
+    style="
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:15px;
+    "
+  >
+
+    <button
+      type="button"
+      id="sendPasswordResetBtn"
+      class="primary"
+    >
+      Send Recovery Email
+    </button>
+
+    <button
+      type="button"
+      id="cancelForgotPasswordBtn"
+      class="secondary"
+    >
+      Cancel
+    </button>
+
+  </div>
+
+
+  <div
+    id="forgotPasswordMessage"
+    class="state hidden"
+    style="margin-top:15px;"
+  ></div>
+
+</div>
+
+
+<!-- CREATE PASSWORD PANEL -->
 
 <div
   id="createPasswordPanel"
   class="settings-section hidden"
 >
+
   <h2>Create Your Booking Settings Password</h2>
 
   <p class="muted">
     Your invitation has been accepted. Create a password to finish setting up your Booking Settings account.
   </p>
+
 
   <label for="newPassword">
     New Password
@@ -318,6 +415,7 @@
     Show Password
   </label>
 
+
   <label for="confirmNewPassword">
     Confirm Password
   </label>
@@ -345,6 +443,7 @@
     Show Password
   </label>
 
+
   <button
     type="button"
     id="createPasswordBtn"
@@ -354,12 +453,17 @@
     Create Password
   </button>
 
+
   <div
     id="createPasswordError"
     class="state error hidden"
     style="margin-top:15px;"
   ></div>
+
 </div>
+
+
+<!-- AUTHENTICATED SETTINGS APPLICATION -->
 
 <div id="settingsApp" class="hidden">
 
