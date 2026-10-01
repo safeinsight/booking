@@ -960,11 +960,11 @@ function renderBookingServices() {
 
 
         /*
-         * max_quantity comes from get-availability.
+         * Maximum quantity is controlled by the
+         * instructor-service configuration returned
+         * by get-availability.
          *
-         * Treat any missing or invalid value as 1 so
-         * existing services retain their original
-         * single-quantity behavior.
+         * Missing or invalid values safely default to 1.
          */
         const maxQuantity =
           Number.isInteger(
@@ -977,7 +977,7 @@ function renderBookingServices() {
 
         /*
          * Preserve the student's current quantity
-         * whenever this function re-renders.
+         * through service-list re-renders.
          */
         let selectedQuantity =
           Number(
@@ -1008,13 +1008,8 @@ function renderBookingServices() {
 
 
         /*
-         * Only show a quantity control when:
-         *
-         * 1. This service actually permits more than one.
-         * 2. The service is currently selected.
-         *
-         * Services with max_quantity = 1 retain the
-         * existing clean single-service appearance.
+         * Only selected services that permit more
+         * than one unit need a quantity selector.
          */
         const quantityControl =
           maxQuantity > 1 &&
@@ -1116,6 +1111,7 @@ function renderBookingServices() {
                         flex:0 0 auto;
                       "
                     >
+
                     <strong>
                       ${escapeHtml(service.product_name)}
                       ${
@@ -1127,7 +1123,9 @@ function renderBookingServices() {
                   </label>
                 `
                 : `
-                  <strong>${escapeHtml(service.product_name)}</strong>
+                  <strong>
+                    ${escapeHtml(service.product_name)}
+                  </strong>
                 `
             }
 
@@ -1179,7 +1177,8 @@ function renderBookingServices() {
 
 
   /*
-   * Quantity-aware displayed total.
+   * Calculate the displayed total using the
+   * selected quantity for each service.
    */
   const totalCents =
     selectedServices.reduce(
@@ -1236,8 +1235,7 @@ $("bookingServicesList").addEventListener(
   event => {
 
     /*
-     * Handle quantity changes separately from
-     * service checkbox changes.
+     * QUANTITY CHANGE
      */
     const quantitySelect =
       event.target.closest(
@@ -1259,6 +1257,7 @@ $("bookingServicesList").addEventListener(
               item.service_type === "free"
                 ? item.id
                 : item.price_id;
+
 
             return (
               String(itemValue) ===
@@ -1283,7 +1282,9 @@ $("bookingServicesList").addEventListener(
 
 
       let quantity =
-        Number(quantitySelect.value);
+        Number(
+          quantitySelect.value
+        );
 
 
       if (
@@ -1312,6 +1313,9 @@ $("bookingServicesList").addEventListener(
     }
 
 
+    /*
+     * SERVICE CHECKBOX CHANGE
+     */
     const checkbox =
       event.target.closest(
         "[data-booking-service]"
@@ -1330,8 +1334,7 @@ $("bookingServicesList").addEventListener(
 
 
     /*
-     * Paid services continue to use their
-     * Stripe Price IDs.
+     * Paid services use Stripe Price IDs.
      */
     state.selectedServicePriceIds =
       checkedServices
@@ -1347,8 +1350,7 @@ $("bookingServicesList").addEventListener(
 
 
     /*
-     * Free services use their local
-     * services.id UUID instead.
+     * Free services use local services.id.
      */
     state.selectedServiceIds =
       checkedServices
@@ -1364,13 +1366,10 @@ $("bookingServicesList").addEventListener(
 
 
     /*
-     * A newly selected service always has at
-     * least quantity 1.
+     * Newly selected services begin at quantity 1.
      *
-     * Do not delete an existing quantity when
-     * unchecked so a temporary uncheck/recheck
-     * during this booking does not unexpectedly
-     * reset the student's choice.
+     * Existing quantity choices are preserved if the
+     * student temporarily unchecks and rechecks one.
      */
     checkedServices.forEach(
       input => {
@@ -1386,64 +1385,6 @@ $("bookingServicesList").addEventListener(
         }
       }
     );
-
-
-    renderBookingServices();
-  }
-);
-
-
-  "change",
-  event => {
-
-    const checkbox =
-      event.target.closest(
-        "[data-booking-service]"
-      );
-
-    if (!checkbox) {
-      return;
-    }
-
-
-    const checkedServices =
-      [...document.querySelectorAll(
-        "[data-booking-service]:checked"
-      )];
-
-
-    /*
-     * Paid services continue to use their
-     * Stripe Price IDs.
-     */
-    state.selectedServicePriceIds =
-      checkedServices
-        .filter(
-          input =>
-            input.dataset.serviceType === "paid"
-        )
-        .map(
-          input =>
-            input.value
-        )
-        .filter(Boolean);
-
-
-    /*
-     * Free services use their local
-     * services.id UUID instead.
-     */
-    state.selectedServiceIds =
-      checkedServices
-        .filter(
-          input =>
-            input.dataset.serviceType === "free"
-        )
-        .map(
-          input =>
-            input.value
-        )
-        .filter(Boolean);
 
 
     renderBookingServices();
