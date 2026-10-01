@@ -9865,6 +9865,52 @@ document.addEventListener("change", async function (event) {
 
 
 // ------------------------------------------------------
+// PRESERVE PASSWORD RECOVERY PANEL STATE
+// ------------------------------------------------------
+
+document.addEventListener("toggle", function (event) {
+
+  const panel =
+    event.target.closest?.(
+      "[data-password-recovery]"
+    );
+
+
+  if (!panel) {
+    return;
+  }
+
+
+  const userId =
+    panel.getAttribute(
+      "data-password-recovery"
+    );
+
+
+  if (!userId) {
+    return;
+  }
+
+
+  if (panel.open) {
+
+    state.openPasswordRecoveryUserId =
+      userId;
+
+  } else if (
+    state.openPasswordRecoveryUserId ===
+    userId
+  ) {
+
+    state.openPasswordRecoveryUserId =
+      null;
+
+  }
+
+}, true);
+
+
+// ------------------------------------------------------
 // SET TEMPORARY USER PASSWORD
 // ------------------------------------------------------
 
