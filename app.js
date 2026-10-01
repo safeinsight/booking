@@ -1829,7 +1829,23 @@ body: JSON.stringify({
    * so identify them by services.id instead.
    */
   selected_service_ids:
-    state.selectedServiceIds
+    state.selectedServiceIds,
+
+  /*
+   * Quantity requested for each selected service.
+   *
+   * Keys use the same identifiers as the service
+   * selection arrays:
+   *
+   * paid service = Stripe Price ID
+   * free service = local services.id
+   *
+   * create-booking independently validates every
+   * quantity against instructor_services.max_quantity
+   * before using it for the booking or Stripe.
+   */
+  selected_service_quantities:
+    state.selectedServiceQuantities
 })
 });
 
