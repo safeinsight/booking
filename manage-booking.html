@@ -1219,6 +1219,13 @@ function groupRescheduleAvailabilityByStudentTimezone(
 
         /*
          * BOOKING SERVICES
+         *
+         * booking_services stores the historical
+         * unit price and quantity for each service.
+         *
+         * Quantity 1 keeps the original simple display.
+         * Quantity greater than 1 shows the quantity,
+         * unit price, and calculated line total.
          */
 
         const services =
@@ -1237,25 +1244,59 @@ function groupRescheduleAvailabilityByStudentTimezone(
               const serviceLine =
                 document.createElement("div");
 
-              const price =
-                new Intl.NumberFormat(
-                  "en-US",
-                  {
-                    style: "currency",
-                    currency:
-                      (
-                        service.currency ||
-                        "USD"
-                      ).toUpperCase(),
-                  }
-                ).format(
-                  Number(
-                    service.price_cents || 0
-                  ) / 100
+              const quantity =
+                Number.isInteger(
+                  Number(service.quantity)
+                ) &&
+                Number(service.quantity) >= 1
+                  ? Number(service.quantity)
+                  : 1;
+
+              const unitPriceCents =
+                Number(
+                  service.price_cents || 0
                 );
 
-              serviceLine.textContent =
-                `${service.service_name || "Service"} — ${price}`;
+              const currency =
+                (
+                  service.currency ||
+                  "USD"
+                ).toUpperCase();
+
+              const formatCurrency =
+                cents =>
+                  new Intl.NumberFormat(
+                    "en-US",
+                    {
+                      style: "currency",
+                      currency
+                    }
+                  ).format(
+                    cents / 100
+                  );
+
+              const unitPrice =
+                formatCurrency(
+                  unitPriceCents
+                );
+
+              const lineTotal =
+                formatCurrency(
+                  unitPriceCents *
+                  quantity
+                );
+
+              if (quantity > 1) {
+
+                serviceLine.textContent =
+                  `${service.service_name || "Service"} — Qty ${quantity} × ${unitPrice} = ${lineTotal}`;
+
+              } else {
+
+                serviceLine.textContent =
+                  `${service.service_name || "Service"} — ${unitPrice}`;
+
+              }
 
               bookingServices.appendChild(
                 serviceLine
