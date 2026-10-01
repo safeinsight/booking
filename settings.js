@@ -1097,6 +1097,170 @@ function formatAppointmentDateTime(
 }
 
 
+/*
+ * Format the permanent service snapshots stored with
+ * an appointment.
+ *
+ * booking_services is authoritative for bookings created
+ * with historical service snapshots.
+ *
+ * The legacy service_name / service_price_cents fields
+ * remain as a fallback for older bookings that do not
+ * have booking_services records.
+ */
+
+function formatAppointmentServices(
+  appointment
+) {
+
+  const bookingServices =
+    Array.isArray(
+      appointment.booking_services
+    )
+      ? appointment.booking_services
+      : [];
+
+
+  if (bookingServices.length) {
+
+    return bookingServices
+      .map(service => {
+
+        const serviceName =
+          service.service_name ||
+          "Service";
+
+
+        const quantityValue =
+          Number(
+            service.quantity
+          );
+
+
+        const quantity =
+          Number.isInteger(
+            quantityValue
+          ) &&
+          quantityValue >= 1
+            ? quantityValue
+            : 1;
+
+
+        const priceCents =
+          Number(
+            service.price_cents ?? 0
+          );
+
+
+        const safePriceCents =
+          Number.isFinite(
+            priceCents
+          )
+            ? priceCents
+            : 0;
+
+
+        const currency =
+          String(
+            service.currency ||
+            "usd"
+          ).toUpperCase();
+
+
+        const formatCurrency =
+          cents =>
+            new Intl.NumberFormat(
+              "en-US",
+              {
+                style: "currency",
+                currency
+              }
+            ).format(
+              cents / 100
+            );
+
+
+        if (quantity > 1) {
+
+          return (
+            `${serviceName} — ` +
+            `Qty ${quantity} × ` +
+            `${formatCurrency(
+              safePriceCents
+            )} = ` +
+            `${formatCurrency(
+              safePriceCents * quantity
+            )}`
+          );
+
+        }
+
+
+        return (
+          `${serviceName} — ` +
+          `${formatCurrency(
+            safePriceCents
+          )}`
+        );
+
+      })
+      .join("\n");
+
+  }
+
+
+  /*
+   * Legacy booking fallback.
+   */
+
+  const legacyServiceName =
+    appointment.service_name ||
+    "Appointment";
+
+
+  if (
+    appointment.service_price_cents ==
+    null
+  ) {
+
+    return legacyServiceName;
+
+  }
+
+
+  const legacyPriceCents =
+    Number(
+      appointment.service_price_cents
+    );
+
+
+  if (
+    !Number.isFinite(
+      legacyPriceCents
+    )
+  ) {
+
+    return legacyServiceName;
+
+  }
+
+
+  const legacyPrice =
+    legacyPriceCents === 0
+      ? "Free"
+      : `$${(
+          legacyPriceCents / 100
+        ).toFixed(2)}`;
+
+
+  return (
+    `${legacyServiceName} — ` +
+    `${legacyPrice}`
+  );
+
+}
+
+
 function renderAppointmentList(
   containerId,
   appointments
@@ -1141,20 +1305,10 @@ function renderAppointmentList(
           );
 
 
-        const serviceName =
-          appointment.service_name ||
-          "Appointment";
-
-
-        const price =
-          appointment.service_price_cents == null
-            ? ""
-            : appointment.service_price_cents === 0
-              ? "Free"
-              : `$${(
-                  appointment.service_price_cents /
-                  100
-                ).toFixed(2)}`;
+        const servicesText =
+          formatAppointmentServices(
+            appointment
+          );
 
 
         /*
@@ -1290,16 +1444,19 @@ function renderAppointmentList(
               "
             >
               <strong>
-                Service:
+                Services:
               </strong>
 
-              ${escapeHtml(serviceName)}
-
-              ${
-                price
-                  ? ` — ${escapeHtml(price)}`
-                  : ""
-              }
+              <div
+                style="
+                  margin-top:4px;
+                  white-space:pre-line;
+                "
+              >
+                ${escapeHtml(
+                  servicesText
+                )}
+              </div>
             </div>
 
             ${
@@ -1359,9 +1516,6 @@ function renderAppointmentList(
 }
 
 
-function renderAppointments(
-  result
-) {
 
   const counts =
     result.counts || {};
@@ -1720,20 +1874,10 @@ function renderClientAppointment(
     );
 
 
-  const serviceName =
-    appointment.service_name ||
-    "Appointment";
-
-
-  const price =
-    appointment.service_price_cents == null
-      ? ""
-      : appointment.service_price_cents === 0
-        ? "Free"
-        : `$${(
-            appointment.service_price_cents /
-            100
-          ).toFixed(2)}`;
+  const servicesText =
+    formatAppointmentServices(
+      appointment
+    );
 
 
   return `
@@ -1797,16 +1941,19 @@ function renderClientAppointment(
       >
 
         <strong>
-          Service:
+          Services:
         </strong>
 
-        ${escapeHtml(serviceName)}
-
-        ${
-          price
-            ? ` — ${escapeHtml(price)}`
-            : ""
-        }
+        <div
+          style="
+            margin-top:4px;
+            white-space:pre-line;
+          "
+        >
+          ${escapeHtml(
+            servicesText
+          )}
+        </div>
 
       </div>
 
@@ -1816,7 +1963,6 @@ function renderClientAppointment(
 }
 
 
-function renderClients(result) {
 
   const container =
     $("clientsList");
