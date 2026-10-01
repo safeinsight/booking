@@ -12051,6 +12051,162 @@ async function handleForgotPassword() {
 
 
 /* =========================================================
+   RESET PASSWORD
+   ========================================================= */
+
+async function handleResetPassword() {
+
+  const password =
+    $("resetPasswordNew").value;
+
+  const confirmPassword =
+    $("resetPasswordConfirm").value;
+
+  const error =
+    $("resetPasswordError");
+
+
+  error.classList.add("hidden");
+  error.textContent = "";
+
+
+  if (!password || !confirmPassword) {
+
+    error.textContent =
+      "Please enter and confirm your new password.";
+
+    error.classList.remove("hidden");
+
+    return;
+  }
+
+
+  if (password.length < 8) {
+
+    error.textContent =
+      "Password must be at least 8 characters.";
+
+    error.classList.remove("hidden");
+
+    return;
+  }
+
+
+  if (password !== confirmPassword) {
+
+    error.textContent =
+      "The passwords do not match.";
+
+    error.classList.remove("hidden");
+
+    return;
+  }
+
+
+  const button =
+    $("resetPasswordBtn");
+
+  const originalText =
+    button.textContent;
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "Saving Password...";
+
+
+  try {
+
+    const {
+      data,
+      error: updateError
+    } =
+      await db.auth.updateUser({
+        password
+      });
+
+
+    if (updateError) {
+      throw updateError;
+    }
+
+
+    if (!data?.user) {
+
+      throw new Error(
+        "Unable to reset your password."
+      );
+
+    }
+
+
+    /*
+     * The recovery URL is no longer needed after
+     * Supabase confirms the new password.
+     *
+     * Remove all recovery parameters before
+     * returning to the normal Booking Settings page.
+     */
+
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname
+    );
+
+
+    /*
+     * Sign out of the temporary recovery session.
+     *
+     * The user will then log in normally using
+     * the new password they just created.
+     */
+
+    const {
+      error: signOutError
+    } =
+      await db.auth.signOut();
+
+
+    if (signOutError) {
+      throw signOutError;
+    }
+
+
+    window.location.reload();
+
+
+  } catch (error) {
+
+    console.error(
+      "RESET PASSWORD ERROR:",
+      error
+    );
+
+
+    $("resetPasswordError").textContent =
+      error.message ||
+      "Unable to reset your password.";
+
+
+    $("resetPasswordError")
+      .classList.remove("hidden");
+
+
+  } finally {
+
+    button.disabled = false;
+
+    button.textContent =
+      originalText;
+
+  }
+
+}
+
+
+/* =========================================================
    AUTHENTICATION EVENT HANDLERS
    ========================================================= */
 
@@ -12084,6 +12240,12 @@ $("createPasswordBtn").addEventListener(
 );
 
 
+$("resetPasswordBtn").addEventListener(
+  "click",
+  handleResetPassword
+);
+
+
 $("loginPassword").addEventListener(
   "keydown",
   event => {
@@ -12102,6 +12264,18 @@ $("forgotPasswordEmail").addEventListener(
 
     if (event.key === "Enter") {
       handleForgotPassword();
+    }
+
+  }
+);
+
+
+$("resetPasswordConfirm").addEventListener(
+  "keydown",
+  event => {
+
+    if (event.key === "Enter") {
+      handleResetPassword();
     }
 
   }
