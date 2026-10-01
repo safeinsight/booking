@@ -8823,6 +8823,104 @@ function renderInstructorList() {
             </div>
 
 
+            <!-- ADMINISTRATOR PASSWORD RECOVERY -->
+
+            ${
+              isAdministrator()
+                ? `
+                  <details
+                    style="
+                      margin-top:18px;
+                      border:1px solid #ddd;
+                      border-radius:8px;
+                      padding:12px 14px;
+                      background:#fafafa;
+                    "
+                  >
+
+                    <summary
+                      style="
+                        cursor:pointer;
+                        font-weight:700;
+                        user-select:none;
+                      "
+                    >
+                      Password Recovery
+                    </summary>
+
+
+                    <div
+                      style="
+                        margin-top:12px;
+                      "
+                    >
+
+                      <div
+                        class="muted"
+                        style="
+                          margin-bottom:12px;
+                          line-height:1.4;
+                        "
+                      >
+                        Set a temporary password if this user
+                        cannot access normal email password recovery.
+                        The user can change the password after logging in.
+                      </div>
+
+
+                      <label>
+                        Temporary Password
+                      </label>
+
+                      <input
+                        type="password"
+                        data-temporary-password="${escapeAttr(settingsUser.user_id || "")}"
+                        autocomplete="new-password"
+                        placeholder="Minimum 8 characters"
+                        style="
+                          max-width:360px;
+                        "
+                      >
+
+
+                      <label
+                        style="
+                          margin-top:12px;
+                        "
+                      >
+                        Confirm Temporary Password
+                      </label>
+
+                      <input
+                        type="password"
+                        data-confirm-temporary-password="${escapeAttr(settingsUser.user_id || "")}"
+                        autocomplete="new-password"
+                        placeholder="Re-enter password"
+                        style="
+                          max-width:360px;
+                        "
+                      >
+
+
+                      <button
+                        type="button"
+                        class="secondary"
+                        data-set-temporary-password="${escapeAttr(settingsUser.user_id || "")}"
+                        style="
+                          margin-top:14px;
+                        "
+                      >
+                        Set Temporary Password
+                      </button>
+
+                    </div>
+
+                  </details>
+                `
+                : ""
+            }
+
+
             <!-- PERMISSIONS -->
 
             <details
@@ -9758,6 +9856,253 @@ document.addEventListener("change", async function (event) {
      */
 
     checkbox.disabled = false;
+
+  }
+
+});
+
+
+// ------------------------------------------------------
+// SET TEMPORARY USER PASSWORD
+// ------------------------------------------------------
+
+document.addEventListener("click", async function (event) {
+
+  const button =
+    event.target.closest(
+      "[data-set-temporary-password]"
+    );
+
+  if (!button) return;
+
+
+  const userId =
+    button.getAttribute(
+      "data-set-temporary-password"
+    );
+
+
+  if (!userId) {
+    return;
+  }
+
+
+  /*
+   * The UI only renders this control for an
+   * Administrator, but the Edge Function independently
+   * enforces Administrator-role authorization.
+   */
+
+  if (!isAdministrator()) {
+
+    showCustomAlert(
+      "Only an Administrator can set a temporary password."
+    );
+
+    return;
+  }
+
+
+  const settingsUser =
+    state.settingsUsers.find(
+      user =>
+        user.user_id === userId
+    );
+
+
+  if (!settingsUser) {
+
+    showCustomAlert(
+      "Unable to find this Booking Settings user."
+    );
+
+    renderInstructorList();
+
+    return;
+  }
+
+
+  const passwordInput =
+    document.querySelector(
+      `[data-temporary-password="${CSS.escape(userId)}"]`
+    );
+
+
+  const confirmPasswordInput =
+    document.querySelector(
+      `[data-confirm-temporary-password="${CSS.escape(userId)}"]`
+    );
+
+
+  if (
+    !passwordInput ||
+    !confirmPasswordInput
+  ) {
+
+    showCustomAlert(
+      "Unable to locate the temporary password fields."
+    );
+
+    return;
+  }
+
+
+  const password =
+    passwordInput.value;
+
+
+  const confirmPassword =
+    confirmPasswordInput.value;
+
+
+  if (password.length < 8) {
+
+    showCustomAlert(
+      "Password must be at least 8 characters."
+    );
+
+    passwordInput.focus();
+
+    return;
+  }
+
+
+  if (
+    password !==
+    confirmPassword
+  ) {
+
+    showCustomAlert(
+      "The passwords do not match."
+    );
+
+    confirmPasswordInput.focus();
+
+    return;
+  }
+
+
+  const confirmed =
+    await showCustomConfirm(
+      `Set a new temporary password for ${settingsUser.email || "this user"}? Their current password will immediately stop working.`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  const originalText =
+    button.textContent;
+
+
+  button.disabled = true;
+
+  passwordInput.disabled = true;
+  confirmPasswordInput.disabled = true;
+
+  button.textContent =
+    "Setting Password...";
+
+
+  try {
+
+    const authHeaders =
+      await getAuthHeaders();
+
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/manage-settings-users`,
+        {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify({
+            action:
+              "set_temporary_password",
+
+            user_id:
+              userId,
+
+            password
+          })
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      result.error
+    ) {
+
+      console.error(
+        "SET TEMPORARY PASSWORD RESPONSE:",
+        result
+      );
+
+
+      const errorMessage =
+        typeof result.error === "string"
+          ? result.error
+          : result.error?.message ||
+            result.message ||
+            JSON.stringify(
+              result.error || result
+            );
+
+
+      throw new Error(
+        errorMessage ||
+        "Unable to set temporary password."
+      );
+
+    }
+
+
+    /*
+     * Clear both password fields immediately after
+     * Supabase confirms the change.
+     *
+     * Never retain the submitted password in the UI.
+     */
+
+    passwordInput.value = "";
+    confirmPasswordInput.value = "";
+
+
+    showCustomAlert(
+      `Temporary password set successfully for ${settingsUser.email || "this user"}. The user can now log in with the new password and may change it after logging in.`
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "SET TEMPORARY PASSWORD ERROR:",
+      error
+    );
+
+
+    showCustomAlert(
+      error.message ||
+      "Unable to set temporary password."
+    );
+
+
+  } finally {
+
+    button.disabled = false;
+
+    passwordInput.disabled = false;
+    confirmPasswordInput.disabled = false;
+
+    button.textContent =
+      originalText;
 
   }
 
