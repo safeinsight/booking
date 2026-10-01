@@ -11754,6 +11754,130 @@ $("cancelChangePasswordBtn").addEventListener(
 );
 
 
+$("saveChangedPasswordBtn").addEventListener(
+  "click",
+  async () => {
+
+    const password =
+      $("changePasswordNew").value;
+
+    const confirmPassword =
+      $("changePasswordConfirm").value;
+
+
+    if (!password || !confirmPassword) {
+
+      showCustomAlert(
+        "Please enter and confirm your new password."
+      );
+
+      return;
+    }
+
+
+    if (password.length < 8) {
+
+      showCustomAlert(
+        "Password must be at least 8 characters."
+      );
+
+      return;
+    }
+
+
+    if (password !== confirmPassword) {
+
+      showCustomAlert(
+        "The passwords do not match."
+      );
+
+      return;
+    }
+
+
+    const confirmed =
+      await showCustomConfirm(
+        "Change the password for your Booking Settings account?"
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    const button =
+      $("saveChangedPasswordBtn");
+
+    const originalText =
+      button.textContent;
+
+
+    button.disabled = true;
+
+    button.textContent =
+      "Changing Password...";
+
+
+    try {
+
+      const {
+        error
+      } = await db.auth.updateUser({
+        password
+      });
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      /*
+       * Clear the password from the form immediately
+       * after Supabase confirms the update.
+       */
+
+      $("changePasswordNew").value = "";
+      $("changePasswordConfirm").value = "";
+
+
+      $("changePasswordPanel")
+        .classList.add("hidden");
+
+
+      showCustomAlert(
+        "Your password has been changed."
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "CHANGE PASSWORD ERROR:",
+        error
+      );
+
+
+      showCustomAlert(
+        error.message ||
+        "Unable to change your password."
+      );
+
+
+    } finally {
+
+      button.disabled = false;
+
+      button.textContent =
+        originalText;
+
+    }
+
+  }
+);
+
+
 $("logoutBtn").addEventListener(
   "click",
   async () => {
