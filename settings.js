@@ -10658,6 +10658,167 @@ document.addEventListener("change", async function (event) {
    * Required checkbox for a locally-created
    * free service.
    */
+  /*
+   * Update the maximum quantity that may be
+   * purchased for an assigned free service.
+   */
+  const freeServiceMaxQuantity =
+    event.target.closest(
+      "[data-free-service-max-quantity]"
+    );
+
+  if (freeServiceMaxQuantity) {
+
+    if (!state.instructor?.id) {
+      return;
+    }
+
+
+    const serviceId =
+      freeServiceMaxQuantity.getAttribute(
+        "data-service-id"
+      );
+
+
+    const service =
+      state.services.find(
+        item =>
+          item.id === serviceId
+      );
+
+
+    const previousMaxQuantity =
+      Number.isInteger(
+        Number(service?.max_quantity)
+      ) &&
+      Number(service?.max_quantity) >= 1
+        ? Number(service.max_quantity)
+        : 1;
+
+
+    const maxQuantity =
+      Number(
+        freeServiceMaxQuantity.value
+      );
+
+
+    if (
+      !serviceId ||
+      !service
+    ) {
+      return;
+    }
+
+
+    if (
+      !Number.isInteger(maxQuantity) ||
+      maxQuantity < 1
+    ) {
+
+      freeServiceMaxQuantity.value =
+        String(previousMaxQuantity);
+
+      showCustomAlert(
+        "Maximum quantity must be a whole number of at least 1."
+      );
+
+      return;
+    }
+
+
+    freeServiceMaxQuantity.disabled =
+      true;
+
+
+    try {
+
+      const authHeaders =
+        await getAuthHeaders();
+
+
+      const response =
+        await fetch(
+          `${cfg.functionsBaseUrl}/stripe-products`,
+          {
+            method: "POST",
+            headers: authHeaders,
+            body: JSON.stringify({
+              action:
+                "update_free_service_max_quantity",
+
+              instructor_id:
+                state.instructor.id,
+
+              service_id:
+                serviceId,
+
+              max_quantity:
+                maxQuantity
+            })
+          }
+        );
+
+
+      const result =
+        await response.json();
+
+
+      if (
+        !response.ok ||
+        result.error
+      ) {
+        throw new Error(
+          result.error ||
+          "Unable to update maximum quantity."
+        );
+      }
+
+
+      service.max_quantity =
+        Number.isInteger(
+          Number(result.max_quantity)
+        ) &&
+        Number(result.max_quantity) >= 1
+          ? Number(result.max_quantity)
+          : maxQuantity;
+
+
+      freeServiceMaxQuantity.value =
+        String(
+          service.max_quantity
+        );
+
+
+    } catch (error) {
+
+      console.error(
+        "FREE SERVICE MAX QUANTITY ERROR:",
+        error
+      );
+
+
+      freeServiceMaxQuantity.value =
+        String(previousMaxQuantity);
+
+
+      showCustomAlert(
+        error.message ||
+        "Unable to update maximum quantity."
+      );
+
+
+    } finally {
+
+      freeServiceMaxQuantity.disabled =
+        false;
+
+    }
+
+
+    return;
+  }
+
+
   const freeServiceRequired =
     event.target.closest(
       "[data-free-service-required]"
