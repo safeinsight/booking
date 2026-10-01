@@ -8925,6 +8925,7 @@ function renderInstructorList() {
 
                       <input
                         type="password"
+                        id="temporaryPassword-${escapeAttr(settingsUser.user_id || "")}"
                         data-temporary-password="${escapeAttr(settingsUser.user_id || "")}"
                         autocomplete="new-password"
                         placeholder="Minimum 8 characters"
@@ -8932,6 +8933,22 @@ function renderInstructorList() {
                           max-width:360px;
                         "
                       >
+
+                      <label
+                        style="
+                          margin-top:8px;
+                          display:inline-flex;
+                          align-items:center;
+                          gap:8px;
+                          cursor:pointer;
+                        "
+                      >
+                        <input
+                          type="checkbox"
+                          data-password-visibility-toggle="temporaryPassword-${escapeAttr(settingsUser.user_id || "")}"
+                        >
+                        Show Password
+                      </label>
 
 
                       <label
@@ -8944,6 +8961,7 @@ function renderInstructorList() {
 
                       <input
                         type="password"
+                        id="confirmTemporaryPassword-${escapeAttr(settingsUser.user_id || "")}"
                         data-confirm-temporary-password="${escapeAttr(settingsUser.user_id || "")}"
                         autocomplete="new-password"
                         placeholder="Re-enter password"
@@ -8951,6 +8969,22 @@ function renderInstructorList() {
                           max-width:360px;
                         "
                       >
+
+                      <label
+                        style="
+                          margin-top:8px;
+                          display:inline-flex;
+                          align-items:center;
+                          gap:8px;
+                          cursor:pointer;
+                        "
+                      >
+                        <input
+                          type="checkbox"
+                          data-password-visibility-toggle="confirmTemporaryPassword-${escapeAttr(settingsUser.user_id || "")}"
+                        >
+                        Show Password
+                      </label>
 
 
                       <button
