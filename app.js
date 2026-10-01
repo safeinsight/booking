@@ -451,16 +451,22 @@ async function loadDates() {
     `Cancellation: ${cancellationHours} hours. ` +
     `Reschedule: ${rescheduleHours} hours.`;
 
-  const res = await fetch(
-    `${cfg.functionsBaseUrl}/get-availability?location=${encodeURIComponent(state.location.slug)}&instructor=${encodeURIComponent(state.instructorSlug)}`,
-    {
-      headers: { "Authorization": `Bearer ${cfg.supabaseAnonKey}` }
-    }
-  );
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error || "Unable to load availability.");
+  /*
+   * loadBookingContext() already loaded the complete
+   * get-availability response for this booking route
+   * and stored it in state.rawAvailability.
+   *
+   * Reuse that response instead of making a second
+   * network request when Continue is clicked.
+   */
+  const json =
+    state.rawAvailability;
 
-  state.rawAvailability = json;
+  if (!json) {
+    throw new Error(
+      "Booking availability has not finished loading."
+    );
+  }
 
   /*
    * Additional required questions configured for
@@ -570,6 +576,7 @@ async function loadDates() {
   renderSelectedDate();
   renderSlots();
 }
+
 
 function renderSelectedDate() {
   const day = state.availability?.days.find(
