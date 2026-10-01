@@ -6619,62 +6619,6 @@ async function loadAllInstructors() {
    * settingsUsersLoadPromise.
    */
 
-      const authHeaders =
-        await getAuthHeaders();
-
-      const response =
-        await fetch(
-          `${cfg.functionsBaseUrl}/manage-settings-users`,
-          {
-            method: "GET",
-            headers: authHeaders
-          }
-        );
-
-      const result =
-        await response.json();
-
-      if (!response.ok || result.error) {
-        throw new Error(
-          result.error ||
-          "Unable to load settings users."
-        );
-      }
-
-      /*
-       * This list contains every Booking Settings user,
-       * including Administrators who intentionally do
-       * not have instructor records.
-       */
-      state.settingsUsers =
-        result.users || [];
-
-    } catch (error) {
-
-      console.error(
-        "SETTINGS USERS LOAD ERROR:",
-        error
-      );
-
-      state.settingsUsers = [];
-
-      throw error;
-    }
-
-  } else {
-
-    /*
-     * Do not request privileged User Management data
-     * for a user who does not have the Users permission.
-     *
-     * Their authenticated instructor record was already
-     * loaded above through the organization-scoped
-     * instructors SELECT policy.
-     */
-    state.settingsUsers = [];
-
-  }
-
 
   /*
    * Enrich actual instructor records with their
