@@ -11441,8 +11441,18 @@ $("logoutBtn").addEventListener(
      * depend on the selected instructor now being available,
      * but they are otherwise independent of one another.
      *
-     * Start them together rather than waiting for each
-     * unrelated request to finish before starting the next.
+     * Start all four requests together.
+     *
+     * Location is the only request that must complete before
+     * the Settings application becomes visible because it
+     * establishes the active Location and populates the
+     * Location-dependent settings UI.
+     *
+     * Services, Appointments, and Clients are intentionally
+     * allowed to finish in the background. Their individual
+     * loaders already render their own loading/error states,
+     * so none of these unrelated requests should delay the
+     * initial appearance of the Settings application.
      */
     const locationLoadPromise =
       loadLocations();
@@ -11463,12 +11473,13 @@ $("logoutBtn").addEventListener(
         : Promise.resolve();
 
 
-    await Promise.all([
-      locationLoadPromise,
-      servicesLoadPromise,
-      appointmentsLoadPromise,
-      clientsLoadPromise
-    ]);
+    /*
+     * Location remains part of the initial readiness gate.
+     *
+     * The other three requests continue running independently
+     * while the Settings interface becomes available.
+     */
+    await locationLoadPromise;
 
 
     updateClientsHistoryDescription();
@@ -11477,6 +11488,7 @@ $("logoutBtn").addEventListener(
 
     $("settingsApp")
       .classList.remove("hidden");
+
 
   } catch (err) {
 
