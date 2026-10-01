@@ -9191,12 +9191,26 @@ function renderInstructorList() {
 
 document.addEventListener("click", async function (event) {
 
-  // Do not treat management controls as instructor selection.
+  /*
+   * Do not treat User Management controls as
+   * instructor selection.
+   *
+   * Instructor-linked user cards are themselves
+   * selectable. Any interactive control inside the
+   * card must therefore be excluded here so using
+   * that control does not also trigger an instructor
+   * change and the resulting form rerender.
+   */
+
   if (
     event.target.closest("[data-role-user]") ||
     event.target.closest("[data-user-permissions]") ||
     event.target.closest("[data-user-permission]") ||
     event.target.closest("[data-reset-user-permissions]") ||
+    event.target.closest("[data-password-recovery]") ||
+    event.target.closest("[data-temporary-password]") ||
+    event.target.closest("[data-confirm-temporary-password]") ||
+    event.target.closest("[data-set-temporary-password]") ||
     event.target.closest("[data-deactivate-user]") ||
     event.target.closest("[data-delete-user]") ||
     event.target.closest("[data-resend-invite]")
