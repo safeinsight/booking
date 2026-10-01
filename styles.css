@@ -321,14 +321,62 @@ button, .button {
      MOBILE TEXT WRAPPING
      ========================================= */
 
+  /* Branding logo preview */
+  .logo-preview {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .logo-preview img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 100px;
+    margin: 0 auto;
+    object-fit: contain;
+  }
+
   /* Calendar information */
   #calendarInfo {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
   }
 
-  #calendarInfo code {
+  #calendarInfo * {
+    max-width: 100%;
     white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Other User / CC recipient email addresses */
+  #otherUserEmailOptions,
+  #otherUserEmailRecipients {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  #otherUserEmailRecipients label {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  #otherUserEmailRecipients label > span {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  #otherUserEmailRecipients .muted {
     overflow-wrap: anywhere;
     word-break: break-word;
   }
