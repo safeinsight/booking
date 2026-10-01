@@ -10873,6 +10873,192 @@ document.addEventListener("change", async function (event) {
   }
 
 
+  /*
+   * Update the maximum quantity that may be
+   * purchased for an assigned paid service.
+   */
+  const stripeServiceMaxQuantity =
+    event.target.closest(
+      "[data-stripe-service-max-quantity]"
+    );
+
+  if (stripeServiceMaxQuantity) {
+
+    if (!state.instructor?.id) {
+      return;
+    }
+
+
+    const productId =
+      stripeServiceMaxQuantity.getAttribute(
+        "data-product-id"
+      );
+
+    const priceId =
+      stripeServiceMaxQuantity.getAttribute(
+        "data-price-id"
+      );
+
+    const maxQuantity =
+      Number(
+        stripeServiceMaxQuantity.value
+      );
+
+
+    const service =
+      state.services.find(
+        item =>
+          item.product_id ===
+          productId
+      );
+
+
+    const previousMaxQuantity =
+      Number.isInteger(
+        Number(service?.max_quantity)
+      ) &&
+      Number(service?.max_quantity) >= 1
+        ? Number(service.max_quantity)
+        : 1;
+
+
+    if (
+      !productId ||
+      !priceId ||
+      !service
+    ) {
+      return;
+    }
+
+
+    if (
+      !Number.isInteger(maxQuantity) ||
+      maxQuantity < 1
+    ) {
+
+      stripeServiceMaxQuantity.value =
+        String(previousMaxQuantity);
+
+      showCustomAlert(
+        "Maximum quantity must be a whole number of at least 1."
+      );
+
+      return;
+    }
+
+
+    if (!service.assigned) {
+
+      stripeServiceMaxQuantity.value =
+        String(previousMaxQuantity);
+
+      showCustomAlert(
+        "Assign this service before setting its maximum quantity."
+      );
+
+      return;
+    }
+
+
+    stripeServiceMaxQuantity.disabled =
+      true;
+
+
+    try {
+
+      const authHeaders =
+        await getAuthHeaders();
+
+
+      const response =
+        await fetch(
+          `${cfg.functionsBaseUrl}/stripe-products`,
+          {
+            method: "POST",
+            headers: authHeaders,
+            body: JSON.stringify({
+              instructor_id:
+                state.instructor.id,
+
+              product_id:
+                productId,
+
+              price_id:
+                priceId,
+
+              assigned:
+                true,
+
+              required:
+                service.required === true,
+
+              max_quantity:
+                maxQuantity
+            })
+          }
+        );
+
+
+      const result =
+        await response.json();
+
+
+      if (
+        !response.ok ||
+        result.error
+      ) {
+        throw new Error(
+          result.error ||
+          "Unable to update maximum quantity."
+        );
+      }
+
+
+      service.max_quantity =
+        Number.isInteger(
+          Number(result.max_quantity)
+        ) &&
+        Number(result.max_quantity) >= 1
+          ? Number(result.max_quantity)
+          : maxQuantity;
+
+
+      stripeServiceMaxQuantity.value =
+        String(
+          service.max_quantity
+        );
+
+
+    } catch (error) {
+
+      console.error(
+        "SERVICE MAX QUANTITY ERROR:",
+        error
+      );
+
+
+      stripeServiceMaxQuantity.value =
+        String(previousMaxQuantity);
+
+
+      showCustomAlert(
+        error.message ||
+        "Unable to update maximum quantity."
+      );
+
+
+    } finally {
+
+      stripeServiceMaxQuantity.disabled =
+        false;
+
+    }
+
+
+    return;
+  }
+
+
   const requiredService =
     event.target.closest(
       "[data-stripe-service-required]"
