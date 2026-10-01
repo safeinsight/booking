@@ -22,9 +22,23 @@ const state = {
   studentBookingFields: [],
   studentBookingAnswers: [],
 
-  services: [],
-  selectedServicePriceIds: [],
-  selectedServiceIds: [],
+services: [],
+
+selectedServicePriceIds: [],
+selectedServiceIds: [],
+
+/*
+ * Quantity selected for each booking service.
+ *
+ * Keys are the service's stable booking identifier:
+ *   paid service = Stripe Price ID
+ *   free service = local services.id
+ *
+ * Services default to quantity 1. A quantity greater
+ * than 1 is only available when the server-provided
+ * max_quantity permits it.
+ */
+selectedServiceQuantities: {},
 
   studentTimezone:
     Intl.DateTimeFormat().resolvedOptions().timeZone ||
@@ -945,6 +959,128 @@ function renderBookingServices() {
                 .includes(service.price_id);
 
 
+        /*
+         * max_quantity comes from get-availability.
+         *
+         * Treat any missing or invalid value as 1 so
+         * existing services retain their original
+         * single-quantity behavior.
+         */
+        const maxQuantity =
+          Number.isInteger(
+            Number(service.max_quantity)
+          ) &&
+          Number(service.max_quantity) >= 1
+            ? Number(service.max_quantity)
+            : 1;
+
+
+        /*
+         * Preserve the student's current quantity
+         * whenever this function re-renders.
+         */
+        let selectedQuantity =
+          Number(
+            state.selectedServiceQuantities[
+              serviceValue
+            ] ?? 1
+          );
+
+
+        if (
+          !Number.isInteger(selectedQuantity) ||
+          selectedQuantity < 1
+        ) {
+          selectedQuantity = 1;
+        }
+
+
+        selectedQuantity =
+          Math.min(
+            selectedQuantity,
+            maxQuantity
+          );
+
+
+        state.selectedServiceQuantities[
+          serviceValue
+        ] = selectedQuantity;
+
+
+        /*
+         * Only show a quantity control when:
+         *
+         * 1. This service actually permits more than one.
+         * 2. The service is currently selected.
+         *
+         * Services with max_quantity = 1 retain the
+         * existing clean single-service appearance.
+         */
+        const quantityControl =
+          maxQuantity > 1 &&
+          checked
+            ? `
+              <div
+                style="
+                  margin-top:12px;
+                  display:flex;
+                  align-items:center;
+                  gap:10px;
+                  flex-wrap:wrap;
+                "
+              >
+                <label
+                  for="serviceQuantity_${escapeAttr(serviceValue)}"
+                  style="
+                    font-weight:600;
+                    margin:0;
+                  "
+                >
+                  Quantity:
+                </label>
+
+                <select
+                  id="serviceQuantity_${escapeAttr(serviceValue)}"
+                  data-booking-service-quantity
+                  data-service-value="${escapeAttr(serviceValue)}"
+                  style="
+                    width:auto;
+                    min-width:70px;
+                    margin:0;
+                  "
+                >
+                  ${
+                    Array.from(
+                      {
+                        length: maxQuantity
+                      },
+                      (_, index) =>
+                        index + 1
+                    )
+                      .map(quantity => `
+                        <option
+                          value="${quantity}"
+                          ${
+                            quantity === selectedQuantity
+                              ? "selected"
+                              : ""
+                          }
+                        >
+                          ${quantity}
+                        </option>
+                      `)
+                      .join("")
+                  }
+                </select>
+
+                <span class="muted">
+                  Maximum ${maxQuantity} per booking
+                </span>
+              </div>
+            `
+            : "";
+
+
         return `
           <div
             style="
@@ -1010,7 +1146,14 @@ function renderBookingServices() {
 
             <div style="margin-top:5px;">
               ${escapeHtml(amount)}
+              ${
+                maxQuantity > 1
+                  ? " each"
+                  : ""
+              }
             </div>
+
+            ${quantityControl}
           </div>
         `;
       })
@@ -1035,11 +1178,35 @@ function renderBookingServices() {
     );
 
 
+  /*
+   * Quantity-aware displayed total.
+   */
   const totalCents =
     selectedServices.reduce(
-      (sum, service) =>
-        sum +
-        Number(service.price_cents || 0),
+      (sum, service) => {
+
+        const serviceValue =
+          service.service_type === "free"
+            ? service.id
+            : service.price_id;
+
+
+        const quantity =
+          Number(
+            state.selectedServiceQuantities[
+              serviceValue
+            ] ?? 1
+          );
+
+
+        return (
+          sum +
+          (
+            Number(service.price_cents || 0) *
+            quantity
+          )
+        );
+      },
       0
     );
 
@@ -1065,6 +1232,167 @@ function renderBookingServices() {
 
 
 $("bookingServicesList").addEventListener(
+  "change",
+  event => {
+
+    /*
+     * Handle quantity changes separately from
+     * service checkbox changes.
+     */
+    const quantitySelect =
+      event.target.closest(
+        "[data-booking-service-quantity]"
+      );
+
+
+    if (quantitySelect) {
+
+      const serviceValue =
+        quantitySelect.dataset.serviceValue;
+
+
+      const service =
+        state.services.find(
+          item => {
+
+            const itemValue =
+              item.service_type === "free"
+                ? item.id
+                : item.price_id;
+
+            return (
+              String(itemValue) ===
+              String(serviceValue)
+            );
+          }
+        );
+
+
+      if (!service) {
+        return;
+      }
+
+
+      const maxQuantity =
+        Number.isInteger(
+          Number(service.max_quantity)
+        ) &&
+        Number(service.max_quantity) >= 1
+          ? Number(service.max_quantity)
+          : 1;
+
+
+      let quantity =
+        Number(quantitySelect.value);
+
+
+      if (
+        !Number.isInteger(quantity) ||
+        quantity < 1
+      ) {
+        quantity = 1;
+      }
+
+
+      quantity =
+        Math.min(
+          quantity,
+          maxQuantity
+        );
+
+
+      state.selectedServiceQuantities[
+        serviceValue
+      ] = quantity;
+
+
+      renderBookingServices();
+
+      return;
+    }
+
+
+    const checkbox =
+      event.target.closest(
+        "[data-booking-service]"
+      );
+
+
+    if (!checkbox) {
+      return;
+    }
+
+
+    const checkedServices =
+      [...document.querySelectorAll(
+        "[data-booking-service]:checked"
+      )];
+
+
+    /*
+     * Paid services continue to use their
+     * Stripe Price IDs.
+     */
+    state.selectedServicePriceIds =
+      checkedServices
+        .filter(
+          input =>
+            input.dataset.serviceType === "paid"
+        )
+        .map(
+          input =>
+            input.value
+        )
+        .filter(Boolean);
+
+
+    /*
+     * Free services use their local
+     * services.id UUID instead.
+     */
+    state.selectedServiceIds =
+      checkedServices
+        .filter(
+          input =>
+            input.dataset.serviceType === "free"
+        )
+        .map(
+          input =>
+            input.value
+        )
+        .filter(Boolean);
+
+
+    /*
+     * A newly selected service always has at
+     * least quantity 1.
+     *
+     * Do not delete an existing quantity when
+     * unchecked so a temporary uncheck/recheck
+     * during this booking does not unexpectedly
+     * reset the student's choice.
+     */
+    checkedServices.forEach(
+      input => {
+
+        if (
+          !state.selectedServiceQuantities[
+            input.value
+          ]
+        ) {
+          state.selectedServiceQuantities[
+            input.value
+          ] = 1;
+        }
+      }
+    );
+
+
+    renderBookingServices();
+  }
+);
+
+
   "change",
   event => {
 
