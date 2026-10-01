@@ -1393,22 +1393,35 @@ $("bookingServicesList").addEventListener(
 
 
 function buildReview() {
-  const day = state.availability.days.find(d => d.date === state.date);
-  const first = day.slots[state.selectedStart];
-  const last = day.slots[state.selectedEnd];
-  const l = state.location;
+  const day =
+    state.availability.days.find(
+      d => d.date === state.date
+    );
 
-  const instructor = state.instructor || {};
+  const first =
+    day.slots[state.selectedStart];
+
+  const last =
+    day.slots[state.selectedEnd];
+
+  const l =
+    state.location;
+
+  const instructor =
+    state.instructor || {};
+
 
   const reviewLocationName =
     instructor.location_name ||
     l.name ||
     "";
 
+
   const reviewAddress =
     instructor.address ||
     l.address ||
     "";
+
 
   const bookingFieldReview =
     state.studentBookingAnswers
@@ -1421,9 +1434,11 @@ function buildReview() {
               String(answer?.field_id)
           );
 
+
         if (!field) {
           return "";
         }
+
 
         return `
           <br><br>
@@ -1433,21 +1448,11 @@ function buildReview() {
       })
       .join("");
 
-  $("review").innerHTML = `
-    <strong>${escapeHtml(reviewLocationName)}</strong><br>
-    ${instructor.name ? `Instructor: ${escapeHtml(instructor.name)}<br>` : ""}
-${formatDate(first.start, state.studentTimezone)}<br>
-${formatTime(first.start, state.studentTimezone)} – ${formatTime(last.end, state.studentTimezone)}<br>
-    ${reviewAddress ? escapeHtml(reviewAddress) + "<br>" : ""}
-    
-    <hr>
-    <strong>Student</strong><br>
-    ${escapeHtml(state.student.fullName)}<br>
-    ${escapeHtml(state.student.phone)}<br>
-    ${escapeHtml(state.student.email)}
-    ${bookingFieldReview}
-  `;
 
+  /*
+   * Resolve the services currently selected by
+   * the student.
+   */
   const selectedServices =
     state.services.filter(
       service => {
@@ -1465,12 +1470,176 @@ ${formatTime(first.start, state.studentTimezone)} – ${formatTime(last.end, sta
       }
     );
 
+
+  /*
+   * Build the service portion of the review.
+   *
+   * Quantity is shown when more than one unit
+   * has been selected.
+   */
+  const serviceReview =
+    selectedServices.length
+      ? selectedServices
+          .map(service => {
+
+            const serviceValue =
+              service.service_type === "free"
+                ? service.id
+                : service.price_id;
+
+
+            const quantity =
+              Number(
+                state.selectedServiceQuantities[
+                  serviceValue
+                ] ?? 1
+              );
+
+
+            const unitPriceCents =
+              Number(
+                service.price_cents || 0
+              );
+
+
+            const lineTotalCents =
+              unitPriceCents * quantity;
+
+
+            const currency =
+              String(
+                service.currency || "usd"
+              ).toUpperCase();
+
+
+            const lineTotal =
+              new Intl.NumberFormat(
+                "en-US",
+                {
+                  style: "currency",
+                  currency
+                }
+              ).format(
+                lineTotalCents / 100
+              );
+
+
+            return `
+              <div style="margin-top:8px;">
+                <strong>
+                  ${escapeHtml(service.product_name)}
+                </strong>
+                ${
+                  quantity > 1
+                    ? ` × ${quantity}`
+                    : ""
+                }
+                <br>
+                ${escapeHtml(lineTotal)}
+              </div>
+            `;
+          })
+          .join("")
+      : "";
+
+
+  /*
+   * Quantity-aware total used by the review
+   * and payment-required decision.
+   */
   const selectedTotalCents =
     selectedServices.reduce(
-      (sum, service) =>
-        sum + Number(service.price_cents || 0),
+      (sum, service) => {
+
+        const serviceValue =
+          service.service_type === "free"
+            ? service.id
+            : service.price_id;
+
+
+        const quantity =
+          Number(
+            state.selectedServiceQuantities[
+              serviceValue
+            ] ?? 1
+          );
+
+
+        return (
+          sum +
+          (
+            Number(service.price_cents || 0) *
+            quantity
+          )
+        );
+      },
       0
     );
+
+
+  const reviewCurrency =
+    selectedServices[0]?.currency ||
+    state.services[0]?.currency ||
+    "usd";
+
+
+  const formattedServiceTotal =
+    new Intl.NumberFormat(
+      "en-US",
+      {
+        style: "currency",
+        currency:
+          String(
+            reviewCurrency
+          ).toUpperCase()
+      }
+    ).format(
+      selectedTotalCents / 100
+    );
+
+
+  $("review").innerHTML = `
+    <strong>${escapeHtml(reviewLocationName)}</strong><br>
+    ${
+      instructor.name
+        ? `Instructor: ${escapeHtml(instructor.name)}<br>`
+        : ""
+    }
+    ${formatDate(first.start, state.studentTimezone)}<br>
+    ${formatTime(first.start, state.studentTimezone)} – ${formatTime(last.end, state.studentTimezone)}<br>
+    ${
+      reviewAddress
+        ? escapeHtml(reviewAddress) + "<br>"
+        : ""
+    }
+
+    <hr>
+
+    <strong>Student</strong><br>
+    ${escapeHtml(state.student.fullName)}<br>
+    ${escapeHtml(state.student.phone)}<br>
+    ${escapeHtml(state.student.email)}
+    ${bookingFieldReview}
+
+    ${
+      selectedServices.length
+        ? `
+          <hr>
+
+          <strong>Services</strong>
+
+          ${serviceReview}
+
+          <div style="margin-top:12px;">
+            <strong>
+              Total: ${escapeHtml(formattedServiceTotal)}
+            </strong>
+          </div>
+        `
+        : ""
+    }
+  `;
+
 
   if (
     l.payment_required &&
@@ -1479,11 +1648,18 @@ ${formatTime(first.start, state.studentTimezone)} – ${formatTime(last.end, sta
     $("paymentNotice").textContent =
       "Payment will be collected securely before the booking is finalized.";
 
-    $("paymentNotice").classList.remove("hidden");
+    $("paymentNotice").classList.remove(
+      "hidden"
+    );
+
   } else {
-    $("paymentNotice").classList.add("hidden");
+
+    $("paymentNotice").classList.add(
+      "hidden"
+    );
   }
 }
+
 
 $("studentTimezone").addEventListener(
   "change",
