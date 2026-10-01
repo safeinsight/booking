@@ -11634,28 +11634,61 @@ $("connectCalendarBtn").addEventListener("click", () => {
   );
 });
 
-function isInvitationFlow() {
-  const hashParams = new URLSearchParams(
-    window.location.hash.replace(/^#/, "")
-  );
+/* =========================================================
+   AUTHENTICATION FLOWS
+   ========================================================= */
 
-  const queryParams = new URLSearchParams(
-    window.location.search
-  );
+function getAuthFlowType() {
 
-  const hashType = hashParams.get("type");
-  const queryType = queryParams.get("type");
+  const hashParams =
+    new URLSearchParams(
+      window.location.hash.replace(
+        /^#/,
+        ""
+      )
+    );
+
+  const queryParams =
+    new URLSearchParams(
+      window.location.search
+    );
+
 
   return (
-    hashType === "invite" ||
-    hashType === "recovery" ||
-    queryType === "invite" ||
-    queryType === "recovery"
+    hashParams.get("type") ||
+    queryParams.get("type") ||
+    ""
   );
+
 }
 
 
+function isInvitationFlow() {
+
+  return (
+    getAuthFlowType() ===
+    "invite"
+  );
+
+}
+
+
+function isPasswordRecoveryFlow() {
+
+  return (
+    getAuthFlowType() ===
+    "recovery"
+  );
+
+}
+
+
+/* =========================================================
+   CREATE PASSWORD
+   ========================================================= */
+
 async function handleCreatePassword() {
+
   const password =
     $("newPassword").value;
 
@@ -11665,29 +11698,43 @@ async function handleCreatePassword() {
   const error =
     $("createPasswordError");
 
+
   error.classList.add("hidden");
   error.textContent = "";
 
+
   if (!password || !confirmPassword) {
+
     error.textContent =
       "Please enter and confirm your password.";
+
     error.classList.remove("hidden");
+
     return;
   }
+
 
   if (password.length < 8) {
+
     error.textContent =
       "Password must be at least 8 characters.";
+
     error.classList.remove("hidden");
+
     return;
   }
 
+
   if (password !== confirmPassword) {
+
     error.textContent =
       "The passwords do not match.";
+
     error.classList.remove("hidden");
+
     return;
   }
+
 
   const button =
     $("createPasswordBtn");
@@ -11695,42 +11742,47 @@ async function handleCreatePassword() {
   const originalText =
     button.textContent;
 
+
   button.disabled = true;
+
   button.textContent =
     "Creating Password...";
 
+
   try {
+
     const {
       data,
       error: updateError
-    } = await db.auth.updateUser({
-      password
-    });
+    } =
+      await db.auth.updateUser({
+        password
+      });
+
 
     if (updateError) {
       throw updateError;
     }
 
+
     if (!data?.user) {
+
       throw new Error(
         "Unable to update your password."
       );
+
     }
 
-    /*
-     * The invitation/recovery URL is no longer
-     * needed after the password has been created.
-     *
-     * Remove the auth parameters from the browser
-     * address before continuing.
-     */
+
     window.history.replaceState(
       {},
       document.title,
       window.location.pathname
     );
 
+
     window.location.reload();
+
 
   } catch (error) {
 
@@ -11739,66 +11791,319 @@ async function handleCreatePassword() {
       error
     );
 
+
     $("createPasswordError").textContent =
       error.message ||
       "Unable to create your password.";
 
+
     $("createPasswordError")
       .classList.remove("hidden");
+
 
   } finally {
 
     button.disabled = false;
+
     button.textContent =
       originalText;
+
   }
+
 }
+
+
+/* =========================================================
+   SETTINGS LOGIN
+   ========================================================= */
 
 async function handleSettingsLogin() {
-  const email = $("loginEmail").value.trim();
-  const password = $("loginPassword").value;
 
-  $("loginError").classList.add("hidden");
-  $("loginError").textContent = "";
+  const email =
+    $("loginEmail").value.trim();
+
+  const password =
+    $("loginPassword").value;
+
+
+  $("loginError")
+    .classList.add("hidden");
+
+  $("loginError").textContent =
+    "";
+
 
   if (!email || !password) {
+
     $("loginError").textContent =
       "Please enter your email and password.";
-    $("loginError").classList.remove("hidden");
+
+    $("loginError")
+      .classList.remove("hidden");
+
     return;
+
   }
 
-  const { error } = await db.auth.signInWithPassword({
-    email,
-    password
-  });
+
+  const {
+    error
+  } =
+    await db.auth.signInWithPassword({
+      email,
+      password
+    });
+
 
   if (error) {
+
     $("loginError").textContent =
       "Login failed. Please check your email and password.";
-    $("loginError").classList.remove("hidden");
+
+    $("loginError")
+      .classList.remove("hidden");
+
     return;
+
   }
 
+
   window.location.reload();
+
 }
+
+
+/* =========================================================
+   FORGOT PASSWORD
+   ========================================================= */
+
+function showForgotPasswordPanel() {
+
+  const loginEmail =
+    $("loginEmail").value.trim();
+
+
+  $("loginPanel")
+    .classList.add("hidden");
+
+  $("forgotPasswordPanel")
+    .classList.remove("hidden");
+
+
+  $("forgotPasswordEmail").value =
+    loginEmail;
+
+
+  $("forgotPasswordMessage").textContent =
+    "";
+
+  $("forgotPasswordMessage")
+    .classList.add("hidden");
+
+
+  $("forgotPasswordEmail").focus();
+
+}
+
+
+function hideForgotPasswordPanel() {
+
+  const recoveryEmail =
+    $("forgotPasswordEmail").value.trim();
+
+
+  if (recoveryEmail) {
+
+    $("loginEmail").value =
+      recoveryEmail;
+
+  }
+
+
+  $("forgotPasswordEmail").value =
+    "";
+
+  $("forgotPasswordMessage").textContent =
+    "";
+
+  $("forgotPasswordMessage")
+    .classList.add("hidden");
+
+
+  $("forgotPasswordPanel")
+    .classList.add("hidden");
+
+  $("loginPanel")
+    .classList.remove("hidden");
+
+
+  $("loginPassword").focus();
+
+}
+
+
+async function handleForgotPassword() {
+
+  const email =
+    $("forgotPasswordEmail")
+      .value
+      .trim();
+
+  const message =
+    $("forgotPasswordMessage");
+
+  const button =
+    $("sendPasswordResetBtn");
+
+
+  message.textContent =
+    "";
+
+  message.classList.add("hidden");
+
+
+  if (!email) {
+
+    message.textContent =
+      "Please enter your email address.";
+
+    message.classList.remove("hidden");
+
+    $("forgotPasswordEmail").focus();
+
+    return;
+
+  }
+
+
+  const originalText =
+    button.textContent;
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "Sending...";
+
+
+  try {
+
+    const redirectTo =
+      window.location.origin +
+      window.location.pathname;
+
+
+    const {
+      error
+    } =
+      await db.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo
+        }
+      );
+
+
+    if (error) {
+      throw error;
+    }
+
+
+    /*
+     * Use the same confirmation message whether or not
+     * an account exists for this email address.
+     *
+     * This avoids exposing which email addresses have
+     * Booking Settings accounts.
+     */
+
+    message.textContent =
+      "If a Booking Settings account exists for that email address, a password recovery link has been sent.";
+
+    message.classList.remove("hidden");
+
+
+  } catch (error) {
+
+    console.error(
+      "FORGOT PASSWORD ERROR:",
+      error
+    );
+
+
+    message.textContent =
+      error.message ||
+      "Unable to send the password recovery email.";
+
+    message.classList.remove("hidden");
+
+
+  } finally {
+
+    button.disabled = false;
+
+    button.textContent =
+      originalText;
+
+  }
+
+}
+
+
+/* =========================================================
+   AUTHENTICATION EVENT HANDLERS
+   ========================================================= */
 
 $("loginBtn").addEventListener(
   "click",
   handleSettingsLogin
 );
 
+
+$("forgotPasswordBtn").addEventListener(
+  "click",
+  showForgotPasswordPanel
+);
+
+
+$("cancelForgotPasswordBtn").addEventListener(
+  "click",
+  hideForgotPasswordPanel
+);
+
+
+$("sendPasswordResetBtn").addEventListener(
+  "click",
+  handleForgotPassword
+);
+
+
 $("createPasswordBtn").addEventListener(
   "click",
   handleCreatePassword
 );
 
+
 $("loginPassword").addEventListener(
   "keydown",
   event => {
+
     if (event.key === "Enter") {
       handleSettingsLogin();
     }
+
+  }
+);
+
+
+$("forgotPasswordEmail").addEventListener(
+  "keydown",
+  event => {
+
+    if (event.key === "Enter") {
+      handleForgotPassword();
+    }
+
   }
 );
 
