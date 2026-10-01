@@ -12450,37 +12450,55 @@ $("logoutBtn").addEventListener(
 
 
 (async function init() {
+
   try {
 
     const invitationFlow =
       isInvitationFlow();
 
+    const passwordRecoveryFlow =
+      isPasswordRecoveryFlow();
+
+
     /*
-     * Supabase processes the invitation URL and
-     * establishes the temporary authenticated session.
+     * Supabase processes invitation and password
+     * recovery URLs and establishes a temporary
+     * authenticated session.
      */
+
     const {
       data: {
         session
       }
-    } = await db.auth.getSession();
+    } =
+      await db.auth.getSession();
 
-    $("loading").classList.add("hidden");
+
+    $("loading")
+      .classList.add("hidden");
+
 
     /*
-     * Invitation link:
+     * INVITATION FLOW
      *
      * A valid invitation should already have
      * produced an authenticated session.
      *
-     * Show the password creation screen instead
-     * of the normal login screen.
+     * Show only the Create Password screen.
      */
+
     if (
       invitationFlow &&
       session
     ) {
+
       $("loginPanel")
+        .classList.add("hidden");
+
+      $("forgotPasswordPanel")
+        .classList.add("hidden");
+
+      $("resetPasswordPanel")
         .classList.add("hidden");
 
       $("settingsApp")
@@ -12489,43 +12507,108 @@ $("logoutBtn").addEventListener(
       $("createPasswordPanel")
         .classList.remove("hidden");
 
+
+      $("newPassword").focus();
+
       return;
+
     }
 
+
     /*
-     * Normal Settings login.
+     * PASSWORD RECOVERY FLOW
+     *
+     * A valid recovery link should already have
+     * produced an authenticated recovery session.
+     *
+     * Recovery gets its own password screen and
+     * must never fall into the invitation flow.
      */
+
+    if (
+      passwordRecoveryFlow &&
+      session
+    ) {
+
+      $("loginPanel")
+        .classList.add("hidden");
+
+      $("forgotPasswordPanel")
+        .classList.add("hidden");
+
+      $("createPasswordPanel")
+        .classList.add("hidden");
+
+      $("settingsApp")
+        .classList.add("hidden");
+
+      $("resetPasswordPanel")
+        .classList.remove("hidden");
+
+
+      $("resetPasswordNew").focus();
+
+      return;
+
+    }
+
+
+    /*
+     * NORMAL SETTINGS LOGIN
+     *
+     * No valid invitation or recovery session is
+     * being processed.
+     */
+
     const authenticated =
       await authenticateSettingsUser();
 
+
     if (!authenticated) {
 
-      $("loginPanel")
-        .classList.remove("hidden");
+      $("forgotPasswordPanel")
+        .classList.add("hidden");
 
       $("createPasswordPanel")
+        .classList.add("hidden");
+
+      $("resetPasswordPanel")
         .classList.add("hidden");
 
       $("settingsApp")
         .classList.add("hidden");
 
+      $("loginPanel")
+        .classList.remove("hidden");
+
       return;
+
     }
 
+
     /*
-     * Normal authenticated Settings user.
+     * NORMAL AUTHENTICATED SETTINGS USER
      */
+
     $("loginPanel")
+      .classList.add("hidden");
+
+    $("forgotPasswordPanel")
       .classList.add("hidden");
 
     $("createPasswordPanel")
       .classList.add("hidden");
+
+    $("resetPasswordPanel")
+      .classList.add("hidden");
+
 
     $("settingsUserEmail").textContent =
       state.user.email;
 
     $("settingsUserRole").textContent =
       state.role;
+
 
     applyRolePermissions();
 
