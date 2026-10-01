@@ -1259,9 +1259,32 @@ $("studentTimezone").addEventListener(
   }
 );
 
-$("toDateBtn").addEventListener("click", () => {
-  showStep(2);
-});
+$("toDateBtn").addEventListener(
+  "click",
+  async () => {
+
+    try {
+
+      /*
+       * loadDates() now processes the availability
+       * response already loaded by loadBookingContext().
+       *
+       * No second network request is made.
+       */
+      await loadDates();
+
+      showStep(2);
+
+    } catch (err) {
+
+      showError(
+        err.message
+      );
+
+    }
+
+  }
+);
 $("calendarPrev").addEventListener(
   "click",
   () => changeCalendarMonth(-1)
