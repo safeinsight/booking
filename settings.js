@@ -8829,6 +8829,8 @@ function renderInstructorList() {
               isAdministrator()
                 ? `
                   <details
+                    data-password-recovery="${escapeAttr(settingsUser.user_id || "")}"
+                    ${state.openPasswordRecoveryUserId === settingsUser.user_id ? "open" : ""}
                     style="
                       margin-top:18px;
                       border:1px solid #ddd;
