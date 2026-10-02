@@ -8383,32 +8383,140 @@ async function saveBookingRulesSettings(button) {
       );
     }
 
+    if (!state.location?.id) {
+      throw new Error(
+        "No Location is currently selected."
+      );
+    }
+
+
+    /*
+     * Booking Rule inheritance / override architecture
+     *
+     * Location values are the defaults.
+     *
+     * A NULL instructor value means that individual rule
+     * inherits from the Location.
+     *
+     * When saving:
+     *
+     * 1. Existing instructor overrides are preserved.
+     *
+     * 2. An inherited rule is NOT submitted when the
+     *    displayed value still equals the Location default.
+     *    This leaves the instructor column NULL so future
+     *    Location-default changes continue to flow through.
+     *
+     * 3. If the user changes an inherited value away from
+     *    the Location default, that field is submitted and
+     *    becomes an instructor-specific override.
+     */
+
+    const ruleDefinitions = [
+      {
+        field:
+          "appointment_length_minutes",
+        inputId:
+          "appointmentLengthInput"
+      },
+      {
+        field:
+          "max_students_per_slot",
+        inputId:
+          "maxStudentsInput"
+      },
+      {
+        field:
+          "booking_horizon_days",
+        inputId:
+          "bookingHorizonInput"
+      },
+      {
+        field:
+          "minimum_booking_notice_hours",
+        inputId:
+          "minimumNoticeInput"
+      },
+      {
+        field:
+          "cancellation_hours",
+        inputId:
+          "cancellationHoursInput"
+      },
+      {
+        field:
+          "reschedule_hours",
+        inputId:
+          "rescheduleHoursInput"
+      }
+    ];
+
 
     const payload = {
       location_id:
         state.location.id,
 
       instructor_id:
-        state.instructor.id,
-
-      appointment_length_minutes:
-        Number($("appointmentLengthInput").value),
-
-      max_students_per_slot:
-        Number($("maxStudentsInput").value),
-
-      booking_horizon_days:
-        Number($("bookingHorizonInput").value),
-
-      minimum_booking_notice_hours:
-        Number($("minimumNoticeInput").value),
-
-      cancellation_hours:
-        Number($("cancellationHoursInput").value),
-
-      reschedule_hours:
-        Number($("rescheduleHoursInput").value)
+        state.instructor.id
     };
+
+
+    ruleDefinitions.forEach(rule => {
+
+      const enteredValue =
+        Number(
+          $(rule.inputId).value
+        );
+
+      const instructorOverride =
+        state.instructor[
+          rule.field
+        ];
+
+      const locationDefault =
+        state.location[
+          rule.field
+        ];
+
+
+      /*
+       * If this instructor already owns an explicit
+       * override, continue submitting the visible value.
+       *
+       * This protects that instructor-specific rule from
+       * future changes to the Location default.
+       */
+      if (
+        instructorOverride !== null &&
+        instructorOverride !== undefined
+      ) {
+
+        payload[rule.field] =
+          enteredValue;
+
+        return;
+      }
+
+
+      /*
+       * No instructor override currently exists.
+       *
+       * Submit the field only when the user changed the
+       * inherited value away from the Location default.
+       *
+       * If it still equals the default, omit it entirely
+       * so the instructor database value remains NULL.
+       */
+      if (
+        enteredValue !==
+        Number(locationDefault)
+      ) {
+
+        payload[rule.field] =
+          enteredValue;
+      }
+
+    });
 
 
     /*
@@ -8495,55 +8603,141 @@ async function saveBookingRulesSettings(button) {
     }
 
 
-    const updatedBookingRules = {
+    /*
+     * Keep the authoritative instructor values returned
+     * by the backend.
+     *
+     * This is important because inherited rules must stay
+     * NULL in state rather than being replaced by their
+     * currently displayed effective values.
+     */
+    const savedBookingRules = {
       appointment_length_minutes:
-        Number($("appointmentLengthInput").value),
+        result.instructor
+          .appointment_length_minutes,
 
       max_students_per_slot:
-        Number($("maxStudentsInput").value),
+        result.instructor
+          .max_students_per_slot,
 
       booking_horizon_days:
-        Number($("bookingHorizonInput").value),
+        result.instructor
+          .booking_horizon_days,
 
       minimum_booking_notice_hours:
-        Number($("minimumNoticeInput").value),
+        result.instructor
+          .minimum_booking_notice_hours,
 
       cancellation_hours:
-        Number($("cancellationHoursInput").value),
+        result.instructor
+          .cancellation_hours,
 
       reschedule_hours:
-        Number($("rescheduleHoursInput").value)
+        result.instructor
+          .reschedule_hours
     };
+
 
     state.instructor = {
       ...state.instructor,
-      ...updatedBookingRules
+      ...savedBookingRules
     };
+
 
     state.instructors =
       state.instructors.map(instructor =>
         instructor.id === state.instructor.id
           ? {
               ...instructor,
-              ...updatedBookingRules
+              ...savedBookingRules
             }
           : instructor
       );
 
+
     renderInstructorList();
 
-    // Update the Availability summary immediately
+
+    /*
+     * Recalculate the effective Booking Rules for display.
+     *
+     * Instructor override wins.
+     * Otherwise use the current Location default.
+     */
+    const effectiveBookingRules = {
+      appointment_length_minutes:
+        savedBookingRules.appointment_length_minutes ??
+        state.location.appointment_length_minutes ??
+        60,
+
+      max_students_per_slot:
+        savedBookingRules.max_students_per_slot ??
+        state.location.max_students_per_slot ??
+        8,
+
+      booking_horizon_days:
+        savedBookingRules.booking_horizon_days ??
+        state.location.booking_horizon_days ??
+        14,
+
+      minimum_booking_notice_hours:
+        savedBookingRules.minimum_booking_notice_hours ??
+        state.location.minimum_booking_notice_hours ??
+        24,
+
+      cancellation_hours:
+        savedBookingRules.cancellation_hours ??
+        state.location.cancellation_hours ??
+        24,
+
+      reschedule_hours:
+        savedBookingRules.reschedule_hours ??
+        state.location.reschedule_hours ??
+        12
+    };
+
+
+    /*
+     * Update both the Booking Rules inputs and the
+     * Availability summary from the effective values.
+     */
+    $("appointmentLengthInput").value =
+      effectiveBookingRules
+        .appointment_length_minutes;
+
+    $("maxStudentsInput").value =
+      effectiveBookingRules
+        .max_students_per_slot;
+
+    $("bookingHorizonInput").value =
+      effectiveBookingRules
+        .booking_horizon_days;
+
+    $("minimumNoticeInput").value =
+      effectiveBookingRules
+        .minimum_booking_notice_hours;
+
+    $("cancellationHoursInput").value =
+      effectiveBookingRules
+        .cancellation_hours;
+
+    $("rescheduleHoursInput").value =
+      effectiveBookingRules
+        .reschedule_hours;
+
+
     $("appointmentLength").textContent =
-      `${updatedBookingRules.appointment_length_minutes} minutes`;
+      `${effectiveBookingRules.appointment_length_minutes} minutes`;
 
     $("maxStudents").textContent =
-      `${updatedBookingRules.max_students_per_slot} students`;
+      `${effectiveBookingRules.max_students_per_slot} students`;
 
     $("bookingHorizon").textContent =
-      `${updatedBookingRules.booking_horizon_days} days`;
+      `${effectiveBookingRules.booking_horizon_days} days`;
 
     $("minimumNotice").textContent =
-      `${updatedBookingRules.minimum_booking_notice_hours} hours`;
+      `${effectiveBookingRules.minimum_booking_notice_hours} hours`;
+
 
     button.textContent =
       "Saved";
