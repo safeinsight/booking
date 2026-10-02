@@ -1660,20 +1660,6 @@ function renderAppointmentAddonPurchases(
                         Copy Payment Link
                       </button>
 
-
-                      <button
-                        type="button"
-                        class="secondary appointment-addon-qr-btn"
-                        data-appointment-id="${escapeHtml(
-                          appointment.id || ""
-                        )}"
-                        data-booking-service-id="${escapeHtml(
-                          bookingServiceId
-                        )}"
-                      >
-                        Show QR Code
-                      </button>
-
                     </div>
 
                   </details>
