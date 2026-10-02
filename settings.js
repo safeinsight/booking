@@ -1261,6 +1261,459 @@ function formatAppointmentServices(
 }
 
 
+/*
+ * Render additional on-site purchase controls for services
+ * whose historical booking snapshot allows additional quantity.
+ *
+ * IMPORTANT:
+ *
+ * The values returned by get-appointments are used only to
+ * present the current state to the instructor.
+ *
+ * create-booking-addon-checkout remains authoritative and
+ * independently re-validates:
+ *
+ * - appointment ownership / access
+ * - appointment status
+ * - appointment time eligibility
+ * - historical unit price
+ * - historical maximum quantity
+ * - previously paid add-ons
+ * - remaining quantity
+ *
+ * The browser must never be trusted to enforce those rules.
+ */
+
+function renderAppointmentAddonPurchases(
+  appointment
+) {
+
+  const bookingServices =
+    Array.isArray(
+      appointment.booking_services
+    )
+      ? appointment.booking_services
+      : [];
+
+
+  const status =
+    String(
+      appointment.status || ""
+    ).toLowerCase();
+
+
+  /*
+   * Add-on purchases are available only for confirmed or
+   * rescheduled appointments.
+   *
+   * The server independently enforces this same rule.
+   */
+
+  if (
+    status !== "confirmed" &&
+    status !== "rescheduled"
+  ) {
+
+    return "";
+
+  }
+
+
+  /*
+   * Mirror the server's appointment-time rule for display:
+   *
+   * purchasing remains available through 90 minutes after
+   * the scheduled appointment end time.
+   *
+   * This is UI convenience only. The Edge Function remains
+   * authoritative if the browser clock is wrong or stale.
+   */
+
+  const endTime =
+    new Date(
+      appointment.end_time
+    );
+
+
+  if (
+    !Number.isFinite(
+      endTime.getTime()
+    )
+  ) {
+
+    return "";
+
+  }
+
+
+  const purchaseCutoff =
+    endTime.getTime() +
+    (90 * 60 * 1000);
+
+
+  if (
+    Date.now() >
+    purchaseCutoff
+  ) {
+
+    return "";
+
+  }
+
+
+  const eligibleServices =
+    bookingServices.filter(
+      service => {
+
+        const bookingServiceId =
+          String(
+            service.id || ""
+          );
+
+
+        const priceCents =
+          Number(
+            service.price_cents
+          );
+
+
+        const maxQuantity =
+          Number(
+            service.max_quantity
+          );
+
+
+        const effectiveQuantity =
+          Number(
+            service.effective_quantity
+          );
+
+
+        const remainingQuantity =
+          Number(
+            service.remaining_quantity
+          );
+
+
+        /*
+         * Historical bookings created before max_quantity
+         * snapshots existed are intentionally excluded.
+         *
+         * We also require a paid historical service because
+         * this workflow creates a Stripe payment.
+         */
+
+        return (
+          Boolean(
+            bookingServiceId
+          ) &&
+          Number.isInteger(
+            priceCents
+          ) &&
+          priceCents > 0 &&
+          Number.isInteger(
+            maxQuantity
+          ) &&
+          maxQuantity >= 1 &&
+          Number.isInteger(
+            effectiveQuantity
+          ) &&
+          effectiveQuantity >= 1 &&
+          Number.isInteger(
+            remainingQuantity
+          ) &&
+          remainingQuantity >= 0 &&
+          maxQuantity > 1
+        );
+
+      }
+    );
+
+
+  if (!eligibleServices.length) {
+    return "";
+  }
+
+
+  const servicePanels =
+    eligibleServices
+      .map(service => {
+
+        const bookingServiceId =
+          String(
+            service.id || ""
+          );
+
+
+        const serviceName =
+          String(
+            service.service_name ||
+            "Additional Qualification"
+          );
+
+
+        const effectiveQuantity =
+          Number(
+            service.effective_quantity
+          );
+
+
+        const maxQuantity =
+          Number(
+            service.max_quantity
+          );
+
+
+        const remainingQuantity =
+          Number(
+            service.remaining_quantity
+          );
+
+
+        const maximumReached =
+          remainingQuantity <= 0;
+
+
+        const quantityOptions =
+          maximumReached
+            ? ""
+            : Array.from(
+                {
+                  length:
+                    remainingQuantity
+                },
+                (_, index) => {
+
+                  const quantity =
+                    index + 1;
+
+
+                  return `
+                    <option
+                      value="${quantity}"
+                    >
+                      ${quantity}
+                    </option>
+                  `;
+
+                }
+              ).join("");
+
+
+        return `
+          <div
+            class="appointment-addon-service"
+            data-addon-booking-service-id="${escapeHtml(
+              bookingServiceId
+            )}"
+            style="
+              margin-top:12px;
+              padding:14px;
+              border:1px solid #ddd;
+              border-radius:8px;
+              background:#fafafa;
+            "
+          >
+
+            <div
+              style="
+                font-weight:700;
+              "
+            >
+              ${escapeHtml(
+                serviceName
+              )}
+            </div>
+
+
+            <div
+              style="
+                margin-top:7px;
+              "
+            >
+              Purchased:
+              <strong>
+                ${effectiveQuantity}
+                of
+                ${maxQuantity}
+              </strong>
+            </div>
+
+
+            ${
+              maximumReached
+                ? `
+                  <div
+                    style="
+                      margin-top:7px;
+                      font-weight:700;
+                    "
+                  >
+                    Maximum reached
+                  </div>
+                `
+                : `
+                  <div
+                    style="
+                      margin-top:5px;
+                    "
+                  >
+                    Available to add:
+                    <strong>
+                      ${remainingQuantity}
+                    </strong>
+                  </div>
+
+
+                  <div
+                    style="
+                      margin-top:12px;
+                      display:flex;
+                      align-items:center;
+                      gap:10px;
+                      flex-wrap:wrap;
+                    "
+                  >
+
+                    <label
+                      for="appointmentAddonQuantity-${escapeHtml(
+                        bookingServiceId
+                      )}"
+                      style="
+                        font-weight:700;
+                      "
+                    >
+                      Quantity:
+                    </label>
+
+                    <select
+                      id="appointmentAddonQuantity-${escapeHtml(
+                        bookingServiceId
+                      )}"
+                      class="appointment-addon-quantity"
+                      data-booking-service-id="${escapeHtml(
+                        bookingServiceId
+                      )}"
+                    >
+                      ${quantityOptions}
+                    </select>
+
+                  </div>
+
+
+                  <div
+                    style="
+                      margin-top:12px;
+                    "
+                  >
+                    <button
+                      type="button"
+                      class="primary appointment-addon-collect-btn"
+                      data-appointment-id="${escapeHtml(
+                        appointment.id || ""
+                      )}"
+                      data-booking-service-id="${escapeHtml(
+                        bookingServiceId
+                      )}"
+                    >
+                      Collect Payment
+                    </button>
+                  </div>
+
+
+                  <details
+                    class="appointment-addon-more-options"
+                    style="
+                      margin-top:12px;
+                    "
+                  >
+
+                    <summary
+                      style="
+                        cursor:pointer;
+                        font-weight:700;
+                      "
+                    >
+                      More Payment Options
+                    </summary>
+
+
+                    <div
+                      style="
+                        margin-top:10px;
+                        display:flex;
+                        gap:10px;
+                        flex-wrap:wrap;
+                      "
+                    >
+
+                      <button
+                        type="button"
+                        class="secondary appointment-addon-copy-btn"
+                        data-appointment-id="${escapeHtml(
+                          appointment.id || ""
+                        )}"
+                        data-booking-service-id="${escapeHtml(
+                          bookingServiceId
+                        )}"
+                      >
+                        Copy Payment Link
+                      </button>
+
+
+                      <button
+                        type="button"
+                        class="secondary appointment-addon-qr-btn"
+                        data-appointment-id="${escapeHtml(
+                          appointment.id || ""
+                        )}"
+                        data-booking-service-id="${escapeHtml(
+                          bookingServiceId
+                        )}"
+                      >
+                        Show QR Code
+                      </button>
+
+                    </div>
+
+                  </details>
+                `
+            }
+
+          </div>
+        `;
+
+      })
+      .join("");
+
+
+  return `
+    <div
+      class="appointment-addon-purchases"
+      style="
+        margin-top:16px;
+        padding-top:14px;
+        border-top:1px solid #eee;
+      "
+    >
+
+      <div
+        style="
+          font-size:16px;
+          font-weight:700;
+        "
+      >
+        Additional Qualifications
+      </div>
+
+      ${servicePanels}
+
+    </div>
+  `;
+
+}
+
+
 function renderAppointmentList(
   containerId,
   appointments
@@ -1307,6 +1760,12 @@ function renderAppointmentList(
 
         const servicesText =
           formatAppointmentServices(
+            appointment
+          );
+
+
+        const addonPurchasesHtml =
+          renderAppointmentAddonPurchases(
             appointment
           );
 
@@ -1436,7 +1895,9 @@ function renderAppointmentList(
                 : ""
             }
 
+
             ${bookingFieldAnswersHtml}
+
 
             <div
               style="
@@ -1458,6 +1919,10 @@ function renderAppointmentList(
                 )}
               </div>
             </div>
+
+
+            ${addonPurchasesHtml}
+
 
             ${
               containerId ===
