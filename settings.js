@@ -13947,6 +13947,176 @@ document.addEventListener(
 );
 
 
+/*
+ * Create a Stripe Checkout Session for an additional
+ * qualification purchased during an existing appointment.
+ *
+ * IMPORTANT:
+ *
+ * The browser sends only the booking, historical
+ * booking_service, and requested quantity.
+ *
+ * create-booking-addon-checkout independently validates
+ * authorization, appointment eligibility, historical price,
+ * historical maximum quantity, previously paid add-ons,
+ * and remaining quantity before creating Checkout.
+ */
+
+async function createAppointmentAddonCheckout(
+  bookingId,
+  bookingServiceId,
+  quantity
+) {
+
+  if (!hasPermission("appointments")) {
+
+    throw new Error(
+      "You do not have permission to manage appointments."
+    );
+
+  }
+
+
+  if (!state.instructor?.id) {
+
+    throw new Error(
+      "Select an instructor before collecting payment."
+    );
+
+  }
+
+
+  if (
+    !bookingId ||
+    !bookingServiceId
+  ) {
+
+    throw new Error(
+      "Unable to identify this appointment service."
+    );
+
+  }
+
+
+  const requestedQuantity =
+    Number(
+      quantity
+    );
+
+
+  if (
+    !Number.isInteger(
+      requestedQuantity
+    ) ||
+    requestedQuantity < 1
+  ) {
+
+    throw new Error(
+      "Select a valid quantity."
+    );
+
+  }
+
+
+  const authHeaders =
+    await getAuthHeaders();
+
+
+  const response =
+    await fetch(
+      `${cfg.functionsBaseUrl}/create-booking-addon-checkout`,
+      {
+        method:
+          "POST",
+
+        headers:
+          authHeaders,
+
+        body:
+          JSON.stringify({
+            booking_id:
+              bookingId,
+
+            booking_service_id:
+              bookingServiceId,
+
+            quantity:
+              requestedQuantity,
+
+            instructor_id:
+              state.instructor.id,
+
+            return_url:
+              window.location.href
+          })
+      }
+    );
+
+
+  const responseText =
+    await response.text();
+
+
+  let result = {};
+
+
+  if (responseText) {
+
+    try {
+
+      result =
+        JSON.parse(
+          responseText
+        );
+
+    } catch {
+
+      throw new Error(
+        responseText
+      );
+
+    }
+
+  }
+
+
+  if (
+    !response.ok ||
+    result.error
+  ) {
+
+    throw new Error(
+      result.error ||
+      "Unable to create the payment checkout."
+    );
+
+  }
+
+
+  const checkoutUrl =
+    String(
+      result.checkout_url || ""
+    ).trim();
+
+
+  if (!checkoutUrl) {
+
+    throw new Error(
+      "Stripe did not return a checkout URL."
+    );
+
+  }
+
+
+  return {
+    ...result,
+    checkout_url:
+      checkoutUrl
+  };
+
+}
+
+
 /* =========================================================
    APPOINTMENTS TAB CONTROLS
    ========================================================= */
@@ -14403,6 +14573,130 @@ document.addEventListener(
       );
 
       await loadAppointments();
+
+      return;
+    }
+
+
+    /*
+     * ADDITIONAL QUALIFICATION
+     * COLLECT PAYMENT.
+     *
+     * The instructor chooses a fixed quantity before the
+     * Stripe Checkout Session is created.
+     *
+     * The server independently validates authorization,
+     * appointment eligibility, historical price,
+     * historical maximum quantity, paid add-ons,
+     * and remaining quantity.
+     */
+
+    const addonCollectButton =
+      event.target.closest(
+        ".appointment-addon-collect-btn"
+      );
+
+
+    if (addonCollectButton) {
+
+      const bookingId =
+        addonCollectButton.getAttribute(
+          "data-appointment-id"
+        );
+
+
+      const bookingServiceId =
+        addonCollectButton.getAttribute(
+          "data-booking-service-id"
+        );
+
+
+      const addonServicePanel =
+        addonCollectButton.closest(
+          ".appointment-addon-service"
+        );
+
+
+      const quantitySelect =
+        addonServicePanel?.querySelector(
+          ".appointment-addon-quantity"
+        );
+
+
+      const quantity =
+        Number(
+          quantitySelect?.value
+        );
+
+
+      if (
+        !bookingId ||
+        !bookingServiceId ||
+        !Number.isInteger(quantity) ||
+        quantity < 1
+      ) {
+
+        showCustomAlert(
+          "Unable to identify the additional qualification purchase."
+        );
+
+        return;
+      }
+
+
+      const originalText =
+        addonCollectButton.textContent;
+
+
+      addonCollectButton.disabled =
+        true;
+
+      addonCollectButton.textContent =
+        "Opening Payment...";
+
+
+      try {
+
+        const checkout =
+          await createAppointmentAddonCheckout(
+            bookingId,
+            bookingServiceId,
+            quantity
+          );
+
+
+        /*
+         * Use only the exact Checkout URL returned
+         * by the Edge Function.
+         */
+
+        window.location.assign(
+          checkout.checkout_url
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "ADDITIONAL QUALIFICATION CHECKOUT ERROR:",
+          error
+        );
+
+
+        addonCollectButton.disabled =
+          false;
+
+        addonCollectButton.textContent =
+          originalText;
+
+
+        showCustomAlert(
+          error.message ||
+          "Unable to open payment checkout."
+        );
+
+      }
+
 
       return;
     }
