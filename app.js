@@ -133,7 +133,8 @@ function groupAvailabilityByStudentTimezone(days) {
 
       if (
         !slot.blocked &&
-        slot.remaining > 0
+        slot.remaining > 0 &&
+        slotMeetsMinimumNotice(slot)
       ) {
         studentDay.has_available = true;
       }
@@ -162,6 +163,65 @@ function getInstructorTimezone() {
     "America/Phoenix"
   );
 }
+
+
+/*
+ * Determine whether a slot satisfies the effective
+ * minimum advance-booking notice.
+ *
+ * This is a public-page usability check only.
+ * create-booking remains the authoritative server-side
+ * enforcement of the minimum-notice rule.
+ */
+function slotMeetsMinimumNotice(slot) {
+  const instructor =
+    state.instructor || {};
+
+  const location =
+    state.location || {};
+
+  const minimumNoticeHours =
+    Number(
+      instructor.minimum_booking_notice_hours ??
+      location.minimum_booking_notice_hours ??
+      24
+    );
+
+
+  if (
+    !Number.isFinite(minimumNoticeHours) ||
+    minimumNoticeHours <= 0
+  ) {
+    return true;
+  }
+
+
+  const slotStart =
+    new Date(slot.start).getTime();
+
+  if (
+    !Number.isFinite(slotStart)
+  ) {
+    return false;
+  }
+
+
+  const earliestAllowedStart =
+    Date.now() +
+    (
+      minimumNoticeHours *
+      60 *
+      60 *
+      1000
+    );
+
+
+  return (
+    slotStart >=
+    earliestAllowedStart
+  );
+}
+
 
 function initializeStudentTimezone() {
   const select = $("studentTimezone");
@@ -775,7 +835,22 @@ function renderSlots() {
   }
 
   container.innerHTML = day.slots.map((s, i) => {
-    const status = s.blocked ? "blocked" : (s.remaining <= 0 ? "unavailable full" : "");
+    const tooSoon =
+      !slotMeetsMinimumNotice(s);
+
+    const status =
+      s.blocked
+        ? "blocked"
+        : (
+            s.remaining <= 0
+              ? "unavailable full"
+              : (
+                  tooSoon
+                    ? "unavailable"
+                    : ""
+                )
+          );
+
     return `<button type="button" class="slot ${status}" data-index="${i}" ${status ? "disabled" : ""}>
        ${formatTime(s.start, state.studentTimezone)}<br><small>${s.remaining} space${s.remaining === 1 ? "" : "s"}</small>
     </button>`;
