@@ -3559,19 +3559,26 @@ state.location = loc;
   const instructorLocation =
     state.instructor || {};
 
+  /*
+   * Location Information is instructor-specific.
+   *
+   * Do NOT fall back to legacy locations.name,
+   * locations.address, or locations.website values.
+   *
+   * A blank instructor value is intentional and must
+   * remain blank rather than resurrecting an old
+   * shared Location value.
+   */
   $("locationName").value =
     instructorLocation.location_name ||
-    loc.name ||
     "";
 
   $("address").value =
     instructorLocation.address ||
-    loc.address ||
     "";
 
   $("website").value =
     instructorLocation.website ||
-    loc.website ||
     "";
 
   $("services").value =
