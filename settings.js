@@ -15026,3 +15026,43 @@ selectAppointmentHistoryRange(
 );
 
 updateSelectedInstructorBanner();
+
+
+/* =========================================================
+   APPOINTMENT ADD-ON CHECKOUT RETURN STATE
+   ========================================================= */
+
+/*
+ * Stripe Checkout navigates away from Booking Settings.
+ *
+ * If the instructor returns with the browser Back button,
+ * the browser may restore this page from its back/forward
+ * cache instead of rebuilding the DOM.
+ *
+ * Reset only the temporary Collect Payment button state
+ * that may have been preserved during that restoration.
+ *
+ * This does not create a Checkout Session, change payment
+ * data, or alter appointment data.
+ */
+
+window.addEventListener(
+  "pageshow",
+  () => {
+
+    document
+      .querySelectorAll(
+        ".appointment-addon-collect-btn"
+      )
+      .forEach(button => {
+
+        button.disabled =
+          false;
+
+        button.textContent =
+          "Collect Payment";
+
+      });
+
+  }
+);
