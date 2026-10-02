@@ -267,14 +267,21 @@ function renderLocationSummary() {
   const l = state.location;
   const i = state.instructor || {};
 
+  /*
+   * Public-facing Location Information is
+   * instructor-specific.
+   *
+   * Do not fall back to legacy locations.name or
+   * locations.address values. A blank instructor
+   * address intentionally means no address should
+   * be displayed.
+   */
   const locationName =
     i.location_name ||
-    l.name ||
     "";
 
   const address =
     i.address ||
-    l.address ||
     "";
 
   const services =
@@ -1411,15 +1418,22 @@ function buildReview() {
     state.instructor || {};
 
 
+  /*
+   * Review-screen Location Information is
+   * instructor-specific.
+   *
+   * Do not fall back to legacy locations.name or
+   * locations.address values. A blank instructor
+   * address intentionally means no address should
+   * be displayed.
+   */
   const reviewLocationName =
     instructor.location_name ||
-    l.name ||
     "";
 
 
   const reviewAddress =
     instructor.address ||
-    l.address ||
     "";
 
 
