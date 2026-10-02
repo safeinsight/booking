@@ -14703,6 +14703,145 @@ document.addEventListener(
 
 
     /*
+     * ADDITIONAL QUALIFICATION
+     * COPY PAYMENT LINK.
+     *
+     * This creates the same server-authoritative Stripe
+     * Checkout Session used by Collect Payment, but copies
+     * the exact returned Checkout URL instead of navigating
+     * the instructor's device away from Booking Settings.
+     */
+
+    const addonCopyButton =
+      event.target.closest(
+        ".appointment-addon-copy-btn"
+      );
+
+
+    if (addonCopyButton) {
+
+      const bookingId =
+        addonCopyButton.getAttribute(
+          "data-appointment-id"
+        );
+
+
+      const bookingServiceId =
+        addonCopyButton.getAttribute(
+          "data-booking-service-id"
+        );
+
+
+      const addonServicePanel =
+        addonCopyButton.closest(
+          ".appointment-addon-service"
+        );
+
+
+      const quantitySelect =
+        addonServicePanel?.querySelector(
+          ".appointment-addon-quantity"
+        );
+
+
+      const quantity =
+        Number(
+          quantitySelect?.value
+        );
+
+
+      if (
+        !bookingId ||
+        !bookingServiceId ||
+        !Number.isInteger(quantity) ||
+        quantity < 1
+      ) {
+
+        showCustomAlert(
+          "Unable to identify the additional qualification purchase."
+        );
+
+        return;
+      }
+
+
+      const originalText =
+        addonCopyButton.textContent;
+
+
+      addonCopyButton.disabled =
+        true;
+
+      addonCopyButton.textContent =
+        "Creating Link...";
+
+
+      try {
+
+        const checkout =
+          await createAppointmentAddonCheckout(
+            bookingId,
+            bookingServiceId,
+            quantity
+          );
+
+
+        /*
+         * Copy only the exact Checkout URL returned
+         * by the Edge Function.
+         */
+
+        await navigator.clipboard.writeText(
+          checkout.checkout_url
+        );
+
+
+        addonCopyButton.textContent =
+          "Link Copied";
+
+
+        window.setTimeout(
+          () => {
+
+            addonCopyButton.disabled =
+              false;
+
+            addonCopyButton.textContent =
+              originalText;
+
+          },
+          1500
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "ADDITIONAL QUALIFICATION COPY LINK ERROR:",
+          error
+        );
+
+
+        addonCopyButton.disabled =
+          false;
+
+        addonCopyButton.textContent =
+          originalText;
+
+
+        showCustomAlert(
+          error.message ||
+          "Unable to create payment link."
+        );
+
+      }
+
+
+      return;
+    }
+
+
+    /*
      * CANCEL APPOINTMENT
      */
 
