@@ -3613,38 +3613,84 @@ state.location = loc;
     loc.accent_color || "#FF0000"
   );
 
-  const bookingRules =
-    state.instructor || loc;
+  /*
+   * Booking Rules
+   *
+   * Instructor-specific values override the shared
+   * Location defaults.
+   *
+   * A NULL instructor value means the instructor has
+   * not overridden that individual rule and therefore
+   * inherits the corresponding Location value.
+   *
+   * The final hardcoded values are defensive fallbacks
+   * only if neither the instructor nor Location contains
+   * a usable value.
+   */
+  const instructorBookingRules =
+    state.instructor || {};
+
+  const bookingRules = {
+    appointment_length_minutes:
+      instructorBookingRules.appointment_length_minutes ??
+      loc.appointment_length_minutes ??
+      60,
+
+    max_students_per_slot:
+      instructorBookingRules.max_students_per_slot ??
+      loc.max_students_per_slot ??
+      8,
+
+    booking_horizon_days:
+      instructorBookingRules.booking_horizon_days ??
+      loc.booking_horizon_days ??
+      14,
+
+    minimum_booking_notice_hours:
+      instructorBookingRules.minimum_booking_notice_hours ??
+      loc.minimum_booking_notice_hours ??
+      24,
+
+    cancellation_hours:
+      instructorBookingRules.cancellation_hours ??
+      loc.cancellation_hours ??
+      24,
+
+    reschedule_hours:
+      instructorBookingRules.reschedule_hours ??
+      loc.reschedule_hours ??
+      12
+  };
 
   $("appointmentLength").textContent =
-    `${bookingRules.appointment_length_minutes || 60} minutes`;
+    `${bookingRules.appointment_length_minutes} minutes`;
 
   $("maxStudents").textContent =
-    `${bookingRules.max_students_per_slot || 8} students`;
+    `${bookingRules.max_students_per_slot} students`;
 
   $("bookingHorizon").textContent =
-    `${bookingRules.booking_horizon_days || 14} days`;
+    `${bookingRules.booking_horizon_days} days`;
 
   $("minimumNotice").textContent =
-    `${bookingRules.minimum_booking_notice_hours || 24} hours`;
+    `${bookingRules.minimum_booking_notice_hours} hours`;
 
   $("appointmentLengthInput").value =
-    bookingRules.appointment_length_minutes || 60;
+    bookingRules.appointment_length_minutes;
 
   $("maxStudentsInput").value =
-    bookingRules.max_students_per_slot || 8;
+    bookingRules.max_students_per_slot;
 
   $("bookingHorizonInput").value =
-    bookingRules.booking_horizon_days || 14;
+    bookingRules.booking_horizon_days;
 
   $("minimumNoticeInput").value =
-    bookingRules.minimum_booking_notice_hours ?? 24;
+    bookingRules.minimum_booking_notice_hours;
 
   $("cancellationHoursInput").value =
-    bookingRules.cancellation_hours ?? 24;
+    bookingRules.cancellation_hours;
 
   $("rescheduleHoursInput").value =
-    bookingRules.reschedule_hours ?? 12;
+    bookingRules.reschedule_hours;
 
 
   /*
