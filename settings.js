@@ -1701,12 +1701,6 @@ function renderAppointmentAddonPurchases(
 
 
 function renderAppointmentList(
-  containerId,
-  appointments
-) {
-
-  const container =
-    $(containerId);
 
 
   if (!container) {
@@ -2053,6 +2047,16 @@ function renderAppointments(
     "missedAppointmentsList",
     missed
   );
+
+
+  /*
+   * Reapply the current browser-side search after any
+   * appointment refresh.
+   *
+   * This does not fetch or modify appointment data.
+   */
+
+  applyAppointmentSearchFilter();
 
 }
 
@@ -14353,6 +14357,24 @@ async function createAppointmentAddonCheckout(
 /* =========================================================
    APPOINTMENTS TAB CONTROLS
    ========================================================= */
+
+document.addEventListener(
+  "input",
+  function (event) {
+
+    if (
+      event.target.id !==
+      "appointmentsSearch"
+    ) {
+      return;
+    }
+
+
+    applyAppointmentSearchFilter();
+
+  }
+);
+
 
 document.addEventListener(
   "click",
