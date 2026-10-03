@@ -4000,9 +4000,21 @@ state.location = loc;
    *
    * Instructor values override Location defaults.
    * NULL instructor values inherit from the Location.
+   *
+   * Instructor Email address fields are different:
+   * when an instructor-specific email has not been saved,
+   * they default to the currently selected instructor's
+   * account email address.
+   *
+   * A manually saved Instructor Email always takes
+   * precedence over this default.
    */
   const instructorEmailSettings =
     state.instructor || {};
+
+  const defaultInstructorEmail =
+    instructorEmailSettings.email
+      ?.trim() || "";
 
   const emailSettings = {
     confirmation_email_subject:
@@ -4031,7 +4043,7 @@ state.location = loc;
 
     instructor_confirmation_email:
       instructorEmailSettings.instructor_confirmation_email ??
-      loc.instructor_confirmation_email,
+      defaultInstructorEmail,
 
     instructor_confirmation_subject:
       instructorEmailSettings.instructor_confirmation_subject ??
@@ -4063,7 +4075,7 @@ state.location = loc;
 
     instructor_reschedule_email:
       instructorEmailSettings.instructor_reschedule_email ??
-      loc.instructor_reschedule_email,
+      defaultInstructorEmail,
 
     instructor_reschedule_subject:
       instructorEmailSettings.instructor_reschedule_subject ??
@@ -4083,7 +4095,7 @@ state.location = loc;
 
     instructor_email:
       instructorEmailSettings.instructor_email ??
-      loc.instructor_email,
+      defaultInstructorEmail,
 
     student_reminder_subject:
       instructorEmailSettings.student_reminder_subject ??
@@ -4110,7 +4122,8 @@ state.location = loc;
       loc.cancel_email_message,
 
     instructor_cancel_email:
-      instructorEmailSettings.instructor_cancel_email,
+      instructorEmailSettings.instructor_cancel_email ??
+      defaultInstructorEmail,
 
     instructor_cancel_subject:
       instructorEmailSettings.instructor_cancel_subject,
