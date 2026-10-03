@@ -3925,7 +3925,19 @@ state.location = loc;
 
     followup_message:
       instructorEmailSettings.followup_message ??
-      loc.followup_message
+      loc.followup_message,
+
+    followup_button_enabled:
+      instructorEmailSettings.followup_button_enabled ??
+      loc.followup_button_enabled,
+
+    followup_button_text:
+      instructorEmailSettings.followup_button_text ??
+      loc.followup_button_text,
+
+    followup_button_url:
+      instructorEmailSettings.followup_button_url ??
+      loc.followup_button_url
   };
 
 
