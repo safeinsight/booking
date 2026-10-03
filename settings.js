@@ -11861,6 +11861,7 @@ document.addEventListener("change", async function (event) {
    * Required checkbox for a locally-created
    * free service.
    */
+  
   /*
    * Update the maximum quantity that may be
    * purchased for an assigned free service.
@@ -11990,6 +11991,75 @@ document.addEventListener("change", async function (event) {
         String(
           service.max_quantity
         );
+
+
+      /*
+       * Give the user a lightweight confirmation
+       * that the free-service quantity has actually
+       * been saved.
+       */
+      const existingSavedMessage =
+        freeServiceMaxQuantity
+          .parentElement
+          ?.querySelector(
+            "[data-quantity-saved-message]"
+          );
+
+
+      if (existingSavedMessage) {
+        existingSavedMessage.remove();
+      }
+
+
+      const savedMessage =
+        document.createElement("div");
+
+      savedMessage.setAttribute(
+        "data-quantity-saved-message",
+        ""
+      );
+
+      savedMessage.textContent =
+        "✓ Quantity Saved";
+
+      savedMessage.style.cssText = `
+        display:inline-block;
+        margin-top:7px;
+        padding:4px 8px;
+        border-radius:999px;
+        background:#e8f5e9;
+        color:#1b5e20;
+        font-size:0.85em;
+        font-weight:600;
+        line-height:1.2;
+        opacity:1;
+        transition:opacity 0.3s ease;
+      `;
+
+
+      freeServiceMaxQuantity
+        .insertAdjacentElement(
+          "afterend",
+          savedMessage
+        );
+
+
+      window.setTimeout(
+        () => {
+
+          savedMessage.style.opacity =
+            "0";
+
+          window.setTimeout(
+            () => {
+              savedMessage.remove();
+            },
+            300
+          );
+
+        },
+        1700
+      );
 
 
     } catch (error) {
