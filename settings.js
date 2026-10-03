@@ -2393,6 +2393,113 @@ function getClientAppointmentStatus(
 }
 
 
+function renderClientAppointment(
+  appointment
+) {
+
+  const {
+    dateText,
+    timeText
+  } =
+    formatAppointmentDateTime(
+      appointment
+    );
+
+
+  const status =
+    getClientAppointmentStatus(
+      appointment
+    );
+
+
+  const serviceName =
+    appointment.service_name ||
+    "Appointment";
+
+
+  const price =
+    appointment.service_price_cents == null
+      ? ""
+      : appointment.service_price_cents === 0
+        ? "Free"
+        : `$${(
+            appointment.service_price_cents /
+            100
+          ).toFixed(2)}`;
+
+
+  return `
+    <div
+      style="
+        margin-top:12px;
+        padding:14px;
+        border:1px solid #ddd;
+        border-radius:8px;
+        background:#fafafa;
+      "
+    >
+
+      <div
+        style="
+          display:flex;
+          justify-content:space-between;
+          gap:12px;
+          align-items:flex-start;
+          flex-wrap:wrap;
+        "
+      >
+
+        <div>
+
+          <div
+            style="
+              font-weight:700;
+            "
+          >
+            ${escapeHtml(dateText)}
+          </div>
+
+          <div
+            class="muted"
+            style="
+              margin-top:3px;
+            "
+          >
+            ${escapeHtml(timeText)}
+          </div>
+
+        </div>
+
+
+        <div
+          style="
+            font-weight:700;
+          "
+        >
+          ${escapeHtml(status)}
+        </div>
+
+      </div>
+
+
+      <div
+        style="
+          margin-top:10px;
+        "
+      >
+
+        <strong>
+          Service:
+        </strong>
+
+        ${escapeHtml(serviceName)}
+
+        ${
+          price
+            ? ` — ${escapeHtml(price)}`
+            : ""
+        }
+
       </div>
 
     </div>
