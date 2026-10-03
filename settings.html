@@ -3710,8 +3710,82 @@
               <code>{{TIME}}</code>,
               <code>{{LOCATION}}</code>,
               <code>{{STUDENT_NAME}}</code>,
-              <code>{{INSTRUCTOR_NAME}}</code>
+              <code>{{INSTRUCTOR_NAME}}</code>,
+              <code>{{FOLLOWUP_BUTTON}}</code>
             </p>
+
+
+            <!-- FOLLOW-UP BUTTON -->
+
+            <div
+              style="
+                margin-top:18px;
+                padding:15px;
+                border:1px solid #ddd;
+                border-radius:8px;
+                background:#fafafa;
+              "
+            >
+
+              <strong>Follow-Up Button</strong>
+
+              <p
+                class="muted"
+                style="margin:6px 0 12px;"
+              >
+                Add a button to the student follow-up email.
+                Administrators and Managers can change the destination URL
+                and button text here.
+              </p>
+
+              <label for="followupButtonEnabled">
+                <input
+                  id="followupButtonEnabled"
+                  type="checkbox"
+                >
+                Include button in follow-up emails
+              </label>
+
+              <label
+                for="followupButtonText"
+                style="display:block; margin-top:12px;"
+              >
+                Button Text
+              </label>
+
+              <input
+                id="followupButtonText"
+                type="text"
+                maxlength="200"
+                placeholder="Learn More"
+              >
+
+              <label
+                for="followupButtonUrl"
+                style="display:block; margin-top:12px;"
+              >
+                Button URL
+              </label>
+
+              <input
+                id="followupButtonUrl"
+                type="url"
+                maxlength="1000"
+                placeholder="https://example.com"
+              >
+
+              <p
+                class="muted"
+                style="
+                  margin:8px 0 0;
+                  font-size:13px;
+                "
+              >
+                The button is generated as HTML by the booking system.
+                You do not need to paste HTML into the message box.
+              </p>
+
+            </div>
 
           </div>
 
