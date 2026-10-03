@@ -297,12 +297,12 @@ const rolePermissionDefaults = {
     organization: false,
     location: false,
     branding: false,
-    availability: true,
+    availability: false,
     booking_rules: false,
     services: false,
-    calendar: true,
+    calendar: false,
     appointments: true,
-    clients: true,
+    clients: false,
     emails: false
   }
 
