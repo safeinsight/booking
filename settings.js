@@ -2050,25 +2050,152 @@ function renderAppointments(
   result
 ) {
 
-  const counts =
-    result.counts || {};
-
-
   const appointments =
     result.appointments || {};
 
 
-  const upcoming =
-    appointments.upcoming || [];
+  /*
+   * Appointments remain in Upcoming until five minutes
+   * after their scheduled start time.
+   *
+   * This is a browser-side Appointments-tab classification
+   * rule only. It does not change appointment status,
+   * start_time, end_time, booking capacity, calendar data,
+   * or any database record.
+   *
+   * get-appointments may classify an appointment differently
+   * based on its own time boundary. Combine the server's
+   * upcoming and past arrays here, then apply the Booking
+   * Settings display rule consistently.
+   */
 
-  const past =
-    appointments.past || [];
+  const serverUpcoming =
+    Array.isArray(
+      appointments.upcoming
+    )
+      ? appointments.upcoming
+      : [];
+
+  const serverPast =
+    Array.isArray(
+      appointments.past
+    )
+      ? appointments.past
+      : [];
+
+
+  const activeAppointments =
+    [
+      ...serverUpcoming,
+      ...serverPast
+    ];
+
+
+  /*
+   * Protect against the same appointment appearing in both
+   * server arrays during a boundary transition.
+   */
+
+  const uniqueActiveAppointments =
+    Array.from(
+      new Map(
+        activeAppointments.map(
+          appointment => [
+            appointment.id,
+            appointment
+          ]
+        )
+      ).values()
+    );
+
+
+  const now =
+    Date.now();
+
+  const fiveMinutesMs =
+    5 * 60 * 1000;
+
+
+  const upcoming = [];
+  const past = [];
+
+
+  uniqueActiveAppointments.forEach(
+    appointment => {
+
+      const startTime =
+        new Date(
+          appointment.start_time
+        ).getTime();
+
+
+      /*
+       * If an appointment has an invalid start time,
+       * preserve the server's classification rather than
+       * making a new assumption in the browser.
+       */
+
+      if (!Number.isFinite(startTime)) {
+
+        if (
+          serverPast.some(
+            item =>
+              item.id === appointment.id
+          )
+        ) {
+
+          past.push(
+            appointment
+          );
+
+        } else {
+
+          upcoming.push(
+            appointment
+          );
+
+        }
+
+        return;
+      }
+
+
+      const pastCutoff =
+        startTime +
+        fiveMinutesMs;
+
+
+      if (now >= pastCutoff) {
+
+        past.push(
+          appointment
+        );
+
+      } else {
+
+        upcoming.push(
+          appointment
+        );
+
+      }
+
+    }
+  );
+
 
   const cancelled =
-    appointments.cancelled || [];
+    Array.isArray(
+      appointments.cancelled
+    )
+      ? appointments.cancelled
+      : [];
 
   const missed =
-    appointments.missed || [];
+    Array.isArray(
+      appointments.missed
+    )
+      ? appointments.missed
+      : [];
 
 
   const upcomingCount =
@@ -2084,27 +2211,36 @@ function renderAppointments(
     $("missedAppointmentsCount");
 
 
+  /*
+   * Upcoming and Past counts must use the browser-side
+   * arrays because those arrays now enforce the five-minute
+   * display rule.
+   *
+   * Cancelled and Missed remain exactly as returned by
+   * get-appointments.
+   */
+
   if (upcomingCount) {
     upcomingCount.textContent =
-      `(${counts.upcoming ?? upcoming.length})`;
+      `(${upcoming.length})`;
   }
 
 
   if (pastCount) {
     pastCount.textContent =
-      `(${counts.past ?? past.length})`;
+      `(${past.length})`;
   }
 
 
   if (cancelledCount) {
     cancelledCount.textContent =
-      `(${counts.cancelled ?? cancelled.length})`;
+      `(${cancelled.length})`;
   }
 
 
   if (missedCount) {
     missedCount.textContent =
-      `(${counts.missed ?? missed.length})`;
+      `(${missed.length})`;
   }
 
 
