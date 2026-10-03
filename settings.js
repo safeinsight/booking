@@ -281,10 +281,10 @@ const rolePermissionDefaults = {
   Instructor: {
     users: false,
     organization: false,
-    location: true,
+    location: false,
     branding: false,
     availability: true,
-    booking_rules: true,
+    booking_rules: false,
     services: false,
     calendar: true,
     appointments: true,
