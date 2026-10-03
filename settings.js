@@ -1700,7 +1700,90 @@ function renderAppointmentAddonPurchases(
 }
 
 
+function applyAppointmentSearchFilter() {
+
+  const searchInput =
+    $("appointmentsSearch");
+
+
+  if (!searchInput) {
+    return;
+  }
+
+
+  const query =
+    searchInput.value
+      .trim()
+      .toLowerCase();
+
+
+  const listIds = [
+    "upcomingAppointmentsList",
+    "pastAppointmentsList",
+    "cancelledAppointmentsList",
+    "missedAppointmentsList"
+  ];
+
+
+  listIds.forEach(listId => {
+
+    const container =
+      $(listId);
+
+
+    if (!container) {
+      return;
+    }
+
+
+    Array.from(
+      container.children
+    ).forEach(card => {
+
+      /*
+       * Only appointment cards have rendered appointment
+       * information to search.
+       *
+       * Loading / empty-state messages remain untouched.
+       */
+
+      if (
+        !card.textContent ||
+        card.classList.contains("muted")
+      ) {
+        return;
+      }
+
+
+      const searchableText =
+        card.textContent
+          .toLowerCase();
+
+
+      const matches =
+        !query ||
+        searchableText.includes(query);
+
+
+      card.style.display =
+        matches
+          ? ""
+          : "none";
+
+    });
+
+  });
+
+}
+
+
 function renderAppointmentList(
+  containerId,
+  appointments
+) {
+
+  const container =
+    $(containerId);
 
 
   if (!container) {
