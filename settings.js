@@ -4154,7 +4154,20 @@ Appointment Date: {{DATE}}
 Appointment Time: {{TIME}}
 Location: {{LOCATION}}
 Student: {{STUDENT_NAME}}
-Instructor: {{INSTRUCTOR_NAME}}`;
+Instructor: {{INSTRUCTOR_NAME}}
+
+{{FOLLOWUP_BUTTON}}`;
+
+  $("followupButtonEnabled").checked =
+    emailSettings.followup_button_enabled ?? false;
+
+  $("followupButtonText").value =
+    emailSettings.followup_button_text ||
+    "Learn More";
+
+  $("followupButtonUrl").value =
+    emailSettings.followup_button_url ||
+    "";
 
   let availabilityRules = [];
   let availabilityError = null;
@@ -7312,10 +7325,14 @@ async function loadLocations() {
       student_reminder_message,
       instructor_reminder_subject,
       instructor_reminder_message,
+
       followup_enabled,
       followup_delay_minutes,
       followup_subject,
-      followup_message
+      followup_message,
+      followup_button_enabled,
+      followup_button_text,
+      followup_button_url
     `)
     .eq("active", true)
     .order("name");
@@ -7429,7 +7446,10 @@ async function loadAllInstructors() {
         followup_enabled,
         followup_delay_minutes,
         followup_subject,
-        followup_message
+        followup_message,
+        followup_button_enabled,
+        followup_button_text,
+        followup_button_url
       `)
       .order("name");
 
@@ -9045,7 +9065,16 @@ instructor_reschedule_message:
         $("followupSubject").value.trim(),
 
       followup_message:
-        $("followupMessage").value.trim()
+        $("followupMessage").value.trim(),
+
+      followup_button_enabled:
+        $("followupButtonEnabled").checked,
+
+      followup_button_text:
+        $("followupButtonText").value.trim(),
+
+      followup_button_url:
+        $("followupButtonUrl").value.trim()
     };
 
 
@@ -12580,7 +12609,10 @@ document.addEventListener("change", async function (event) {
           followup_enabled,
           followup_delay_minutes,
           followup_subject,
-          followup_message
+          followup_message,
+          followup_button_enabled,
+          followup_button_text,
+          followup_button_url
         `)
         .eq("id", instructorId)
         .single();
