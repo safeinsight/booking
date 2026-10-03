@@ -12393,6 +12393,77 @@ document.addEventListener("change", async function (event) {
         );
 
 
+      /*
+       * Give the user a lightweight confirmation
+       * that the quantity has actually been saved.
+       *
+       * This does not change the existing save
+       * trigger or persistence behavior.
+       */
+      const existingSavedMessage =
+        stripeServiceMaxQuantity
+          .parentElement
+          ?.querySelector(
+            "[data-quantity-saved-message]"
+          );
+
+
+      if (existingSavedMessage) {
+        existingSavedMessage.remove();
+      }
+
+
+      const savedMessage =
+        document.createElement("div");
+
+      savedMessage.setAttribute(
+        "data-quantity-saved-message",
+        ""
+      );
+
+      savedMessage.textContent =
+        "✓ Quantity Saved";
+
+      savedMessage.style.cssText = `
+        display:inline-block;
+        margin-top:7px;
+        padding:4px 8px;
+        border-radius:999px;
+        background:#e8f5e9;
+        color:#1b5e20;
+        font-size:0.85em;
+        font-weight:600;
+        line-height:1.2;
+        opacity:1;
+        transition:opacity 0.3s ease;
+      `;
+
+
+      stripeServiceMaxQuantity
+        .insertAdjacentElement(
+          "afterend",
+          savedMessage
+        );
+
+
+      window.setTimeout(
+        () => {
+
+          savedMessage.style.opacity =
+            "0";
+
+          window.setTimeout(
+            () => {
+              savedMessage.remove();
+            },
+            300
+          );
+
+        },
+        1700
+      );
+
+
     } catch (error) {
 
       console.error(
