@@ -2393,110 +2393,72 @@ function getClientAppointmentStatus(
 }
 
 
-function renderClientAppointment(
-  appointment
-) {
-
-  const {
-    dateText,
-    timeText
-  } =
-    formatAppointmentDateTime(
-      appointment
-    );
-
-
-  const status =
-    getClientAppointmentStatus(
-      appointment
-    );
-
-
-  const servicesText =
-    formatAppointmentServices(
-      appointment
-    );
-
-
-  return `
-    <div
-      style="
-        margin-top:12px;
-        padding:14px;
-        border:1px solid #ddd;
-        border-radius:8px;
-        background:#fafafa;
-      "
-    >
-
-      <div
-        style="
-          display:flex;
-          justify-content:space-between;
-          gap:12px;
-          align-items:flex-start;
-          flex-wrap:wrap;
-        "
-      >
-
-        <div>
-
-          <div
-            style="
-              font-weight:700;
-            "
-          >
-            ${escapeHtml(dateText)}
-          </div>
-
-          <div
-            class="muted"
-            style="
-              margin-top:3px;
-            "
-          >
-            ${escapeHtml(timeText)}
-          </div>
-
-        </div>
-
-
-        <div
-          style="
-            font-weight:700;
-          "
-        >
-          ${escapeHtml(status)}
-        </div>
-
-      </div>
-
-
-      <div
-        style="
-          margin-top:10px;
-        "
-      >
-
-        <strong>
-          Services:
-        </strong>
-
-        <div
-          style="
-            margin-top:4px;
-            white-space:pre-line;
-          "
-        >
-          ${escapeHtml(
-            servicesText
-          )}
-        </div>
-
       </div>
 
     </div>
   `;
+
+}
+
+
+function applyClientSearchFilter() {
+
+  const searchInput =
+    $("clientsSearch");
+
+
+  if (!searchInput) {
+    return;
+  }
+
+
+  const query =
+    searchInput.value
+      .trim()
+      .toLowerCase();
+
+
+  const container =
+    $("clientsList");
+
+
+  if (!container) {
+    return;
+  }
+
+
+  Array.from(
+    container.querySelectorAll(
+      ".client-card"
+    )
+  ).forEach(card => {
+
+    /*
+     * Search only the client cards already rendered
+     * in the browser.
+     *
+     * Because each card contains the client's contact
+     * information and rendered appointment history,
+     * the search can match either client information
+     * or appointment details without another request.
+     */
+
+    const searchableText =
+      card.textContent
+        .toLowerCase();
+
+
+    const matches =
+      !query ||
+      searchableText.includes(query);
+
+
+    card.style.display =
+      matches
+        ? ""
+        : "none";
+
+  });
 
 }
 
@@ -2731,6 +2693,16 @@ function renderClients(
 
       })
       .join("");
+
+
+  /*
+   * Reapply the current browser-side search after any
+   * client refresh.
+   *
+   * This does not fetch or modify client data.
+   */
+
+  applyClientSearchFilter();
 
 }
 
@@ -14188,6 +14160,24 @@ $("copyBookingUrlBtn")?.addEventListener(
 /* =========================================================
    CLIENTS TAB CONTROLS
    ========================================================= */
+
+document.addEventListener(
+  "input",
+  function (event) {
+
+    if (
+      event.target.id !==
+      "clientsSearch"
+    ) {
+      return;
+    }
+
+
+    applyClientSearchFilter();
+
+  }
+);
+
 
 document.addEventListener(
   "click",
