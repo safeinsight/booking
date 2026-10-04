@@ -2011,10 +2011,23 @@ if (!res.ok) {
       return;
     }
 
+    /*
+     * Booking confirmation must use the instructor-specific
+     * public Location Information.
+     *
+     * Do not use the legacy locations.name value here.
+     * Multiple instructors may share the same legacy location
+     * record while maintaining independent public-facing
+     * Location Information.
+     */
+    const confirmationLocationName =
+      state.instructor?.location_name ||
+      "";
+
     $("bookingApp").querySelectorAll(".step-panel").forEach(p => p.classList.add("hidden"));
     $("success").classList.remove("hidden");
     $("successText").innerHTML =
-      `Your appointment at ${escapeHtml(state.location.name)} is confirmed for<br>` +
+      `Your appointment${confirmationLocationName ? ` at ${escapeHtml(confirmationLocationName)}` : ""} is confirmed for<br>` +
       `${formatDate(first.start, state.studentTimezone)}<br>` +
       `${formatTime(first.start, state.studentTimezone)} – ${formatTime(last.end, state.studentTimezone)}`;
     $("manageLink").href = json.manage_url || "#";
