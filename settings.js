@@ -4113,6 +4113,18 @@ state.location = loc;
       instructorEmailSettings.instructor_reminder_message ??
       loc.instructor_reminder_message,
 
+    reminder_button_enabled:
+      instructorEmailSettings.reminder_button_enabled ??
+      loc.reminder_button_enabled,
+
+    reminder_button_text:
+      instructorEmailSettings.reminder_button_text ??
+      loc.reminder_button_text,
+
+    reminder_button_url:
+      instructorEmailSettings.reminder_button_url ??
+      loc.reminder_button_url,
+
     cancel_email_subject:
       instructorEmailSettings.cancel_email_subject ??
       loc.cancel_email_subject,
@@ -4356,6 +4368,19 @@ Location: {{LOCATION}}
 {{CONFIRMATION_BUTTON}}
 
 {{MANAGE_BUTTON}}`;
+
+  $("reminderButtonEnabled").checked =
+    Boolean(
+      emailSettings.reminder_button_enabled
+    );
+
+  $("reminderButtonText").value =
+    emailSettings.reminder_button_text ||
+    "View Appointment Details";
+
+  $("reminderButtonUrl").value =
+    emailSettings.reminder_button_url ||
+    "";
 
   $("instructorReminderSubject").value =
     emailSettings.instructor_reminder_subject ||
@@ -7565,6 +7590,9 @@ async function loadLocations() {
       student_reminder_message,
       instructor_reminder_subject,
       instructor_reminder_message,
+      reminder_button_enabled,
+      reminder_button_text,
+      reminder_button_url,
 
       followup_enabled,
       followup_delay_minutes,
@@ -7672,6 +7700,9 @@ async function loadAllInstructors() {
         student_reminder_message,
         instructor_reminder_subject,
         instructor_reminder_message,
+        reminder_button_enabled,
+        reminder_button_text,
+        reminder_button_url,
 
         cancel_email_subject,
         cancel_email_message,
@@ -9294,6 +9325,15 @@ instructor_reschedule_message:
 
       instructor_reminder_message:
         $("instructorReminderMessage").value.trim(),
+
+      reminder_button_enabled:
+        $("reminderButtonEnabled").checked,
+
+      reminder_button_text:
+        $("reminderButtonText").value.trim(),
+
+      reminder_button_url:
+        $("reminderButtonUrl").value.trim(),
 
       followup_enabled:
         $("followupEnabled").checked,
@@ -12976,6 +13016,9 @@ document.addEventListener("change", async function (event) {
           student_reminder_message,
           instructor_reminder_subject,
           instructor_reminder_message,
+          reminder_button_enabled,
+          reminder_button_text,
+          reminder_button_url,
 
           cancel_email_subject,
           cancel_email_message,
