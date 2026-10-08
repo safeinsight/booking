@@ -4861,6 +4861,9 @@ document
                           location_id:
                             state.location.id,
 
+                          instructor_id:
+                            state.instructor.id,
+
                           google_calendar_id:
                             calendarId,
 
