@@ -4740,6 +4740,9 @@ document
         const blockingCalendars =
           calendarResult.blocking_calendars || [];
 
+        const availableCalendars =
+          calendarResult.available_calendars || [];
+
 
         if (connection?.google_calendar_id) {
 
@@ -4775,7 +4778,7 @@ document
         if (blockingCalendars.length) {
 
           calendarInfo +=
-            "<strong>Calendars That Block Availability</strong><br>";
+            "<strong>Currently Saved Blocking Calendars</strong><br>";
 
           calendarInfo += blockingCalendars
             .map(calendar => {
@@ -4813,168 +4816,121 @@ document
 
         if (controls) {
 
-          controls.innerHTML =
-            blockingCalendars.length
-              ? blockingCalendars.map(calendar => {
+          if (!connection?.google_calendar_id) {
 
-                  return `
-                    <div style="margin-top:12px;">
-                      <strong>
-                        ${escapeHtml(calendar.calendar_name)}
-                      </strong>
-                    </div>
-                  `;
+            controls.innerHTML =
+              "Connect Google Calendar to view available calendars.";
 
-                }).join("")
-              : "No blocking calendars configured.";
+          } else if (!availableCalendars.length) {
 
+            controls.innerHTML = `
+              <div
+                class="muted"
+                style="margin-top:12px;"
+              >
+                No additional Google calendars were discovered.
+              </div>
+            `;
 
-          controls
-            .querySelectorAll(".blocking-calendar-toggle")
-            .forEach(button => {
+          } else {
 
-              button.addEventListener(
-                "click",
-                async () => {
+            controls.innerHTML = `
+              <div
+                style="
+                  margin-top:16px;
+                  padding:14px;
+                  border:1px solid #ddd;
+                  border-radius:8px;
+                  background:#fafafa;
+                "
+              >
 
-                  const calendarId =
-                    button.dataset.calendarId;
+                <div
+                  style="
+                    font-weight:700;
+                    margin-bottom:6px;
+                  "
+                >
+                  Google Calendars Available To This Instructor
+                </div>
 
-                  const currentlyEnabled =
-                    button.dataset.calendarEnabled === "true";
+                <div
+                  class="muted"
+                  style="
+                    margin-bottom:12px;
+                  "
+                >
+                  Read-only calendar discovery test. No settings can be changed here yet.
+                </div>
 
-                  const newEnabled =
-                    !currentlyEnabled;
+                ${availableCalendars
+                  .map(calendar => {
 
-                  button.disabled = true;
-                  button.textContent = "Saving...";
+                    const primary =
+                      calendar.is_primary
+                        ? " — Primary"
+                        : "";
 
+                    const blockingStatus =
+                      calendar.enabled
+                        ? "Blocks Availability"
+                        : "Does Not Block Availability";
 
-                  try {
+                    const savedStatus =
+                      calendar.saved
+                        ? "Saved"
+                        : "Not Saved";
 
-                    const response = await fetch(
-                      `${cfg.functionsBaseUrl}/update-blocking-calendar`,
-                      {
-                        method: "POST",
-                        headers: await getAuthHeaders(),
-                        body: JSON.stringify({
-                          location_id:
-                            state.location.id,
+                    return `
+                      <div
+                        style="
+                          padding:10px 0;
+                          border-top:1px solid #e5e5e5;
+                        "
+                      >
 
-                          instructor_id:
-                            state.instructor.id,
+                        <div>
+                          <strong>
+                            ${escapeHtml(
+                              calendar.calendar_name
+                            )}
+                          </strong>
+                          ${primary}
+                        </div>
 
-                          google_calendar_id:
-                            calendarId,
+                        <div
+                          class="muted"
+                          style="
+                            margin-top:3px;
+                            overflow-wrap:anywhere;
+                          "
+                        >
+                          ${escapeHtml(
+                            calendar.google_calendar_id
+                          )}
+                        </div>
 
-                          enabled:
-                            newEnabled
-                        })
-                      }
-                    );
+                        <div
+                          style="
+                            margin-top:5px;
+                          "
+                        >
+                          ${blockingStatus}
+                          — ${savedStatus}
+                        </div>
 
+                      </div>
+                    `;
 
-                    const result =
-                      await response.json();
+                  })
+                  .join("")}
 
+              </div>
+            `;
 
-                    if (
-                      !response.ok ||
-                      result.error
-                    ) {
-
-                      throw new Error(
-                        result.error ||
-                        "Unable to update blocking calendar."
-                      );
-
-                    }
-
-
-                    button.dataset.calendarEnabled =
-                      String(newEnabled);
-
-                    button.textContent =
-                      newEnabled
-                        ? "Disable"
-                        : "Enable";
-
-
-                    const statusText =
-                      newEnabled
-                        ? " — Enabled"
-                        : " — Disabled";
-
-
-                    const calendarName =
-                      result.calendar?.calendar_name ||
-                      button
-                        .parentElement
-                        .querySelector("strong")
-                        .textContent;
-
-
-                    button
-                      .parentElement
-                      .querySelector("strong")
-                      .textContent =
-                        calendarName;
-
-
-                    $("calendarInfo").innerHTML =
-                      $("calendarInfo").innerHTML
-                        .replace(
-                          / — (Enabled|Disabled)/g,
-                          ""
-                        );
-
-
-                    /*
-                     * Reload calendar information after
-                     * a blocking-calendar change.
-                     */
-                    await loadLocationIntoForm(
-                      state.location
-                    );
-
-
-                  } catch (error) {
-
-                    console.error(
-                      "BLOCKING CALENDAR UPDATE ERROR:",
-                      error
-                    );
-
-                    button.textContent =
-                      currentlyEnabled
-                        ? "Disable"
-                        : "Enable";
-
-
-                    showCustomAlert(
-                      error.message ||
-                      "Unable to update blocking calendar."
-                    );
-
-
-                  } finally {
-
-                    button.disabled = false;
-
-                  }
-
-                }
-              );
-
-            });
+          }
 
         }
-
-
-        $("calendarInfo").innerHTML =
-          connection?.google_calendar_id
-            ? calendarInfo
-            : "No calendar connection found.";
 
 
       } catch (error) {
