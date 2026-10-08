@@ -4819,7 +4819,7 @@ document
           if (!connection?.google_calendar_id) {
 
             controls.innerHTML =
-              "Connect Google Calendar to view available calendars.";
+              "Connect Google Calendar to manage blocking calendars.";
 
           } else if (!availableCalendars.length) {
 
@@ -4851,7 +4851,7 @@ document
                     margin-bottom:6px;
                   "
                 >
-                  Google Calendars Available To This Instructor
+                  Calendars That Block Availability
                 </div>
 
                 <div
@@ -4860,7 +4860,7 @@ document
                     margin-bottom:12px;
                   "
                 >
-                  Read-only calendar discovery test. No settings can be changed here yet.
+                  Select the Google calendars that should prevent bookings when they contain busy events.
                 </div>
 
                 ${availableCalendars
@@ -4871,55 +4871,86 @@ document
                         ? " — Primary"
                         : "";
 
-                    const blockingStatus =
-                      calendar.enabled
-                        ? "Blocks Availability"
-                        : "Does Not Block Availability";
-
-                    const savedStatus =
-                      calendar.saved
-                        ? "Saved"
-                        : "Not Saved";
-
                     return `
-                      <div
+                      <label
                         style="
+                          display:flex;
+                          gap:10px;
+                          align-items:flex-start;
                           padding:10px 0;
+                          margin:0;
                           border-top:1px solid #e5e5e5;
+                          cursor:pointer;
                         "
                       >
 
-                        <div>
-                          <strong>
+                        <input
+                          type="checkbox"
+                          class="blocking-calendar-toggle"
+                          data-calendar-id="${escapeAttr(
+                            calendar.google_calendar_id
+                          )}"
+                          data-calendar-name="${escapeAttr(
+                            calendar.calendar_name
+                          )}"
+                          data-calendar-primary="${
+                            calendar.is_primary
+                              ? "true"
+                              : "false"
+                          }"
+                          ${
+                            calendar.enabled
+                              ? "checked"
+                              : ""
+                          }
+                          style="
+                            margin-top:3px;
+                            flex:0 0 auto;
+                          "
+                        >
+
+                        <span
+                          style="
+                            min-width:0;
+                          "
+                        >
+
+                          <span
+                            style="
+                              display:block;
+                              font-weight:700;
+                            "
+                          >
                             ${escapeHtml(
                               calendar.calendar_name
                             )}
-                          </strong>
-                          ${primary}
-                        </div>
+                            ${primary}
+                          </span>
 
-                        <div
-                          class="muted"
-                          style="
-                            margin-top:3px;
-                            overflow-wrap:anywhere;
-                          "
-                        >
-                          ${escapeHtml(
-                            calendar.google_calendar_id
-                          )}
-                        </div>
+                          <span
+                            class="muted"
+                            style="
+                              display:block;
+                              margin-top:3px;
+                              overflow-wrap:anywhere;
+                            "
+                          >
+                            ${escapeHtml(
+                              calendar.google_calendar_id
+                            )}
+                          </span>
 
-                        <div
-                          style="
-                            margin-top:5px;
-                          "
-                        >
-                          ${blockingStatus}
-                          — ${savedStatus}
-                        </div>
+                          <span
+                            class="blocking-calendar-save-status muted"
+                            style="
+                              display:block;
+                              margin-top:4px;
+                            "
+                          ></span>
 
-                      </div>
+                        </span>
+
+                      </label>
                     `;
 
                   })
@@ -4927,6 +4958,151 @@ document
 
               </div>
             `;
+
+
+            controls
+              .querySelectorAll(
+                ".blocking-calendar-toggle"
+              )
+              .forEach(checkbox => {
+
+                checkbox.addEventListener(
+                  "change",
+                  async () => {
+
+                    const calendarId =
+                      checkbox.dataset.calendarId;
+
+                    const calendarName =
+                      checkbox.dataset.calendarName;
+
+                    const isPrimary =
+                      checkbox.dataset.calendarPrimary ===
+                      "true";
+
+                    const newEnabled =
+                      checkbox.checked;
+
+                    const previousEnabled =
+                      !newEnabled;
+
+                    const row =
+                      checkbox.closest("label");
+
+                    const status =
+                      row?.querySelector(
+                        ".blocking-calendar-save-status"
+                      );
+
+
+                    checkbox.disabled = true;
+
+                    if (status) {
+                      status.textContent =
+                        "Saving...";
+                    }
+
+
+                    try {
+
+                      const response =
+                        await fetch(
+                          `${cfg.functionsBaseUrl}/update-blocking-calendar`,
+                          {
+                            method: "POST",
+
+                            headers:
+                              await getAuthHeaders(),
+
+                            body: JSON.stringify({
+                              location_id:
+                                state.location.id,
+
+                              instructor_id:
+                                state.instructor.id,
+
+                              google_calendar_id:
+                                calendarId,
+
+                              calendar_name:
+                                calendarName,
+
+                              is_primary:
+                                isPrimary,
+
+                              enabled:
+                                newEnabled
+                            })
+                          }
+                        );
+
+
+                      const result =
+                        await response.json();
+
+
+                      if (
+                        !response.ok ||
+                        result.error
+                      ) {
+
+                        throw new Error(
+                          result.error ||
+                          "Unable to update blocking calendar."
+                        );
+
+                      }
+
+
+                      if (status) {
+
+                        status.textContent =
+                          newEnabled
+                            ? "Blocks availability — Saved"
+                            : "Does not block availability — Saved";
+
+                      }
+
+
+                    } catch (error) {
+
+                      console.error(
+                        "BLOCKING CALENDAR UPDATE ERROR:",
+                        error
+                      );
+
+
+                      /*
+                       * The server did not confirm the change.
+                       * Restore the checkbox to the state that
+                       * was displayed before the user changed it.
+                       */
+                      checkbox.checked =
+                        previousEnabled;
+
+
+                      if (status) {
+                        status.textContent =
+                          "Save failed.";
+                      }
+
+
+                      showCustomAlert(
+                        error.message ||
+                        "Unable to update blocking calendar."
+                      );
+
+
+                    } finally {
+
+                      checkbox.disabled = false;
+
+                    }
+
+                  }
+                );
+
+              });
 
           }
 
