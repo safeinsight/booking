@@ -2897,7 +2897,7 @@
       id="otherUserEmailEnabled"
       type="checkbox"
     >
-    <strong>CC Other User(s)</strong>
+    <strong id="otherUserEmailEnabledLabel">CC Other User(s)</strong>
   </label>
 
 
@@ -2949,7 +2949,7 @@
         margin-top:20px;
       "
     >
-      Other User Email Subject
+      <span id="otherUserEmailSubjectLabel">Other User Email Subject</span>
     </label>
 
     <input
@@ -2983,7 +2983,10 @@
       "
     ></textarea>
 
-    <p class="muted">
+    <p
+      id="otherUserEmailPlaceholders"
+      class="muted"
+    >
       Available placeholders:
       <code>{{DATE}}</code>,
       <code>{{TIME}}</code>,
