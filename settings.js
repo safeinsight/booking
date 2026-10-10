@@ -9903,11 +9903,20 @@ function renderActiveOtherUserEmailSettings() {
   const enabled =
     $("otherUserEmailEnabled");
 
+  const enabledLabel =
+    $("otherUserEmailEnabledLabel");
+
+  const subjectLabel =
+    $("otherUserEmailSubjectLabel");
+
   const subject =
     $("otherUserEmailSubject");
 
   const message =
     $("otherUserEmailMessage");
+
+  const placeholders =
+    $("otherUserEmailPlaceholders");
 
 
   if (
@@ -9916,6 +9925,64 @@ function renderActiveOtherUserEmailSettings() {
     !message
   ) {
     return;
+  }
+
+
+  const isAccounting =
+    eventType === "accounting";
+
+
+  /*
+   * Accounting uses the same underlying Other User Email
+   * configuration and recipient machinery as every other
+   * Email event.
+   *
+   * Only the visible language changes so the purpose of
+   * this internal notification is clear to the user.
+   */
+  if (enabledLabel) {
+
+    enabledLabel.textContent =
+      isAccounting
+        ? "Send Accounting Notification"
+        : "CC Other User(s)";
+
+  }
+
+
+  if (subjectLabel) {
+
+    subjectLabel.textContent =
+      isAccounting
+        ? "Accounting Email Subject"
+        : "Other User Email Subject";
+
+  }
+
+
+  if (placeholders) {
+
+    placeholders.innerHTML =
+      isAccounting
+        ? `
+          Available placeholders:
+          <code>{{DATE}}</code>,
+          <code>{{TIME}}</code>,
+          <code>{{LOCATION}}</code>,
+          <code>{{STUDENT_NAME}}</code>,
+          <code>{{INSTRUCTOR_NAME}}</code>,
+          <code>{{SERVICES}}</code>,
+          <code>{{AMOUNT}}</code>
+        `
+        : `
+          Available placeholders:
+          <code>{{DATE}}</code>,
+          <code>{{TIME}}</code>,
+          <code>{{LOCATION}}</code>,
+          <code>{{STUDENT_NAME}}</code>,
+          <code>{{INSTRUCTOR_NAME}}</code>
+        `;
+
   }
 
 
