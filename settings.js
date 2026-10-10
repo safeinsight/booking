@@ -9933,6 +9933,42 @@ function renderActiveOtherUserEmailSettings() {
 
 
   /*
+   * Give Accounting a useful first-use template.
+   *
+   * These defaults apply only when no saved Accounting
+   * configuration exists yet. Once the user saves an
+   * Accounting configuration, the saved values govern.
+   *
+   * Accounting remains disabled and no recipients are
+   * selected automatically.
+   */
+  const accountingDefaultSubject =
+    "Payment Collection Required — Manual Appointment";
+
+  const accountingDefaultMessage =
+`Manual Paid Appointment Scheduled
+
+Student: {{STUDENT_NAME}}
+Instructor: {{INSTRUCTOR_NAME}}
+Service(s): {{SERVICES}}
+Appointment: {{DATE}} at {{TIME}}
+Location: {{LOCATION}}
+Amount: {{AMOUNT}}
+
+Booking Settings did not collect payment for this manually scheduled appointment. Review payment/collection as appropriate.`;
+
+  const displayedSubject =
+    isAccounting && !settings
+      ? accountingDefaultSubject
+      : settings?.subject || "";
+
+  const displayedMessage =
+    isAccounting && !settings
+      ? accountingDefaultMessage
+      : settings?.message || "";
+
+
+  /*
    * Accounting uses the same underlying Other User Email
    * configuration and recipient machinery as every other
    * Email event.
@@ -9990,10 +10026,10 @@ function renderActiveOtherUserEmailSettings() {
     settings?.enabled === true;
 
   subject.value =
-    settings?.subject || "";
+    displayedSubject;
 
   message.value =
-    settings?.message || "";
+    displayedMessage;
 
 
   const selectedUserIds =
