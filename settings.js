@@ -8264,7 +8264,10 @@ document
             "missed",
 
           followupEmailTab:
-            "followup"
+            "followup",
+
+          accountingEmailTab:
+            "accounting"
         };
 
 
@@ -9311,11 +9314,11 @@ async function saveEmailSettings(button) {
 
 
     /*
-     * Send all six Other User Email configurations together.
+     * Send all seven Other User Email configurations together.
      *
      * Events that have never been configured are still sent
      * as explicit disabled records. This gives every instructor
-     * a complete, predictable six-event configuration after
+     * a complete, predictable seven-event configuration after
      * the first Email Settings save.
      */
     const otherUserEventTypes = [
@@ -9324,7 +9327,8 @@ async function saveEmailSettings(button) {
       "reminder",
       "cancel",
       "missed",
-      "followup"
+      "followup",
+      "accounting"
     ];
 
 
