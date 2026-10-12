@@ -867,6 +867,29 @@ function selectSlot(index) {
   const clicked = slots[index];
   if (!clicked || clicked.blocked || clicked.remaining <= 0) return;
 
+  /*
+   * Multi-slot bookings must be contiguous in actual time.
+   *
+   * Displayed slots are sorted chronologically, but two neighboring
+   * array items may belong to separate availability windows.
+   *
+   * Example:
+   *   12:00 PM–1:00 PM
+   *   6:00 PM–7:00 PM
+   *
+   * Those slots may be adjacent in the displayed array, but they
+   * must never be combined into one appointment.
+   */
+  const touchesStart =
+    state.selectedStart !== null &&
+    new Date(clicked.end).getTime() ===
+      new Date(slots[state.selectedStart].start).getTime();
+
+  const touchesEnd =
+    state.selectedEnd !== null &&
+    new Date(clicked.start).getTime() ===
+      new Date(slots[state.selectedEnd].end).getTime();
+
   // First click starts a contiguous booking.
   if (state.selectedStart === null) {
     state.selectedStart = index;
@@ -874,21 +897,44 @@ function selectSlot(index) {
   } else if (index === state.selectedStart) {
     // Clicking start again clears selection.
     state.selectedStart = state.selectedEnd = null;
-  } else if (index === state.selectedStart - 1) {
-    // Extend backward only if consecutive and available.
+  } else if (
+    index === state.selectedStart - 1 &&
+    touchesStart
+  ) {
+    // Extend backward only when the actual times touch.
     state.selectedStart = index;
-  } else if (index === state.selectedEnd + 1) {
-    // Extend forward only if consecutive and available.
+  } else if (
+    index === state.selectedEnd + 1 &&
+    touchesEnd
+  ) {
+    // Extend forward only when the actual times touch.
     state.selectedEnd = index;
   } else {
-    // A non-adjacent click starts a new contiguous selection.
+    // A non-contiguous click starts a new selection.
     state.selectedStart = state.selectedEnd = index;
   }
 
-  // Validate every slot in the selected range.
+  /*
+   * Validate every slot in the selected range.
+   *
+   * In addition to availability/capacity, verify that every
+   * neighboring slot touches the previous slot in actual time.
+   */
   if (state.selectedStart !== null) {
     for (let i = state.selectedStart; i <= state.selectedEnd; i++) {
-      if (slots[i].blocked || slots[i].remaining <= 0) {
+      if (
+        slots[i].blocked ||
+        slots[i].remaining <= 0
+      ) {
+        state.selectedEnd = i - 1;
+        break;
+      }
+
+      if (
+        i > state.selectedStart &&
+        new Date(slots[i].start).getTime() !==
+          new Date(slots[i - 1].end).getTime()
+      ) {
         state.selectedEnd = i - 1;
         break;
       }
@@ -898,13 +944,21 @@ function selectSlot(index) {
   const buttons = [...document.querySelectorAll(".slot")];
   buttons.forEach((b, i) => {
     b.classList.toggle("start", i === state.selectedStart);
-    b.classList.toggle("selected", state.selectedStart !== null && i >= state.selectedStart && i <= state.selectedEnd);
+    b.classList.toggle(
+      "selected",
+      state.selectedStart !== null &&
+        i >= state.selectedStart &&
+        i <= state.selectedEnd
+    );
   });
 
   if (state.selectedStart !== null) {
-    const first = slots[state.selectedStart], last = slots[state.selectedEnd];
+    const first = slots[state.selectedStart];
+    const last = slots[state.selectedEnd];
+
     $("selectionSummary").textContent =
       `Selected: ${formatTime(first.start, state.studentTimezone)} – ${formatTime(last.end, state.studentTimezone)}`;
+
     $("toInfoBtn").disabled = false;
   } else {
     $("selectionSummary").textContent = "";
