@@ -12,6 +12,17 @@ const state = {
   calendarMonth: null,
 
   /*
+   * Existing Stripe Checkout Session for a booking
+   * that has already been created but has not yet
+   * completed payment.
+   *
+   * This is browser-tab state only. It prevents a
+   * browser Back action from creating a second booking
+   * or a second Stripe Checkout Session.
+   */
+  pendingCheckoutUrl: null,
+
+  /*
    * Additional instructor-specific questions that
    * the student must answer before booking.
    *
@@ -47,6 +58,124 @@ selectedServiceQuantities: {},
 
 const $ = id => document.getElementById(id);
 const panels = [...document.querySelectorAll(".step-panel")];
+
+/*
+ * Pending Stripe Checkout recovery
+ *
+ * create-booking currently gives paid bookings a
+ * 30-minute payment hold. Keep the browser-side
+ * recovery record for the same maximum period.
+ */
+const PENDING_CHECKOUT_STORAGE_KEY =
+  "safeInsightPendingCheckout";
+
+const PENDING_CHECKOUT_LIFETIME_MS =
+  30 * 60 * 1000;
+
+function clearPendingCheckout() {
+  state.pendingCheckoutUrl = null;
+
+  try {
+    sessionStorage.removeItem(
+      PENDING_CHECKOUT_STORAGE_KEY
+    );
+  } catch (error) {
+    console.warn(
+      "Unable to clear pending checkout recovery:",
+      error
+    );
+  }
+}
+
+function savePendingCheckout(checkoutUrl) {
+  if (!checkoutUrl) {
+    return;
+  }
+
+  state.pendingCheckoutUrl =
+    checkoutUrl;
+
+  try {
+    sessionStorage.setItem(
+      PENDING_CHECKOUT_STORAGE_KEY,
+      JSON.stringify({
+        checkout_url:
+          checkoutUrl,
+
+        expires_at:
+          Date.now() +
+          PENDING_CHECKOUT_LIFETIME_MS,
+
+        page_url:
+          window.location.href
+      })
+    );
+  } catch (error) {
+    console.warn(
+      "Unable to save pending checkout recovery:",
+      error
+    );
+  }
+}
+
+function restorePendingCheckout() {
+  let savedCheckout = null;
+
+  try {
+    const raw =
+      sessionStorage.getItem(
+        PENDING_CHECKOUT_STORAGE_KEY
+      );
+
+    if (!raw) {
+      return false;
+    }
+
+    savedCheckout =
+      JSON.parse(raw);
+
+  } catch (error) {
+    console.warn(
+      "Unable to read pending checkout recovery:",
+      error
+    );
+
+    clearPendingCheckout();
+
+    return false;
+  }
+
+  if (
+    !savedCheckout ||
+    !savedCheckout.checkout_url ||
+    !savedCheckout.expires_at ||
+    Date.now() >=
+      Number(savedCheckout.expires_at) ||
+    savedCheckout.page_url !==
+      window.location.href
+  ) {
+    clearPendingCheckout();
+
+    return false;
+  }
+
+  state.pendingCheckoutUrl =
+    savedCheckout.checkout_url;
+
+  $("confirmBtn").disabled =
+    false;
+
+  $("confirmBtn").textContent =
+    "Return to Secure Payment";
+
+  $("submitStatus").textContent =
+    "Your booking has been created and is being held while payment is pending.";
+
+  return true;
+}
+
+const originalConfirmButtonText =
+  $("confirmBtn").textContent;
 
 function showStep(n) {
   panels.forEach(p => p.classList.toggle("hidden", Number(p.dataset.panel) !== n));
@@ -1929,6 +2058,21 @@ $("studentForm").addEventListener("submit", e => {
 document.querySelectorAll(".back").forEach(b => b.addEventListener("click", () => showStep(Number(b.dataset.back))));
 
 $("confirmBtn").addEventListener("click", async () => {
+
+  /*
+   * If this booking already has a Stripe Checkout
+   * Session, return to that same session.
+   *
+   * Do NOT create another booking or another
+   * Checkout Session.
+   */
+  if (state.pendingCheckoutUrl) {
+    window.location.href =
+      state.pendingCheckoutUrl;
+
+    return;
+  }
+
   $("confirmBtn").disabled = true;
   $("submitStatus").textContent = "Checking availability and creating your booking…";
 
@@ -2061,7 +2205,21 @@ if (!res.ok) {
 }
 
     if (json.checkout_url) {
-      window.location.href = json.checkout_url;
+
+      /*
+       * The booking and Stripe Checkout Session now
+       * exist. Preserve this exact Checkout URL before
+       * leaving the Booking Page so browser Back can
+       * safely resume payment without creating another
+       * booking.
+       */
+      savePendingCheckout(
+        json.checkout_url
+      );
+
+      window.location.href =
+        json.checkout_url;
+
       return;
     }
 
@@ -2096,6 +2254,28 @@ function escapeHtml(v) {
 }
 function escapeAttr(v) { return escapeHtml(v); }
 
+/*
+ * Browsers may restore this page directly from the
+ * back-forward cache after the student leaves Stripe
+ * with the browser Back button.
+ *
+ * Re-establish the payment-resume UI from the saved
+ * Checkout Session rather than leaving Confirm Booking
+ * disabled in its pre-navigation state.
+ */
+window.addEventListener(
+  "pageshow",
+  () => {
+
+    if (
+      restorePendingCheckout()
+    ) {
+      showStep(4);
+    }
+
+  }
+);
+
 (async function init() {
   try {
     /*
@@ -2111,7 +2291,19 @@ function escapeAttr(v) { return escapeHtml(v); }
 
     $("loading").classList.add("hidden");
     $("bookingApp").classList.remove("hidden");
-    showStep(1);
+
+    if (
+      restorePendingCheckout()
+    ) {
+      showStep(4);
+
+    } else {
+      $("confirmBtn").textContent =
+        originalConfirmButtonText;
+
+      showStep(1);
+    }
+
   } catch (err) {
     showError(err.message);
   }
