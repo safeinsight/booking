@@ -10373,13 +10373,91 @@ function renderInstructorList() {
 
             <div
               style="
-                font-size:21px;
-                font-weight:700;
-                line-height:1.3;
+                display:flex;
+                align-items:center;
+                gap:10px;
+                flex-wrap:wrap;
               "
             >
-              ${escapeHtml(displayName)}
+
+              <div
+                data-user-name-display="${escapeAttr(settingsUser.user_id || "")}"
+                style="
+                  font-size:21px;
+                  font-weight:700;
+                  line-height:1.3;
+                "
+              >
+                ${escapeHtml(displayName)}
+              </div>
+
+              ${
+                instructor?.id && settingsUser.user_id
+                  ? `
+                    <button
+                      type="button"
+                      class="secondary"
+                      data-edit-user-name="${escapeAttr(settingsUser.user_id)}"
+                      style="
+                        padding:5px 10px;
+                        font-size:14px;
+                      "
+                    >
+                      Edit Name
+                    </button>
+                  `
+                  : ""
+              }
+
             </div>
+
+
+            ${
+              instructor?.id && settingsUser.user_id
+                ? `
+                  <div
+                    data-user-name-editor="${escapeAttr(settingsUser.user_id)}"
+                    class="hidden"
+                    style="
+                      margin-top:10px;
+                      display:flex;
+                      align-items:center;
+                      gap:10px;
+                      flex-wrap:wrap;
+                    "
+                  >
+
+                    <input
+                      type="text"
+                      data-user-name-input="${escapeAttr(settingsUser.user_id)}"
+                      value="${escapeAttr(instructor.name || "")}"
+                      maxlength="200"
+                      style="
+                        width:260px;
+                        max-width:100%;
+                      "
+                    >
+
+                    <button
+                      type="button"
+                      class="primary"
+                      data-save-user-name="${escapeAttr(settingsUser.user_id)}"
+                    >
+                      Save
+                    </button>
+
+                    <button
+                      type="button"
+                      class="secondary"
+                      data-cancel-user-name="${escapeAttr(settingsUser.user_id)}"
+                    >
+                      Cancel
+                    </button>
+
+                  </div>
+                `
+                : ""
+            }
 
 
             <!-- USER EMAIL -->
@@ -10802,6 +10880,8 @@ document.addEventListener("click", async function (event) {
     event.target.closest("[data-temporary-password]") ||
     event.target.closest("[data-confirm-temporary-password]") ||
     event.target.closest("[data-set-temporary-password]") ||
+    event.target.closest("[data-edit-user-name]") ||
+    event.target.closest("[data-user-name-editor]") ||
     event.target.closest("[data-deactivate-user]") ||
     event.target.closest("[data-delete-user]") ||
     event.target.closest("[data-resend-invite]")
@@ -13546,6 +13626,261 @@ document.addEventListener("change", async function (event) {
       error.message ||
       "Unable to update user role."
     );
+
+  }
+
+});
+
+
+document.addEventListener("click", async function (event) {
+
+  const editButton =
+    event.target.closest("[data-edit-user-name]");
+
+  if (editButton) {
+
+    const userId =
+      editButton.getAttribute("data-edit-user-name");
+
+    if (!userId) return;
+
+    const editor =
+      document.querySelector(
+        `[data-user-name-editor="${CSS.escape(userId)}"]`
+      );
+
+    const input =
+      document.querySelector(
+        `[data-user-name-input="${CSS.escape(userId)}"]`
+      );
+
+    if (!editor || !input) return;
+
+    editor.classList.remove("hidden");
+    editButton.classList.add("hidden");
+
+    input.focus();
+    input.select();
+
+    return;
+  }
+
+
+  const cancelButton =
+    event.target.closest("[data-cancel-user-name]");
+
+  if (cancelButton) {
+
+    const userId =
+      cancelButton.getAttribute("data-cancel-user-name");
+
+    if (!userId) return;
+
+    const instructor =
+      state.instructors.find(
+        item =>
+          item.user_id === userId
+      );
+
+    const editor =
+      document.querySelector(
+        `[data-user-name-editor="${CSS.escape(userId)}"]`
+      );
+
+    const input =
+      document.querySelector(
+        `[data-user-name-input="${CSS.escape(userId)}"]`
+      );
+
+    const editButtonForUser =
+      document.querySelector(
+        `[data-edit-user-name="${CSS.escape(userId)}"]`
+      );
+
+    if (input && instructor) {
+      input.value =
+        instructor.name || "";
+    }
+
+    if (editor) {
+      editor.classList.add("hidden");
+    }
+
+    if (editButtonForUser) {
+      editButtonForUser.classList.remove("hidden");
+    }
+
+    return;
+  }
+
+
+  const saveButton =
+    event.target.closest("[data-save-user-name]");
+
+  if (!saveButton) return;
+
+  const userId =
+    saveButton.getAttribute("data-save-user-name");
+
+  if (!userId) return;
+
+  const instructor =
+    state.instructors.find(
+      item =>
+        item.user_id === userId
+    );
+
+  if (!instructor) {
+
+    showCustomAlert(
+      "This Booking Settings user does not have an instructor record."
+    );
+
+    renderInstructorList();
+
+    return;
+  }
+
+
+  const input =
+    document.querySelector(
+      `[data-user-name-input="${CSS.escape(userId)}"]`
+    );
+
+  const newName =
+    input?.value.trim() || "";
+
+  if (!newName) {
+
+    showCustomAlert(
+      "Enter a name before saving."
+    );
+
+    input?.focus();
+
+    return;
+  }
+
+
+  const previousName =
+    instructor.name || "";
+
+  if (newName === previousName) {
+
+    renderInstructorList();
+
+    return;
+  }
+
+
+  saveButton.disabled = true;
+
+  try {
+
+    const authHeaders =
+      await getAuthHeaders();
+
+    const response =
+      await fetch(
+        `${cfg.functionsBaseUrl}/manage-settings-users`,
+        {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify({
+            action: "update_name",
+            user_id: userId,
+            name: newName
+          })
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if (
+      !response.ok ||
+      result.error ||
+      !result.instructor
+    ) {
+
+      console.error(
+        "MANAGE SETTINGS USERS RESPONSE:",
+        result
+      );
+
+      const errorMessage =
+        typeof result.error === "string"
+          ? result.error
+          : result.error?.message ||
+            result.message ||
+            JSON.stringify(
+              result.error || result
+            );
+
+      throw new Error(
+        errorMessage ||
+        "Unable to update user name."
+      );
+    }
+
+
+    /*
+     * The backend owns the authoritative update.
+     * Only synchronize the existing in-memory
+     * instructor after that update succeeds.
+     */
+    instructor.name =
+      result.instructor.name;
+
+    /*
+     * If this is the currently selected instructor,
+     * keep every visible instructor-name surface
+     * synchronized without reloading unrelated
+     * Booking Settings data.
+     */
+    if (
+      state.instructor?.id ===
+      instructor.id
+    ) {
+
+      state.instructor =
+        instructor;
+
+      updateSelectedInstructorBanner();
+
+      const calendarSelectedName =
+        $("calendarSelectedName");
+
+      if (calendarSelectedName) {
+        calendarSelectedName.textContent =
+          instructor.name;
+      }
+
+    }
+
+
+    /*
+     * Refresh only the User cards.
+     * The instructor id, user id, slug, services,
+     * availability, appointments, and other
+     * instructor configuration remain untouched.
+     */
+    renderInstructorList();
+
+
+  } catch (error) {
+
+    console.error(
+      "UPDATE USER NAME ERROR:",
+      error
+    );
+
+    showCustomAlert(
+      error.message ||
+      "Unable to update user name."
+    );
+
+    saveButton.disabled = false;
 
   }
 
